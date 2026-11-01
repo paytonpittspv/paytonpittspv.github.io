@@ -18,6 +18,21 @@
   .rows .r.sel { background: var(--accent-soft); margin: 0 -12px; padding-left: 12px; padding-right: 12px; border-radius: 10px; border-bottom-color: transparent; }
   .del { border: 0 !important; background: transparent !important; color: var(--muted); padding: 2px 6px; font-size: 13px; margin-left: 8px; }
   .del:hover { color: var(--bad); }
+  .vwrap { position: relative; width: fit-content; max-width: 100%; margin: 12px auto 8px; border-radius: 12px; overflow: hidden; background: #000; }
+  .vwrap video { display: block; max-width: 100%; max-height: 70vh; width: auto; height: auto; }
+  .vwrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: manipulation; }
+  .vwrap.tapping canvas { cursor: crosshair; }
+  .vprompt { position: absolute; left: 50%; top: 10px; transform: translateX(-50%); background: rgba(0,0,0,.72); color: #fff; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
+  #vSeek { width: 100%; accent-color: var(--accent); }
+  .vctl { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 6px 0 12px; }
+  .vctl button { min-width: 48px; font-variant-numeric: tabular-nums; }
+  .vctl .foot-note { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .steps { margin: 0 0 10px; padding-left: 20px; color: var(--muted); font-size: 14px; display: grid; gap: 4px; }
+  .steps b { color: var(--text); font-weight: 600; }
+  button.done::after { content: " \2713"; color: var(--good); font-weight: 700; }
+  button.now { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .vres { display: grid; grid-template-columns: 1fr auto; gap: 14px; align-items: center; margin-top: 16px; }
+  @media (max-width: 520px) { .vres { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -73,6 +88,57 @@
     <h3 class="section-label" style="margin-top:18px">Sessions</h3>
     <div class="rows" id="histRows"></div>
     <div class="summary"><span class="l" id="dSumL"></span><span class="b" id="dSumB"></span></div>
+  </section>
+
+  <section class="panel" id="vidPanel">
+    <div class="chart-head"><h2 class="section-label">Measure from video</h2><span class="foot-note">Video stays on this device</span></div>
+    <p class="foot-note" style="margin:0 0 12px">Film from the side with the phone still (tripod or a steady hand) and the athlete's whole body in frame. Slow motion (120 or 240 fps) gives the most precise number.</p>
+    <div class="row">
+      <button class="primary" id="vRecBtn">Record a jump</button>
+      <button id="vUpBtn">Upload video</button>
+      <input type="file" accept="video/*" capture="environment" id="vRec" hidden>
+      <input type="file" accept="video/*" id="vUp" hidden>
+    </div>
+    <div id="vTool" hidden>
+      <div class="row" style="justify-content:space-between;margin-top:16px">
+        <div class="seg" role="group" aria-label="Method"><button data-m="flight">Flight time</button><button data-m="cal">Hurdle calibration</button></div>
+        <label style="min-width:150px"><span>Frame rate</span><select id="vFps"></select></label>
+      </div>
+      <p class="foot-note" id="mInfo" style="margin:10px 0 0"></p>
+      <div class="vwrap"><video id="vid" playsinline muted preload="auto"></video><canvas id="vCan"></canvas><div class="vprompt" id="vPrompt" hidden></div></div>
+      <input type="range" id="vSeek" min="0" max="1000" value="0" step="1" aria-label="Scrub video">
+      <div class="vctl">
+        <button data-step="-10" aria-label="Back 10 frames">−10</button><button data-step="-1" aria-label="Back 1 frame">◀ 1</button>
+        <button id="vPlay">Play</button>
+        <button data-step="1" aria-label="Forward 1 frame">1 ▶</button><button data-step="10" aria-label="Forward 10 frames">+10</button>
+        <span class="foot-note" id="vTime"></span>
+      </div>
+      <div id="mFlight">
+        <ol class="steps">
+          <li>Step to the <b>first frame with both feet off the ground</b>, then tap Mark takeoff.</li>
+          <li>Step to the <b>first frame where a foot touches down</b>, then tap Mark landing.</li>
+        </ol>
+        <div class="row"><button id="bTake">Mark takeoff</button><button id="bLand">Mark landing</button></div>
+      </div>
+      <div id="mCal" hidden>
+        <ol class="steps">
+          <li>Set a hurdle <b>right where the athlete jumps</b>, the same distance from the camera, and enter its height.</li>
+          <li>Tap the <b>top of the hurdle bar</b>, then the <b>ground at its base</b>.</li>
+          <li>On a frame where the athlete stands tall, tap their <b>hip</b> (hands on hips makes this easy).</li>
+          <li>Step to the <b>highest point of the jump</b> and tap the same spot on the hip.</li>
+        </ol>
+        <div class="row">
+          <label style="width:150px"><span>Hurdle height (<span class="unitLbl">in</span>)</span><input id="cH" type="number" step="0.1" min="1" placeholder="e.g. 30"></label>
+        </div>
+        <div class="row taps" style="margin-top:10px">
+          <button data-tap="h1">Hurdle top</button><button data-tap="h2">Hurdle base</button><button data-tap="p1">Hip standing</button><button data-tap="p2">Hip at peak</button>
+        </div>
+      </div>
+      <div class="vres">
+        <div class="bigstat accent"><div class="k">Measured jump height</div><div class="v" id="vOut">–</div><div class="s" id="vOutS">Mark the video to get a number</div></div>
+        <button class="primary" id="vUse" disabled>Use this height</button>
+      </div>
+    </div>
   </section>
 
   <section class="panel">
@@ -269,6 +335,152 @@
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'jump-tests.csv'; a.click();
   });
   let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(renderDetail, 120); });
+  // ---- Measure from video: flight time or hurdle calibration. Nothing is uploaded; the file is read in the browser. ----
+  const V = { m: 'flight', take: null, land: null, pts: {}, tap: null, cm: null, url: null, auto: null };
+  const vid = $('vid'), can = $('vCan'), ctx = can.getContext('2d'), G = 9.81;
+  const FPS = [24, 25, 30, 50, 60, 120, 240], ORDER = ['h1', 'h2', 'p1', 'p2'];
+  const PROMPT = { h1: 'Tap the top of the hurdle bar', h2: 'Tap the ground at the hurdle base', p1: 'Standing tall: tap the hip', p2: 'Highest point: tap the same spot on the hip' };
+  const fps = () => +$('vFps').value;
+  const frame = () => Math.floor(vid.currentTime * fps() + 1e-3);
+  $('vFps').innerHTML = FPS.map(f => `<option value="${f}">${f} fps${f >= 120 ? ' · slow-mo' : ''}</option>`).join('');
+  $('vFps').value = 30;
+  $('vRecBtn').addEventListener('click', () => $('vRec').click());
+  $('vUpBtn').addEventListener('click', () => $('vUp').click());
+  [$('vRec'), $('vUp')].forEach(inp => inp.addEventListener('change', () => { const f = inp.files[0]; if (f) openVideo(f); inp.value = ''; }));
+
+  function openVideo(file) {
+    if (V.url) URL.revokeObjectURL(V.url);
+    V.url = URL.createObjectURL(file);
+    Object.assign(V, { take: null, land: null, pts: {}, cm: null, auto: null, tap: V.m === 'cal' ? 'h1' : null });
+    $('vTool').hidden = false;
+    vid.muted = true;
+    vid.addEventListener('loadedmetadata', () => {
+      $('vSeek').max = Math.round(vid.duration * 1000);
+      can.width = vid.videoWidth || 640; can.height = vid.videoHeight || 360;
+      detectFps(); vRender();
+    }, { once: true });
+    vid.src = V.url;
+    $('vidPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Play a moment at quarter speed and read the gap between real video frames, then snap to a standard rate.
+  function detectFps() {
+    if (!('requestVideoFrameCallback' in HTMLVideoElement.prototype)) return;
+    const times = [];
+    const done = () => {
+      vid.pause(); vid.playbackRate = 1; vid.currentTime = 0.5 / fps();
+      const d = times.slice(1).map((t, i) => t - times[i]).filter(x => x > 1e-4).sort((a, b) => a - b);
+      if (d.length >= 3) {
+        const est = 1 / d[Math.floor(d.length * .2)];
+        V.auto = FPS.reduce((a, b) => Math.abs(b - est) < Math.abs(a - est) ? b : a);
+        $('vFps').value = V.auto;
+      }
+      vRender();
+    };
+    const cb = (now, md) => { times.push(md.mediaTime); if (times.length < 14 && !vid.ended) vid.requestVideoFrameCallback(cb); else done(); };
+    vid.requestVideoFrameCallback(cb);
+    vid.playbackRate = 0.25;
+    vid.play().catch(() => { vid.playbackRate = 1; });
+    setTimeout(() => { if (!vid.paused) done(); }, 2500);
+  }
+
+  function step(n) { vid.pause(); const k = Math.max(0, frame() + n); vid.currentTime = Math.min(vid.duration || 0, (k + 0.5) / fps()); }
+  document.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => step(+b.dataset.step)));
+  $('vPlay').addEventListener('click', () => { if (vid.paused) { vid.playbackRate = 1; vid.play(); } else vid.pause(); });
+  $('vSeek').addEventListener('input', (e) => { vid.pause(); vid.currentTime = e.target.value / 1000; });
+  ['timeupdate', 'seeked', 'play', 'pause'].forEach(ev => vid.addEventListener(ev, vTick));
+  function vTick() {
+    $('vPlay').textContent = vid.paused ? 'Play' : 'Pause';
+    $('vSeek').value = Math.round(vid.currentTime * 1000);
+    $('vTime').textContent = `Frame ${frame()} · ${vid.currentTime.toFixed(3)} s`;
+  }
+
+  document.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => {
+    V.m = b.dataset.m; V.tap = V.m === 'cal' ? (ORDER.find(k => !V.pts[k]) || null) : null; vRender();
+  }));
+  $('bTake').addEventListener('click', () => { V.take = frame(); vRender(); });
+  $('bLand').addEventListener('click', () => { V.land = frame(); vRender(); });
+  document.querySelectorAll('[data-tap]').forEach(b => b.addEventListener('click', () => { V.tap = b.dataset.tap; vRender(); }));
+  can.addEventListener('pointerdown', (e) => {
+    if (V.m !== 'cal' || !V.tap) return;
+    const r = can.getBoundingClientRect();
+    V.pts[V.tap] = { x: (e.clientX - r.left) / r.width * can.width, y: (e.clientY - r.top) / r.height * can.height, f: frame() };
+    V.tap = ORDER.find(k => !V.pts[k]) || null;
+    vRender();
+  });
+  $('cH').addEventListener('input', vRender);
+  $('vFps').addEventListener('change', vRender);
+  document.querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', vRender));
+
+  function compute() {
+    if (V.m === 'flight') {
+      if (V.take == null || V.land == null) return null;
+      const n = V.land - V.take;
+      if (n <= 0) return { err: 'Landing has to come after takeoff.' };
+      const dt = 1 / fps(), t = n * dt, h = (s) => G * s * s / 8 * 100;
+      return { cm: h(t), pm: (h(t + dt) - h(Math.max(0, t - dt))) / 2, sub: `${Math.round(t * 1000)} ms in the air (${n} frames at ${fps()} fps)` };
+    }
+    const { h1, h2, p1, p2 } = V.pts, H = parseFloat($('cH').value);
+    if (!h1 || !h2 || !p1 || !p2) return null;
+    if (!(H > 0)) return { err: 'Enter the hurdle height.' };
+    const px = Math.hypot(h1.x - h2.x, h1.y - h2.y);
+    if (px < 10) return { err: 'Tap the hurdle top and base farther apart.' };
+    const scale = fromUnit(H) / px, rise = (p1.y - p2.y) * scale;
+    if (rise <= 0) return { err: 'The peak tap needs to be higher than the standing tap.' };
+    const tapPx = 2;  // assume each tap lands within about 2 video pixels
+    return { cm: rise, pm: 2 * tapPx * scale + rise * (2 * tapPx / px), sub: `Hip rise from standing tall · 1 px = ${toUnit(scale).toFixed(2)} ${state.unit}` };
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, can.width, can.height);
+    if (V.m !== 'cal') return;
+    const u = Math.max(1.5, can.width / 360), c = getComputedStyle(document.documentElement).getPropertyValue('--chart-1').trim() || '#7cb2ff';
+    const dot = (p, col) => { ctx.beginPath(); ctx.arc(p.x, p.y, 4.5 * u, 0, 7); ctx.fillStyle = col; ctx.fill(); ctx.lineWidth = 1.5 * u; ctx.strokeStyle = '#fff'; ctx.stroke(); };
+    const label = (t, x, y) => { ctx.font = `600 ${12 * u}px Inter, system-ui, sans-serif`; const w = ctx.measureText(t).width + 12 * u; x = Math.min(Math.max(x, 4), can.width - w - 4); ctx.fillStyle = 'rgba(0,0,0,.72)'; ctx.fillRect(x, y - 13 * u, w, 18 * u); ctx.fillStyle = '#fff'; ctx.fillText(t, x + 6 * u, y); };
+    const { h1, h2, p1, p2 } = V.pts, H = parseFloat($('cH').value);
+    if (h1 && h2) { ctx.beginPath(); ctx.moveTo(h1.x, h1.y); ctx.lineTo(h2.x, h2.y); ctx.lineWidth = 3 * u; ctx.strokeStyle = '#ffd166'; ctx.stroke(); if (H > 0) label(`${H} ${state.unit} hurdle`, h1.x + 10 * u, (h1.y + h2.y) / 2); }
+    [h1, h2].forEach(p => p && dot(p, '#ffd166'));
+    ctx.setLineDash([6 * u, 6 * u]);
+    [p1, p2].forEach(p => { if (!p) return; ctx.beginPath(); ctx.moveTo(0, p.y); ctx.lineTo(can.width, p.y); ctx.lineWidth = 1.5 * u; ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.stroke(); });
+    ctx.setLineDash([]);
+    if (p1 && p2) { const x = p2.x; ctx.beginPath(); ctx.moveTo(x, p1.y); ctx.lineTo(x, p2.y); ctx.lineWidth = 3 * u; ctx.strokeStyle = c; ctx.stroke(); const r = compute(); if (r && r.cm) label(`${toUnit(r.cm).toFixed(1)} ${state.unit}`, x + 10 * u, (p1.y + p2.y) / 2); }
+    [p1, p2].forEach(p => p && dot(p, c));
+  }
+
+  function vRender() {
+    document.querySelectorAll('[data-m]').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === V.m));
+    $('mFlight').hidden = V.m !== 'flight'; $('mCal').hidden = V.m !== 'cal';
+    const ms = (1000 / fps()).toFixed(1);
+    $('mInfo').textContent = V.m === 'flight'
+      ? `Time in the air gives the height (h = g·t² / 8), so no calibration is needed. At ${fps()} fps each frame is ${ms} ms${V.auto ? ` (frame rate read from the video)` : ''}.`
+      : 'The hurdle sets the scale, then the hip’s rise is measured. This reads the rise from standing tall, so it usually comes out a little higher than flight time. Use one method per athlete so the trend stays comparable.';
+    $('bTake').textContent = V.take == null ? 'Mark takeoff' : `Takeoff · frame ${V.take}`;
+    $('bLand').textContent = V.land == null ? 'Mark landing' : `Landing · frame ${V.land}`;
+    $('bTake').classList.toggle('done', V.take != null); $('bLand').classList.toggle('done', V.land != null);
+    document.querySelectorAll('[data-tap]').forEach(b => { b.classList.toggle('done', !!V.pts[b.dataset.tap]); b.classList.toggle('now', V.tap === b.dataset.tap); });
+    const tapping = V.m === 'cal' && !!V.tap;
+    document.querySelector('.vwrap').classList.toggle('tapping', tapping);
+    $('vPrompt').hidden = !tapping; if (tapping) $('vPrompt').textContent = PROMPT[V.tap];
+    const r = compute();
+    V.cm = r && r.cm ? r.cm : null;
+    if (!r) { $('vOut').textContent = '–'; $('vOutS').textContent = V.m === 'flight' ? 'Mark takeoff and landing to get a number' : 'Enter the hurdle height and make all four taps'; }
+    else if (r.err) { $('vOut').textContent = '–'; $('vOutS').textContent = r.err; }
+    else {
+      $('vOut').innerHTML = `${toUnit(r.cm).toFixed(1)}<small>${state.unit}</small>`;
+      const high = r.cm > 110 ? ' · Higher than almost any jump: check the frame rate (slow-mo exports can change it).' : '';
+      $('vOutS').textContent = `± ${toUnit(r.pm).toFixed(1)} ${state.unit} · ${r.sub}${high}`;
+    }
+    $('vUse').disabled = V.cm == null;
+    document.querySelectorAll('.unitLbl').forEach(el => el.textContent = state.unit);
+    draw(); vTick();
+  }
+  $('vUse').addEventListener('click', () => {
+    if (V.cm == null) return;
+    $('fHeight').value = toUnit(V.cm).toFixed(1);
+    $('logForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    ($('fName').value ? $('fHeight') : $('fName')).focus({ preventScroll: true });
+  });
+  vRender();
   render();
 })();
 </script>
