@@ -3,41 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Pole Vault Energy Calculator</title>
-<meta name="description" content="Estimate pole vault height from takeoff speed using energy conservation, or find the speed needed for a target bar.">
+<title>Vault Energy Calculator</title>
+<meta name="description" content="Estimate pole vault height from take-off speed using energy conservation, or find the speed needed for a target bar.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
 <link rel="stylesheet" href="../assets/style.css?v=3">
+<link rel="stylesheet" href="../assets/lab.css?v=1">
 <style>
-  .layout { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 16px; align-items: start; }
-  @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
   .field { display: grid; gap: 6px; }
-  .field .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--muted); }
-  .field .top output { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
-  .field + .field { margin-top: 14px; }
-  .big { font-size: 44px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1; }
-  .big small { font-size: 16px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
-  #stack, #curve { width: 100%; display: block; }
-  .formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: var(--surface-2); padding: 10px 12px; border-radius: 8px; overflow-x: auto; }
-  .split { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+  .field + .field { margin-top: 16px; }
+  .field .top { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; color: var(--muted); gap: 8px; }
+  .field .top output { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .hint { font-size: 12px; color: var(--muted); }
+  .formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; background: var(--surface-2); padding: 10px 12px; border-radius: 8px; overflow-x: auto; }
+  .target-row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; margin-bottom: 4px; }
+  .target-row input { width: 140px; }
 </style>
 </head>
 <body>
 <div class="topbar"><div class="wrap">
   <a class="brand" href="../">Payton Pitts<span>.</span></a>
   <nav>
-    <a href="../jump/">Jump Tracker</a>
-    <a href="./" aria-current="page">Vault Calculator</a>
-    <a href="../testing/">Testing Day</a>
+    <a href="../gatecam/">GateCamLive</a>
+    <a href="../team/">Team Stats</a>
+    <a href="../chord/">Chord Season</a>
   </nav>
 </div></div>
 
-<main class="wrap stack">
-  <header class="page">
-    <h1>Pole Vault Energy Calculator</h1>
-    <p class="muted">Speed on the runway is the biggest single driver of vault height. This uses energy conservation to show how much height your takeoff speed can buy, and what speed you'd need for the bar you're chasing.</p>
+<main class="wrap lab stack">
+  <header class="lab-head">
+    <div class="eyebrow">Biomechanics</div>
+    <h1>Vault Energy</h1>
+    <p class="sub">Pole vault · energy model</p>
+    <p class="lede">Speed on the runway is the biggest single driver of vault height. This turns take-off speed into an estimated bar using energy conservation, and works backwards from the bar you're chasing.</p>
   </header>
 
-  <div class="toolbar row" style="justify-content:space-between">
+  <div class="row" style="justify-content:space-between">
     <div class="seg" role="group" aria-label="Units">
       <button data-unit="m">meters</button>
       <button data-unit="ft">feet</button>
@@ -45,102 +47,90 @@
     <button id="resetBtn" class="ghost">Reset to defaults</button>
   </div>
 
-  <div class="layout">
-    <section class="card">
-      <h2>Inputs</h2>
+  <section class="bigstats">
+    <div class="bigstat accent"><div class="k">Estimated bar</div><div class="v" id="rBar"></div><div class="s" id="rBarAlt"></div></div>
+    <div class="bigstat"><div class="k">At take-off</div><div class="v" id="rSpeed"></div><div class="s" id="rMph"></div></div>
+  </section>
 
-      <div class="field">
-        <div class="top"><span>Speed source</span></div>
-        <div class="seg" role="group" aria-label="Speed source">
-          <button data-src="speed">Takeoff speed</button>
-          <button data-src="split">Last 5 m time</button>
-        </div>
+  <section class="panel">
+    <div class="chart-head"><h2 class="section-label">Bar height across take-off speeds</h2>
+      <div class="legend2"><span><i></i>Estimate</span><span><i class="detail"></i>Detail</span></div></div>
+    <div id="curve"></div>
+  </section>
+
+  <section class="panel">
+    <h2 class="section-label">Where the height comes from</h2>
+    <div class="rows" id="parts"></div>
+    <div class="summary"><span class="l">Estimated bar</span><span class="b" id="sumBar"></span></div>
+  </section>
+
+  <section class="panel">
+    <h2 class="section-label">Energy at take-off</h2>
+    <div class="rows" id="energy"></div>
+    <div class="summary"><span class="l">Every 0.1 m/s faster</span><span class="b" id="sumPer"></span></div>
+  </section>
+
+  <section class="panel">
+    <h2 class="section-label">What speed do I need?</h2>
+    <div class="target-row"><label><span>Target bar (<span class="uLbl"></span>)</span><input id="target" type="number" step="0.01" inputmode="decimal"></label></div>
+    <div class="rows" id="need"></div>
+    <div class="summary"><span class="l" id="needL"></span><span class="b" id="needB"></span></div>
+  </section>
+
+  <section class="panel">
+    <h2 class="section-label">Your numbers</h2>
+    <div class="field">
+      <div class="top"><span>Speed source</span></div>
+      <div class="seg" role="group" aria-label="Speed source">
+        <button data-src="speed">Take-off speed</button>
+        <button data-src="split">Last 5 m time</button>
       </div>
+    </div>
+    <div class="field" id="speedField">
+      <div class="top"><span>Take-off speed</span><output id="oSpeed"></output></div>
+      <input id="speed" type="range" min="5" max="10.5" step="0.05">
+      <span class="hint">Horizontal speed at take-off, in m/s.</span>
+    </div>
+    <div class="field" id="splitField">
+      <div class="top"><span>Time over the last 5 m</span><output id="oSplit"></output></div>
+      <input id="split" type="range" min="0.46" max="1" step="0.005">
+      <span class="hint">From timing gates or video. Speed = 5 m ÷ time.</span>
+    </div>
+    <div class="field">
+      <div class="top"><span>Athlete height</span><output id="oHeight"></output></div>
+      <input id="athH" type="range" min="1.5" max="2.05" step="0.01">
+      <span class="hint">Used to estimate center of mass height at take-off (about 0.68 × height, up on the toes with arms raised).</span>
+    </div>
+    <div class="field">
+      <div class="top"><span>Energy kept</span><output id="oEff"></output></div>
+      <input id="eff" type="range" min="0.8" max="1" step="0.01">
+      <span class="hint">Share of runway energy that turns into height. Losses come from the take-off and pole bend.</span>
+    </div>
+    <div class="field">
+      <div class="top"><span>Extra from swing and push-off</span><output id="oPush"></output></div>
+      <input id="push" type="range" min="0" max="0.8" step="0.01">
+      <span class="hint">Height the athlete adds with their own muscle work on the pole.</span>
+    </div>
+    <div class="field">
+      <div class="top"><span>Center of mass over the bar</span><output id="oClear"></output></div>
+      <input id="clear" type="range" min="0" max="0.4" step="0.01">
+      <span class="hint">How far above the bar the center of mass peaks during clearance.</span>
+    </div>
+  </section>
 
-      <div class="field" id="speedField">
-        <div class="top"><span>Takeoff speed</span><output id="oSpeed"></output></div>
-        <input id="speed" type="range" min="5" max="10.5" step="0.05">
-        <span class="hint">Horizontal speed at takeoff, in m/s.</span>
-      </div>
-
-      <div class="field" id="splitField">
-        <div class="top"><span>Time over the last 5 m</span><output id="oSplit"></output></div>
-        <input id="split" type="range" min="0.46" max="1" step="0.005">
-        <span class="hint">From timing gates or video. Speed = 5 m ÷ time.</span>
-      </div>
-
-      <div class="field">
-        <div class="top"><span>Athlete height</span><output id="oHeight"></output></div>
-        <input id="athH" type="range" min="1.5" max="2.05" step="0.01">
-        <span class="hint">Used to estimate center of mass height at takeoff (about 0.68 × height, up on the toes with arms raised).</span>
-      </div>
-
-      <div class="field">
-        <div class="top"><span>Energy kept</span><output id="oEff"></output></div>
-        <input id="eff" type="range" min="0.8" max="1" step="0.01">
-        <span class="hint">Share of runway energy that turns into height. Losses come from the takeoff and pole bend.</span>
-      </div>
-
-      <div class="field">
-        <div class="top"><span>Extra from swing and push-off</span><output id="oPush"></output></div>
-        <input id="push" type="range" min="0" max="0.8" step="0.01">
-        <span class="hint">Height the athlete adds with their own muscle work on the pole.</span>
-      </div>
-
-      <div class="field">
-        <div class="top"><span>Center of mass over the bar</span><output id="oClear"></output></div>
-        <input id="clear" type="range" min="0" max="0.4" step="0.01">
-        <span class="hint">How far above the bar the CoM peaks during clearance.</span>
-      </div>
-    </section>
-
-    <section class="stack">
-      <div class="card">
-        <div class="split">
-          <div class="stat"><span class="k">Estimated bar height</span><span class="big" id="rBar"></span></div>
-          <div class="stat"><span class="k">Takeoff speed</span><span class="v" id="rSpeed"></span></div>
-          <div class="stat"><span class="k">Peak center of mass</span><span class="v" id="rPeak"></span></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Where the height comes from</h3>
-        <svg id="stack" height="120" role="img" aria-label="Breakdown of estimated height"></svg>
-      </div>
-
-      <div class="card">
-        <div class="row" style="justify-content:space-between;align-items:center">
-          <h3 style="margin:0">Speed vs. height</h3>
-          <span class="hint">Every 0.1 m/s ≈ <strong id="rPer"></strong></span>
-        </div>
-        <svg id="curve" height="240" role="img" aria-label="Estimated bar height across takeoff speeds"></svg>
-      </div>
-
-      <div class="card">
-        <h3>What speed do I need?</h3>
-        <div class="row">
-          <label><span>Target bar (<span class="uLbl"></span>)</span>
-            <input id="target" type="number" step="0.01" style="width:140px">
-          </label>
-          <div class="stat" style="margin-left:8px"><span class="k">Speed needed</span><span class="v" id="rNeed" style="font-size:22px"></span></div>
-          <div class="stat" style="margin-left:8px"><span class="k">vs. your speed</span><span class="v" id="rGap" style="font-size:22px"></span></div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <div class="card">
-    <h3>The math</h3>
-    <p class="muted small">At takeoff the vaulter has kinetic energy from the run, ½mv². In a perfect system all of it turns into height (mgh), so the height gained is v² ÷ 2g. Mass cancels out, which is why speed matters so much: height grows with the square of speed.</p>
-    <div class="formula">bar ≈ CoM at takeoff + energy kept × v² / (2 × 9.81) + swing/push-off − CoM over bar</div>
-    <p class="muted small" style="margin-top:10px">This is a simplified model for building intuition and setting targets. Real results also depend on grip height, pole stiffness, plant timing, and technique, and the default knobs are rough values, not measured ones. Tune them to match an athlete's real PRs and the model gets a lot more useful.</p>
-  </div>
+  <section class="panel">
+    <h2 class="section-label">The math</h2>
+    <p class="muted small">At take-off the vaulter has kinetic energy from the run, ½mv². In a perfect system all of it turns into height (mgh), so the height gained is v² ÷ 2g. Mass cancels out, which is why speed matters so much: height grows with the square of speed.</p>
+    <div class="formula">bar ≈ CoM at take-off + energy kept × v² / (2 × 9.81) + swing/push-off − CoM over bar</div>
+    <p class="foot-note" style="margin-top:10px">A simplified model for building intuition and setting targets. Real results also depend on grip height, pole stiffness, plant timing and technique, and the default settings are rough values, not measured ones. Tune them to match an athlete's real PRs and the model gets a lot more useful.</p>
+  </section>
 </main>
 
 <footer class="site"><div class="wrap">
   Built by Payton Pitts · <a href="../">All apps</a>
 </div></footer>
 
+<script src="../assets/lab.js?v=1"></script>
 <script>
 (() => {
   const G = 9.81, FT = 3.28084, KEY = 'pp-vault-v1';
@@ -150,23 +140,24 @@
   try { s = { ...DEF, ...JSON.parse(localStorage.getItem(KEY) || '{}') }; } catch { s = { ...DEF }; }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} };
 
-  const len = (m) => {
-    if (s.unit === 'm') return m.toFixed(2) + ' m';
-    const totalIn = m * FT * 12;
-    const ft = Math.floor(totalIn / 12), inch = totalIn - ft * 12;
-    return `${ft}' ${inch.toFixed(1)}"`;
-  };
+  const ftIn = (m) => { const t = m * FT * 12, f = Math.floor(t / 12), i = t - f * 12; return `${f}' ${i.toFixed(1)}"`; };
+  const len = (m) => s.unit === 'm' ? m.toFixed(2) + ' m' : ftIn(m);
+  const alt = (m) => s.unit === 'm' ? ftIn(m) : m.toFixed(2) + ' m';
   const lenShort = (m) => s.unit === 'm' ? m.toFixed(2) : (m * FT).toFixed(2);
   const mph = (v) => (v * 2.23694).toFixed(1);
 
   const speed = () => s.src === 'speed' ? s.speed : 5 / s.split;
   const comTakeoff = () => s.athH * 0.68;
-  const peak = (v) => comTakeoff() + s.eff * v * v / (2 * G) + s.push;
+  const fromSpeed = (v) => s.eff * v * v / (2 * G);
+  const peak = (v) => comTakeoff() + fromSpeed(v) + s.push;
   const bar = (v) => peak(v) - s.clear;
-  const needed = (b) => {
-    const rise = b + s.clear - comTakeoff() - s.push;
-    return rise > 0 ? Math.sqrt(rise * 2 * G / s.eff) : 0;
+  const needed = (b) => { const rise = b + s.clear - comTakeoff() - s.push; return rise > 0 ? Math.sqrt(rise * 2 * G / s.eff) : 0; };
+  const big = (m) => {
+    if (s.unit === 'm') return `${m.toFixed(2)}<small>m</small>`;
+    const t = m * FT * 12; let f = Math.floor(t / 12), i = Math.round(t - f * 12); if (i === 12) { f++; i = 0; }
+    return `${f}'${i}<small>"</small>`;
   };
+  const row = (l, m, b, cls = '') => `<div class="r ${cls}"><span class="l">${l}</span><span class="m">${m}</span><span class="b">${b}</span></div>`;
 
   function render() {
     document.querySelectorAll('[data-unit]').forEach(b => b.setAttribute('aria-pressed', b.dataset.unit === s.unit));
@@ -176,7 +167,7 @@
     ['speed', 'split', 'athH', 'eff', 'push', 'clear'].forEach(k => $(k).value = s[k]);
     document.querySelectorAll('.uLbl').forEach(e => e.textContent = s.unit);
 
-    const v = speed();
+    const v = speed(), b = bar(v);
     $('oSpeed').textContent = `${s.speed.toFixed(2)} m/s (${mph(s.speed)} mph)`;
     $('oSplit').textContent = `${s.split.toFixed(3)} s → ${(5 / s.split).toFixed(2)} m/s`;
     $('oHeight').textContent = len(s.athH);
@@ -184,77 +175,51 @@
     $('oPush').textContent = len(s.push);
     $('oClear').textContent = len(s.clear);
 
-    $('rBar').innerHTML = len(bar(v)).replace(/ m$/, '<small> m</small>');
-    $('rSpeed').innerHTML = `${v.toFixed(2)} <small>m/s</small>`;
-    $('rPeak').textContent = len(peak(v));
-    $('rPer').textContent = len(bar(v + 0.05) - bar(v - 0.05));
+    $('rBar').innerHTML = big(b);
+    $('rBarAlt').textContent = alt(b);
+    $('rSpeed').innerHTML = `${v.toFixed(1)}<small>m/s</small>`;
+    $('rMph').textContent = `${mph(v)} mph · ${v.toFixed(2)} m/s`;
 
-    if (s.target == null) s.target = +lenShort(Math.round(bar(v) * 10 + 1) / 10);
+    const parts = [['Center of mass at take-off', comTakeoff()], ['From runway speed', fromSpeed(v)], ['Swing and push-off', s.push]];
+    $('parts').innerHTML = parts.map(([l, m]) => row(l, `${Math.round(m / peak(v) * 100)} %`, len(m))).join('')
+      + row('Center of mass over the bar', '', '− ' + len(s.clear));
+    $('sumBar').textContent = len(b);
+
+    const ke = v * v / 2, per = bar(v + 0.05) - bar(v - 0.05);
+    $('energy').innerHTML = row('Kinetic energy', 'per kg of body mass', `${ke.toFixed(1)} J`)
+      + row('Turned into height', `${Math.round(s.eff * 100)} % kept`, `${(ke * s.eff).toFixed(1)} J`)
+      + row('Height gained from speed', 'v² ÷ 2g', len(fromSpeed(v)))
+      + row('Peak center of mass', 'before clearance', len(peak(v)));
+    $('sumPer').textContent = '≈ ' + (s.unit === 'm' ? (per * 100).toFixed(1) + ' cm' : (per * FT * 12).toFixed(1) + ' in') + ' higher';
+
+    if (s.target == null) s.target = +lenShort(Math.round(b * 10 + 1) / 10);
     if (document.activeElement !== $('target')) $('target').value = s.target;
-    const tM = s.unit === 'm' ? s.target : s.target / FT;
-    const need = needed(tM);
-    $('rNeed').innerHTML = need ? `${need.toFixed(2)} <small>m/s</small>` : '–';
-    const gap = need - v;
-    $('rGap').innerHTML = need ? `${gap > 0 ? '+' : ''}${gap.toFixed(2)} <small>m/s</small>` : '–';
-    $('rGap').style.color = gap > 0 ? 'var(--warn)' : 'var(--good)';
+    const tM = s.unit === 'm' ? s.target : s.target / FT, need = needed(tM), gap = need - v;
+    $('need').innerHTML = row('Target bar', alt(tM), len(tM))
+      + row('Speed needed', need ? `${mph(need)} mph` : '', need ? `${need.toFixed(2)} m/s` : '–')
+      + row('Your speed now', `${mph(v)} mph`, `${v.toFixed(2)} m/s`);
+    $('needL').textContent = gap > 0 ? 'Speed to find' : 'Already fast enough';
+    $('needB').textContent = need ? `${gap > 0 ? '+' : ''}${gap.toFixed(2)} m/s` : '–';
+    $('needB').className = 'b ' + (gap > 0 ? '' : 'good');
 
-    drawStack(v);
-    drawCurve(v);
+    drawCurve(v, need);
   }
 
-  function drawStack(v) {
-    const svg = $('stack');
-    const W = svg.clientWidth || 600, H = 120;
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    const parts = [
-      { k: 'CoM at takeoff', m: comTakeoff(), c: 'var(--chart-3)' },
-      { k: 'From speed', m: s.eff * v * v / (2 * G), c: 'var(--chart-1)' },
-      { k: 'Swing/push', m: s.push, c: 'var(--chart-2)' },
-    ];
-    const total = parts.reduce((a, p) => a + p.m, 0);
-    const sx = (m) => m / total * (W - 2);
-    let x = 1, out = '';
-    parts.forEach(p => {
-      const w = sx(p.m);
-      out += `<rect x="${x}" y="30" width="${Math.max(w - 2, 0)}" height="34" rx="5" fill="${p.c}"/>`;
-      if (w > 70) {
-        out += `<text x="${x + 8}" y="84" style="fill:var(--text);font-weight:600">${len(p.m)}</text>`;
-        out += `<text x="${x + 8}" y="100">${p.k}</text>`;
-      }
-      x += w;
-    });
-    const bx = sx(total - s.clear);
-    out += `<line x1="${bx}" x2="${bx}" y1="18" y2="70" stroke="var(--text)" stroke-width="2" stroke-dasharray="3 3"/>`;
-    out += `<text x="${bx}" y="12" text-anchor="${bx > W - 60 ? 'end' : 'middle'}" style="fill:var(--text);font-weight:600">bar</text>`;
-    svg.innerHTML = out;
-  }
-
-  function drawCurve(v) {
-    const svg = $('curve');
-    const W = svg.clientWidth || 600, H = 240, P = { l: 46, r: 14, t: 14, b: 30 };
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    const v0 = 6, v1 = 10.5;
+  function drawCurve(v, need) {
+    const box = $('curve'), W = Math.max(300, Math.min(720, box.clientWidth || 680)), H = Math.round(Math.min(320, Math.max(240, W * .45)));
     const conv = (m) => s.unit === 'm' ? m : m * FT;
-    const lo = Math.floor(conv(bar(v0))), hi = Math.ceil(conv(bar(v1)));
-    const x = (sp) => P.l + (sp - v0) / (v1 - v0) * (W - P.l - P.r);
-    const y = (u) => P.t + (hi - u) / (hi - lo) * (H - P.t - P.b);
-    let out = '';
-    const stepU = s.unit === 'm' ? 0.5 : 2;
-    for (let u = Math.ceil(lo / stepU) * stepU; u <= hi; u += stepU) {
-      out += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(u)}" y2="${y(u)}" stroke="var(--line)"/>`;
-      out += `<text x="${P.l - 6}" y="${y(u) + 4}" text-anchor="end">${u}${s.unit === 'm' ? '' : "'"}</text>`;
-    }
-    for (let sp = 6; sp <= 10.5; sp += 1) out += `<text x="${x(sp)}" y="${H - 8}" text-anchor="middle">${sp} m/s</text>`;
-    const pts = [];
-    for (let sp = v0; sp <= v1 + 1e-9; sp += 0.1) pts.push(`${x(sp)},${y(conv(bar(sp)))}`);
-    out += `<polyline points="${pts.join(' ')}" fill="none" stroke="var(--chart-1)" stroke-width="2.5"/>`;
-    if (v >= v0 && v <= v1) {
-      const cy = y(conv(bar(v)));
-      out += `<line x1="${x(v)}" x2="${x(v)}" y1="${cy}" y2="${H - P.b}" stroke="var(--chart-1)" stroke-dasharray="3 3"/>`;
-      out += `<circle cx="${x(v)}" cy="${cy}" r="5" fill="var(--chart-1)"/>`;
-      out += `<text x="${x(v) + 8}" y="${cy - 8}" style="fill:var(--text);font-weight:600">${len(bar(v))}</text>`;
-    }
-    svg.innerHTML = out;
+    const v0 = 6, v1 = 10.5, pts = [];
+    for (let sp = v0; sp <= v1 + 1e-9; sp += 0.25) pts.push({ x: sp, y: conv(bar(sp)) });
+    const lo = Math.floor(conv(bar(v0))), hi = Math.ceil(conv(bar(v1))) + (s.unit === 'm' ? 0.3 : 1);
+    const span = hi - lo, step = [0.5, 1, 2, 4, 5].find(x => span / x <= 4) || 5, grid = [];
+    for (let u = Math.ceil(lo / step) * step; u <= hi; u += step) grid.push(u);
+    const ticks = [6, 7, 8, 9, 10].map(t => ({ v: t, t: `${t}` }));
+    const marks = need && need >= v0 && need <= v1 && Math.abs(need - v) > 0.08 ? [{ x: need, t: 'Target', anchor: need > v ? 'start' : 'end' }] : [];
+    box.innerHTML = Lab.area({
+      W, H, pts, x0: v0, x1: v1, y0: lo, y1: hi, xTicks: ticks, yGrid: grid, yLabels: u => s.unit === 'm' ? u + ' m' : u + "'",
+      xTitle: 'take-off speed (m/s)', detail: true, marks, label: 'Estimated bar height across take-off speeds',
+      peak: v >= v0 && v <= v1 ? { x: v, y: conv(bar(v)), t: `${len(bar(v))} at ${v.toFixed(2)} m/s` } : null,
+    });
   }
 
   ['speed', 'split', 'athH', 'eff', 'push', 'clear'].forEach(k =>
@@ -262,14 +227,12 @@
   document.querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => {
     if (s.unit === b.dataset.unit) return;
     const tM = s.unit === 'm' ? s.target : s.target / FT;
-    s.unit = b.dataset.unit;
-    s.target = +lenShort(tM);
-    save(); render();
+    s.unit = b.dataset.unit; s.target = +lenShort(tM); save(); render();
   }));
   document.querySelectorAll('[data-src]').forEach(b => b.addEventListener('click', () => { s.src = b.dataset.src; save(); render(); }));
   $('target').addEventListener('input', (e) => { const t = parseFloat(e.target.value); if (t > 0) { s.target = t; save(); render(); } });
   $('resetBtn').addEventListener('click', () => { s = { ...DEF }; save(); render(); });
-  window.addEventListener('resize', render);
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(render, 120); });
   render();
 })();
 </script>
