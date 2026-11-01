@@ -21,6 +21,14 @@
   .test-edit { display: grid; grid-template-columns: 1fr 70px 120px 36px; gap: 8px; align-items: center; margin-top: 8px; }
   .rk { display: inline-block; width: 26px; color: var(--muted); font-weight: 700; font-variant-numeric: tabular-nums; }
   .rows .r.hl .rk { color: var(--accent); }
+  .bigstat .who { font-family: var(--serif); font-weight: 600; font-size: clamp(22px, 5vw, 28px); line-height: 1.15; margin-top: 6px; color: var(--text); }
+  @media (max-width: 520px) { .bigstats { grid-template-columns: 1fr; } }
+  .bigstat .who::before { content: "\1F3C6"; font-size: .8em; margin-right: 6px; }
+  .bigstat .v { margin-top: 4px; }
+  #lb .r { cursor: pointer; border-radius: 10px; }
+  #lb .r:hover .l { color: var(--accent); }
+  #lb .r.sel { background: var(--accent-soft); margin: 0 -12px; padding-left: 12px; padding-right: 12px; border-bottom-color: transparent; }
+  #lb .r.sel .l::after { content: "on card ↓"; margin-left: 8px; font-size: 12px; color: var(--accent); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -66,7 +74,7 @@
   <div class="pill-tabs" id="tabs"></div>
 
   <section class="bigstats">
-    <div class="bigstat accent"><div class="k" id="kLead">Best</div><div class="v" id="vLead">–</div><div class="s" id="sLead"></div></div>
+    <div class="bigstat accent"><div class="k" id="kLead">Best</div><div class="who" id="wLead"></div><div class="v" id="vLead">–</div><div class="s" id="sLead"></div></div>
     <div class="bigstat"><div class="k">Group average</div><div class="v" id="vAvg">–</div><div class="s" id="sAvg"></div></div>
   </section>
 
@@ -177,7 +185,7 @@
   // How close a mark is to the group's best, as a percent (100 = the best mark).
   const pctOfBest = (v, top, t) => t.better === 'lower' ? top / v * 100 : v / top * 100;
   const fmtDate = (iso, long) => new Date(iso + 'T12:00').toLocaleDateString(undefined, long ? { month: 'long', day: 'numeric', year: 'numeric' } : { month: 'short', day: 'numeric' });
-  const row = (l, m, b, cls = '') => `<div class="r ${cls}"><span class="l">${l}</span><span class="m">${m}</span><span class="b">${b}</span></div>`;
+  const row = (l, m, b, cls = '', attrs = '') => `<div class="r ${cls}" ${attrs}><span class="l">${l}</span><span class="m">${m}</span><span class="b">${b}</span></div>`;
 
   function render() {
     $('session').value = s.session;
@@ -217,13 +225,15 @@
     const r = ranking(t);
     $('lbTitle').textContent = `Group spread · ${t.name}`;
     if (!r.length) {
-      ['vLead', 'vAvg'].forEach(k => $(k).textContent = '–'); ['sLead', 'sAvg'].forEach(k => $(k).textContent = '');
+      ['vLead', 'vAvg'].forEach(k => $(k).textContent = '–'); ['sLead', 'sAvg', 'wLead'].forEach(k => $(k).textContent = '');
       $('spread').innerHTML = ''; $('lb').innerHTML = '<p class="muted">No marks yet.</p>'; $('lbSum').innerHTML = ''; return;
     }
     const top = r[0], last = r[r.length - 1], avg = r.reduce((x, y) => x + y.v, 0) / r.length;
     $('kLead').textContent = `Best · ${t.name}`;
     $('vLead').innerHTML = `${num(top.v, t)}<small>${t.unit}</small>`;
-    $('sLead').textContent = top.a.name;
+    const tied = r.filter(x => x.rank === 1);
+    $('wLead').textContent = tied.map(x => x.a.name).join(' & ');
+    $('sLead').textContent = tied.length > 1 ? 'tied for best' : `${r.length > 1 ? `${num(Math.abs(r[1].v - top.v), t)} ${t.unit} ahead of #2` : 'only mark so far'}`;
     $('vAvg').innerHTML = `${num(avg, t)}<small>${t.unit}</small>`;
     $('sAvg').textContent = `${r.length} athlete${r.length === 1 ? '' : 's'} with a mark`;
 
@@ -252,7 +262,7 @@
     } else box.innerHTML = '';
 
     $('lb').innerHTML = r.map(x => row(`<span class="rk">${x.rank}</span>${esc(x.a.name)}`,
-      x.rank === 1 ? 'leader' : `${t.better === 'lower' ? '+' : '−'}${num(Math.abs(x.v - top.v), t)}`, fmtV(x.v, t), x.rank === 1 ? 'hl' : '')).join('');
+      x.rank === 1 ? 'leader' : `${t.better === 'lower' ? '+' : '−'}${num(Math.abs(x.v - top.v), t)}`, fmtV(x.v, t), (x.rank === 1 ? 'hl ' : '') + (x.a.id === s.cardAthlete ? 'sel' : ''), `data-aid="${x.a.id}" role="button" tabindex="0" title="Show ${esc(x.a.name)} on the card"`)).join('');
     $('lbSum').innerHTML = `<span class="l">Best to last</span><span class="b">${num(Math.abs(last.v - top.v), t)} ${t.unit} spread</span>`;
   }
 
@@ -348,7 +358,10 @@
     document.querySelector(`[data-best="${aid}"]`).textContent = fmtV(best(aid, t), t);
     renderBoard(); renderProfile();
   });
-  $('cardAthlete').addEventListener('change', e => { s.cardAthlete = e.target.value; save(); renderProfile(); });
+  $('cardAthlete').addEventListener('change', e => { s.cardAthlete = e.target.value; save(); renderProfile(); renderBoard(); });
+  const pickFromBoard = (el) => { s.cardAthlete = el.dataset.aid; save(); renderProfile(); renderBoard(); $('pName').closest('.panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  $('lb').addEventListener('click', e => { const r = e.target.closest('[data-aid]'); if (r) pickFromBoard(r); });
+  $('lb').addEventListener('keydown', e => { const r = e.target.closest('[data-aid]'); if (r && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pickFromBoard(r); } });
   const cardName = () => (s.athletes.find(a => a.id === s.cardAthlete)?.name || 'athlete').replace(/\s+/g, '-').toLowerCase() + '-testing.png';
   $('downloadBtn').addEventListener('click', () => { const a = document.createElement('a'); a.href = $('cardCanvas').toDataURL('image/png'); a.download = cardName(); a.click(); });
   $('shareBtn').addEventListener('click', () => {
