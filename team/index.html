@@ -97,7 +97,7 @@
   </div>
 
   <div class="note sample-note" id="sampleNote" hidden>
-    <span>This is a sample team with made-up athletes. Load your own data from the Data tab.</span>
+    <span>This is a sample team with made-up athletes. Load the real group from the Data tab.</span>
   </div>
 
   <section id="view-team" class="stack"></section>
@@ -113,7 +113,7 @@
 <script>
 (() => {
 'use strict';
-const KEY = 'pp-team-v1';
+const KEY = 'pp-team-v2';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -179,10 +179,14 @@ function sample() {
   return { v: 1, sample: true, athletes, rec, tests: blocks, ui: { tab: 'team', g: 'all', sel: 'a0', cmp: ['a0', 'a1'], block: 0 } };
 }
 
+/* ---------------- the USF vault group (shared with the team's OK) ---------------- */
+const TEAM = {"v":1,"athletes":[{"id":"a1792629789535_0","name":"Andreas Kreiss","g":"M"},{"id":"a1792629789535_1","name":"Andrew Nuyen","g":"M"},{"id":"a1792629789535_2","name":"Payton Pitts","g":"M"},{"id":"a1792629789535_3","name":"Nikodem Pochopien","g":"M"},{"id":"a1792629789535_4","name":"Natalia Biskupska","g":"F"},{"id":"a1792629789535_5","name":"Sara Frey","g":"F"},{"id":"a1792629789535_6","name":"Reese Wolfe","g":"F"}],"rec":{"a1792629789535_0":{"pr":5.21,"sb":null,"grip":4.85,"runup":null,"L":{"3":null,"4":4.9,"5":null,"6":5.1,"7":null,"8":5.21}},"a1792629789535_1":{"pr":5.35,"sb":null,"grip":4.75,"runup":null,"L":{"3":4.57,"4":null,"5":5.18,"6":null,"7":5.35,"8":null}},"a1792629789535_2":{"pr":5.3,"sb":null,"grip":4.9,"runup":null,"L":{"3":null,"4":null,"5":null,"6":null,"7":5.15,"8":5.3}},"a1792629789535_3":{"pr":5.35,"sb":null,"grip":4.75,"runup":null,"L":{"3":null,"4":null,"5":null,"6":null,"7":null,"8":null}},"a1792629789535_4":{"pr":4.2,"sb":null,"grip":3.95,"runup":null,"L":{"3":null,"4":null,"5":null,"6":null,"7":null,"8":null}},"a1792629789535_5":{"pr":3.86,"sb":null,"grip":null,"runup":null,"L":{"3":null,"4":null,"5":null,"6":null,"7":null,"8":null}},"a1792629789535_6":{"pr":3.96,"sb":null,"grip":null,"runup":null,"L":{"3":null,"4":null,"5":null,"6":null,"7":null,"8":null}}},"tests":[{"id":"mjexqi1","name":"Start of fall","date":"2026-10-01","rows":{"a1792629789535_0":{"bw":169,"fly10":1.1,"m40":5.44,"m60":6.95,"top":9.27,"broad":290,"vert":77.2},"a1792629789535_1":{"bw":165,"fly10":1.08,"m40":5.22,"m60":7.24,"top":9.9,"broad":296,"vert":80.4},"a1792629789535_2":{"bw":147,"fly10":1.1,"m40":5.08,"top":9.87,"broad":305,"vert":73.2},"a1792629789535_3":{"bw":174,"m60":7.2},"a1792629789535_5":{"m60":8.3},"a1792629789535_6":{"m60":8.94}}},{"id":"nuym0sb","name":"Pre-Thanksgiving break","date":"","rows":{}},{"id":"wd1sy2h","name":"Pre-Winter break","date":"","rows":{}},{"id":"flo3caw","name":"Pre-Indoor conference","date":"","rows":{}}]};
+function team() { const t = JSON.parse(JSON.stringify(TEAM)); t.ui = { tab: 'team', g: 'all', sel: t.athletes[0]?.id, cmp: [t.athletes[0]?.id, t.athletes[1]?.id], block: 0 }; return t; }
+
 /* ---------------- state ---------------- */
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch { S = null; }
-if (!S || !Array.isArray(S.athletes)) S = sample();
+if (!S || !Array.isArray(S.athletes)) S = team();
 S.ui = S.ui || { tab: 'team', g: 'all', sel: null, cmp: [null, null], block: 0 };
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
 
@@ -252,13 +256,15 @@ function viewTeam() {
   const tested = lastT ? list.filter(a => lastT.rows[a.id] && Object.values(lastT.rows[a.id]).some(v => num(v) != null)).length : 0;
   const nearPR = list.filter(a => { const r = R(a.id); return r.pr && r.sb && r.pr - r.sb <= 0.05; }).length;
 
+  const anySB = list.some(a => R(a.id).sb), anyRun = list.some(a => R(a.id).runup);
   const tile = (k, v, s) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
   const leader = prR[0];
   let h = `<div class="tiles">
     ${leader ? tile('Highest PR', `${leader.v.toFixed(2)}<small> m</small>`, `${esc(leader.a.name)} · ${ftIn(leader.v)}`) : ''}
     ${runR[0] ? tile('Fastest run-up', `${runR[0].v.toFixed(2)}<small> m/s</small>`, `${esc(runR[0].a.name)} · ${(runR[0].v * 2.23694).toFixed(1)} mph`) : ''}
     ${impR[0] && impR[0].v > 0 ? tile('Most improved fly 20', `${impR[0].v.toFixed(1)}<small> %</small>`, `${esc(impR[0].a.name)} · since ${esc(tests()[0].name)}`) : ''}
-    ${tile('Season bests near PR', `${nearPR}<small> of ${list.length}</small>`, 'within 5 cm of their PR')}
+    ${anySB ? tile('Season bests near PR', `${nearPR}<small> of ${list.length}</small>`, 'within 5 cm of their PR') : ''}
+    ${tile('Vaulters', `${list.length}`, `${list.filter(a => a.g === 'M').length} men · ${list.filter(a => a.g === 'F').length} women`)}
   </div>`;
 
   // takeaways
@@ -268,31 +274,33 @@ function viewTeam() {
   // vault table
   const groups = S.ui.g === 'all' ? [['M', 'Men'], ['F', 'Women']] : [[S.ui.g, S.ui.g === 'M' ? 'Men' : 'Women']];
   h += `<div class="card"><div class="bar-row"><h2 style="margin:0">Vault marks</h2><span class="small muted">Tap a name for the full profile</span></div><div class="table-wrap" style="margin-top:10px"><table>
-    <thead><tr><th>#</th><th>Athlete</th><th class="r">PR</th><th class="r">Season best</th><th>Season vs PR</th><th class="r">Run-up</th><th class="r">vs elite</th></tr></thead><tbody>`;
+    <thead><tr><th>#</th><th>Athlete</th><th class="r">PR</th>${anySB ? '<th class="r">Season best</th><th>Season vs PR</th>' : ''}<th class="r">Grip PR</th>${anyRun ? '<th class="r">Run-up</th><th class="r">vs elite</th>' : ''}</tr></thead><tbody>`;
   groups.forEach(([g, label]) => {
     const r = ranked(list.filter(a => a.g === g), a => R(a.id).pr, false);
     if (!r.length) return;
-    if (groups.length > 1) h += `<tr><td colspan="7" class="small muted" style="padding-top:14px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">${label}</td></tr>`;
+    if (groups.length > 1) h += `<tr><td colspan="9" class="small muted" style="padding-top:14px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">${label}</td></tr>`;
     r.forEach(x => {
       const rc = R(x.a.id), pct = rc.sb && rc.pr ? rc.sb / rc.pr * 100 : null, el = rc.runup ? rc.runup / ELITE[x.a.g] * 100 : null;
       h += `<tr data-open="${x.a.id}" style="cursor:pointer"><td class="muted">${x.rank}</td><td><strong>${esc(x.a.name)}</strong></td>
         <td class="r num"><strong>${hgt(rc.pr)}</strong><div class="small muted">${rc.pr ? ftIn(rc.pr) : ''}</div></td>
-        <td class="r num">${hgt(rc.sb)}</td>
-        <td style="min-width:120px">${pct ? `<div class="meter" style="margin:0"><i style="width:${Math.min(100, pct)}%"></i></div><div class="small muted">${pct.toFixed(1)}%</div>` : '–'}</td>
-        <td class="r num">${rc.runup ? rc.runup.toFixed(2) + ' m/s' : '–'}</td>
-        <td class="r num">${el ? `<span class="pill ${el >= 98 ? 'good' : el >= 92 ? '' : 'warn'}">${el.toFixed(0)}%</span>` : '–'}</td></tr>`;
+        ${anySB ? `<td class="r num">${hgt(rc.sb)}</td>
+        <td style="min-width:120px">${pct ? `<div class="meter" style="margin:0"><i style="width:${Math.min(100, pct)}%"></i></div><div class="small muted">${pct.toFixed(1)}%</div>` : '–'}</td>` : ''}
+        <td class="r num">${hgt(rc.grip)}</td>
+        ${anyRun ? `<td class="r num">${rc.runup ? rc.runup.toFixed(2) + ' m/s' : '–'}</td>
+        <td class="r num">${el ? `<span class="pill ${el >= 98 ? 'good' : el >= 92 ? '' : 'warn'}">${el.toFixed(0)}%</span>` : '–'}</td>` : ''}</tr>`;
     });
   });
-  h += `</tbody></table></div><p class="small muted" style="margin:10px 0 0">"vs elite" compares run-up speed to an elite average (${ELITE.M} m/s men, ${ELITE.F} m/s women).</p></div>`;
+  h += `</tbody></table></div><p class="small muted" style="margin:10px 0 0" ${anyRun ? '' : 'hidden'}>"vs elite" compares run-up speed to an elite average (${ELITE.M} m/s men, ${ELITE.F} m/s women).</p></div>`;
 
   // testing leaderboards
   h += `<div class="bar-row"><h2 style="margin:0">Testing leaderboards</h2><span class="small muted">Latest result for each athlete · colored number is change since first test</span></div><div class="metric-grid">`;
   MET.forEach(m => {
     const r = ranked(list, a => latest(a.id, m.k), m.lower);
+    if (!r.length) return;
     h += `<div class="card"><h3>${m.label} <span>${m.lower ? 'lower is better' : 'higher is better'}</span></h3>${lbRows(r, v => fmtM(m, v), { lower: m.lower, top: 8, delta: a => deltaHtml(m, change(a.id, m)) })}</div>`;
   });
   const keep = ranked(list, a => poleKeep(a.id), false);
-  h += `<div class="card"><h3>Speed kept with pole <span>higher is better</span></h3>${lbRows(keep, v => v.toFixed(1) + '%', { top: 8 })}<p class="small muted" style="margin:8px 0 0">Fly 20 m time without the pole divided by time with it.</p></div>`;
+  if (keep.length) h += `<div class="card"><h3>Speed kept with pole <span>higher is better</span></h3>${lbRows(keep, v => v.toFixed(1) + '%', { top: 8 })}<p class="small muted" style="margin:8px 0 0">Fly 20 m time without the pole divided by time with it.</p></div>`;
   h += `</div>`;
   return h;
 }
@@ -307,7 +315,13 @@ function teamTakeaways(list) {
   if (sbPR.length) out.push(`${sbPR.map(a => `<strong>${esc(a.name)}</strong>`).join(', ')} ${sbPR.length === 1 ? 'has' : 'have'} already matched or beaten ${sbPR.length === 1 ? 'their' : 'their'} PR this season.`);
   const slowRun = list.filter(a => R(a.id).runup && R(a.id).runup / ELITE[a.g] < 0.95);
   if (slowRun.length) out.push(`${slowRun.length} ${slowRun.length === 1 ? 'athlete is' : 'athletes are'} more than 5% under elite run-up speed. Sprint work there has the biggest payoff.`);
-  const tst = tests(); const last = tst[tst.length - 1];
+  const leads = {};
+  MET.forEach(m => { const r = ranked(list, a => latest(a.id, m.k), m.lower); if (r.length > 1 && r[0].rank === 1 && (r[1].rank !== 1)) (leads[r[0].a.id] = leads[r[0].a.id] || []).push(m.label.toLowerCase()); });
+  Object.entries(leads).sort((x, y) => y[1].length - x[1].length).slice(0, 3).forEach(([id, ms]) =>
+    out.push(`<strong>${esc(ath(id).name)}</strong> leads the ${S.ui.g === 'all' ? 'group' : S.ui.g === 'M' ? 'men' : 'women'} in ${ms.length === 1 ? ms[0] : ms.slice(0, -1).join(', ') + ' and ' + ms[ms.length - 1]}.`));
+  ['M', 'F'].forEach(g => { const prs = list.filter(a => a.g === g && R(a.id).pr).map(a => R(a.id).pr); if (prs.length > 1) out.push(`${g === 'M' ? 'Men' : 'Women'}: average PR ${(prs.reduce((x, y) => x + y, 0) / prs.length).toFixed(2)} m (${ftIn(prs.reduce((x, y) => x + y, 0) / prs.length)}), with ${((Math.max(...prs) - Math.min(...prs)) * 100).toFixed(0)} cm between the top and bottom PR.`); });
+  const hasData = t => list.some(a => t.rows[a.id] && Object.values(t.rows[a.id]).some(v => num(v) != null));
+  const tst = tests().filter(hasData); const last = tst[tst.length - 1];
   if (last) { const missing = list.filter(a => !last.rows[a.id] || !Object.values(last.rows[a.id]).some(v => num(v) != null)); if (missing.length) out.push(`${missing.map(a => esc(a.name)).join(', ')} ${missing.length === 1 ? 'has' : 'have'} no results from ${esc(last.name)} yet.`); }
   return out;
 }
@@ -327,14 +341,14 @@ function viewAthlete() {
         <h2 style="font-size:28px;margin:4px 0 10px">${esc(a.name)}</h2>
         <div class="big">${rc.pr ? rc.pr.toFixed(2) : '–'}<small>m PR${rc.pr ? ' · ' + ftIn(rc.pr) : ''}</small></div></div>
       <div class="tiles" style="flex:1 1 260px;max-width:520px">
-        <div class="tile"><div class="k">Season best</div><div class="v">${rc.sb ? rc.sb.toFixed(2) : '–'}<small> m</small></div><div class="s">${pct ? pct.toFixed(1) + '% of PR' : ''}</div></div>
+        ${rc.sb ? '' : '<!--'}<div class="tile"><div class="k">Season best</div><div class="v">${rc.sb ? rc.sb.toFixed(2) : '–'}<small> m</small></div><div class="s">${pct ? pct.toFixed(1) + '% of PR' : ''}</div></div>${rc.sb ? '' : '-->'}
         <div class="tile"><div class="k">Grip PR</div><div class="v">${rc.grip ? rc.grip.toFixed(2) : '–'}<small> m</small></div><div class="s">${rc.grip ? ftIn(rc.grip) : ''}</div></div>
       </div></div></div>`;
 
   // speed tiles
   const el = rc.runup ? rc.runup / ELITE[a.g] * 100 : null, keep = poleKeep(a.id);
   const runRank = rankOf(a.id, x => R(x.id).runup, false, same);
-  h += `<div class="grid two">
+  if (rc.runup || keep) h += `<div class="grid two">
     <div class="card"><h3>Run-up speed</h3>
       <div class="v" style="font-size:30px;font-weight:800">${rc.runup ? rc.runup.toFixed(2) : '–'} <span class="small muted">m/s${rc.runup ? ' · ' + (rc.runup * 2.23694).toFixed(1) + ' mph' : ''}</span></div>
       ${el ? `<div class="meter"><i style="width:${Math.min(100, el / 1.1)}%"></i><b style="left:${100 / 1.1}%"></b></div>
@@ -355,7 +369,7 @@ function viewAthlete() {
   // testing table
   const ts = tests().filter(t => t.rows[a.id] && Object.values(t.rows[a.id]).some(v => num(v) != null));
   h += ts.length ? `<div class="card"><h3>Testing results</h3><div class="table-wrap"><table>
-    <thead><tr><th>Test</th>${ts.map(t => `<th class="r">${esc(t.name)}</th>`).join('')}<th class="r">Change</th><th>Trend</th><th class="r">Team rank</th></tr></thead><tbody>` : '';
+    <thead><tr><th>Test</th>${ts.map(t => `<th class="r">${esc(t.name)}</th>`).join('')}${ts.length > 1 ? '<th class="r">Change</th><th>Trend</th>' : ''}<th class="r">Team rank</th></tr></thead><tbody>` : '';
   [...MET, BW].forEach(m => {
     const vals = ts.map(t => num(t.rows[a.id]?.[m.k]));
     if (vals.every(v => v == null)) return;
@@ -364,8 +378,8 @@ function viewAthlete() {
     const s = series(a.id, m.k).map(x => x.v);
     h += `<tr><td><strong>${m.label}</strong>${m.alt && latest(a.id, m.k) ? `<div class="small muted">${m.alt(latest(a.id, m.k))}</div>` : ''}</td>
       ${vals.map(v => `<td class="r num">${v == null ? '<span class="muted">–</span>' : v.toFixed(m.dp)}</td>`).join('')}
-      <td class="r num">${d == null ? '' : `<span class="${better(m, d) > 0 ? 'up' : better(m, d) < 0 ? 'down' : ''}">${d > 0 ? '+' : d < 0 ? '−' : ''}${Math.abs(d).toFixed(m.dp)}</span>`}</td>
-      <td>${m === BW ? '' : spark(s, m.lower)}</td>
+      ${ts.length > 1 ? `<td class="r num">${d == null ? '' : `<span class="${better(m, d) > 0 ? 'up' : better(m, d) < 0 ? 'down' : ''}">${d > 0 ? '+' : d < 0 ? '−' : ''}${Math.abs(d).toFixed(m.dp)}</span>`}</td>
+      <td>${m === BW ? '' : spark(s, m.lower)}</td>` : ''}
       <td class="r num">${rk ? `${rk.rank === 1 ? '<span class="pill good">#1</span>' : '#' + rk.rank} <span class="muted small">of ${rk.of}</span>` : ''}</td></tr>`;
   });
   h += ts.length ? `</tbody></table></div><p class="small muted" style="margin:8px 0 0">Units: seconds for sprints, m/s for top speed, cm for jumps, lb for bodyweight. Ranks are within the ${grp}.</p></div>` : '<div class="card muted">No testing results yet.</div>';
@@ -474,7 +488,7 @@ function viewData() {
 
   h += `<div class="card"><h2>Backup</h2><p class="small muted">Everything is saved in this browser. Download a backup to move it to another device. Restoring also accepts a backup from the older Sprint Splits app.</p>
     <div class="row"><button id="exportBtn" class="primary">Download backup</button><label class="btn" style="cursor:pointer">Restore from file<input type="file" id="importFile" accept=".json,.txt,application/json,text/plain" hidden></label>
-    <button id="sampleBtn" class="ghost">Load sample team</button><button id="clearBtn" class="ghost">Start empty</button></div></div>`;
+    <button id="teamBtn" class="ghost">Load USF vault group</button><button id="sampleBtn" class="ghost">Load sample team</button><button id="clearBtn" class="ghost">Start empty</button></div></div>`;
   return h;
 }
 
@@ -532,6 +546,7 @@ document.querySelector('main').addEventListener('click', e => {
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'vault-team-stats', saved: new Date().toISOString(), data }, null, 1)], { type: 'application/json' }));
     a.download = `vault-team-stats-${new Date().toISOString().slice(0, 10)}.json`; a.click();
   }
+  if (e.target.id === 'teamBtn') { if (confirm('Replace everything with the USF vault group?')) { S = team(); S.ui.tab = 'data'; render(); } }
   if (e.target.id === 'sampleBtn') { if (confirm('Replace everything with the sample team?')) { S = sample(); S.ui.tab = 'data'; render(); } }
   if (e.target.id === 'clearBtn') { if (confirm('Delete all athletes and results?')) { S = { v: 1, athletes: [], rec: {}, tests: [{ id: uid(), name: 'Test day 1', date: new Date().toISOString().slice(0, 10), rows: {} }], ui: { tab: 'data', g: 'all', sel: null, cmp: [null, null], block: 0 } }; render(); } }
 });
