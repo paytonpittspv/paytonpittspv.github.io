@@ -120,3 +120,11 @@ svg.lab-chart .tip text { fill: var(--text); font-weight: 600; font-size: 13px; 
   .rows .r .b { font-size: 17px; }
   .panel { padding: 16px; }
 }
+
+/* per-app accents: Vault Energy keeps the purple above, Jump Tracker is blue, Testing Day is indigo */
+html.t-blue { --accent: #1d5fd1; --accent-soft: rgba(29, 95, 209, .13); --detail: rgba(29, 95, 209, .35); --chart-1: #1d5fd1; --chart-2: #7fb0f5; }
+html.t-indigo { --accent: #4338ca; --accent-soft: rgba(67, 56, 202, .13); --detail: rgba(67, 56, 202, .35); --chart-1: #4338ca; --chart-2: #9fa6f2; }
+@media (prefers-color-scheme: dark) {
+  html.t-blue { --accent: #7cb2ff; --accent-soft: rgba(124, 178, 255, .16); --detail: rgba(124, 178, 255, .38); --chart-1: #7cb2ff; --chart-2: #b9d7ff; }
+  html.t-indigo { --accent: #a5adff; --accent-soft: rgba(165, 173, 255, .16); --detail: rgba(165, 173, 255, .38); --chart-1: #a5adff; --chart-2: #cfd3ff; }
+}

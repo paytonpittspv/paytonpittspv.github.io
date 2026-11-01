@@ -22,6 +22,8 @@
   .app img, .app .ic { width: 64px; height: 64px; border-radius: 15px; display: block; }
   .app .ic { display: grid; place-items: center; background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
   .app .ic svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .app .ic.blue { background: linear-gradient(135deg, #4f8ff0, #1d5fd1); }
+  .app .ic.indigo { background: linear-gradient(135deg, #6f6cf0, #4338ca); }
   .app .meta { min-width: 0; }
   .app .tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
   .app .name { font-size: 22px; line-height: 1.15; margin: 2px 0 4px; font-weight: 700; color: var(--text); }
@@ -106,7 +108,7 @@
     </a>
 
     <a class="card app" href="testing/">
-      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+      <span class="ic indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
       <div class="meta">
         <div class="tag">Testing</div>
         <div class="name">Testing Day Sheet</div>
@@ -116,7 +118,7 @@
     </a>
 
     <a class="card app" href="jump/">
-      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></span>
+      <span class="ic blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></span>
       <div class="meta">
         <div class="tag">Monitoring</div>
         <div class="name">Jump Test Tracker</div>

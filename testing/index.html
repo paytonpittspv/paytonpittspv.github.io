@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="t-indigo">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
 <link rel="stylesheet" href="../assets/style.css?v=3">
-<link rel="stylesheet" href="../assets/lab.css?v=1">
+<link rel="stylesheet" href="../assets/lab.css?v=2">
 <style>
   .entry input { width: 84px; padding: 6px 8px; text-align: right; font-variant-numeric: tabular-nums; }
   .entry td { padding: 6px 8px; }
@@ -280,8 +280,8 @@
   function drawCard() {
     const c = $('cardCanvas'), g = c.getContext('2d'), W = 1080, H = 1350;
     const dark = matchMedia('(prefers-color-scheme: dark)').matches;
-    const C = dark ? { bg: '#15131a', panel: '#1c1a22', line: '#2f2b38', ink: '#efedf3', mute: '#9d98a8', acc: '#b49cff' }
-                   : { bg: '#f3f2ef', panel: '#f8f7f4', line: '#e2dfd8', ink: '#22201c', mute: '#77736b', acc: '#6d28d9' };
+    const C = dark ? { bg: '#15131a', panel: '#1c1a22', line: '#2f2b38', ink: '#efedf3', mute: '#9d98a8', acc: '#a5adff' }
+                   : { bg: '#f3f2ef', panel: '#f8f7f4', line: '#e2dfd8', ink: '#22201c', mute: '#77736b', acc: '#4338ca' };
     const sans = (w, px) => `${w} ${px}px Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
     const serif = (px) => `600 ${px}px "Source Serif 4", Georgia, serif`;
     g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
