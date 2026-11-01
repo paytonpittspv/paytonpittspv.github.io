@@ -7,8 +7,8 @@
 <meta name="description" content="Pole vault team stats: PRs, run-up speed, approach PRs by lefts, testing trends and plain-language takeaways for every athlete.">
 <link rel="stylesheet" href="../assets/style.css?v=3">
 <style>
-  :root { --accent: #006747; --chart-1: #00875c; --accent-ink: #fff; --grey-bar: #cfd4dc; }
-  @media (prefers-color-scheme: dark) { :root { --accent: #34c784; --chart-1: #34c784; --accent-ink: #0d1117; --grey-bar: #3a4250; } }
+  :root { --accent: #006747; --chart-1: #00875c; --accent-ink: #fff; --grey-bar: #d6dbe3; --grey-dot: #a3abb8; }
+  @media (prefers-color-scheme: dark) { :root { --accent: #34c784; --chart-1: #34c784; --accent-ink: #0d1117; --grey-bar: #5a6476; --grey-dot: #8a94a6; } }
 
   .tabs { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 10px; width: fit-content; max-width: 100%; overflow-x: auto; }
   .tabs button { border: 0; background: transparent; padding: 8px 14px; border-radius: 7px; white-space: nowrap; }
@@ -35,9 +35,24 @@
   .lb-row.first .nm, .lb-row.first .val { color: var(--accent); font-weight: 700; }
   .prbars { display: grid; gap: 6px; margin-top: 12px; }
   .prb { display: grid; grid-template-columns: minmax(96px, 150px) 1fr auto; gap: 12px; align-items: center; cursor: pointer; }
-  .prb .nm { font-size: 15px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .prb .nm { font-size: 15px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .prb .bar { height: 26px; background: var(--grey-bar); border-radius: 6px; min-width: 4px; }
-  .prb .val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--muted); }
+  .prb .val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; color: var(--text); min-width: 74px; }
+  .prb .val small { color: var(--muted); }
+  .praxis { display: grid; grid-template-columns: minmax(96px, 150px) 1fr auto; gap: 12px; font-size: 11px; color: var(--muted); }
+  .praxis .ax { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 3px; }
+  .praxis .sp { min-width: 74px; }
+  .lbc svg { width: 100%; display: block; overflow: visible; margin: 2px 0 6px; }
+  .lbc svg text { font: 600 12px Inter, system-ui, sans-serif; fill: var(--muted); }
+  .lbc svg text.lead { fill: var(--accent); }
+  .lbl { display: grid; gap: 0; }
+  .lbl .row { display: grid; grid-template-columns: 20px 1fr auto minmax(64px, auto); gap: 8px; align-items: baseline; padding: 6px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .lbl .rk { color: var(--muted); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .lbl .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lbl .v { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+  .lbl .gap { color: var(--muted); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .lbl .row.first .nm, .lbl .row.first .v, .lbl .row.first .rk { color: var(--accent); font-weight: 700; }
+  .lbl .row.first .gap { color: var(--accent); }
   .prb .val small { display: block; font-size: 12px; font-weight: 500; }
   .prb.top .nm { color: var(--text); font-weight: 700; }
   .prb.top .bar { background: var(--chart-1); }
@@ -46,6 +61,15 @@
   .prgrp { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 10px 0 0; }
   .prgrp:first-child { margin-top: 0; }
   .summary-card h2 { margin-bottom: 10px; }
+  @media (max-width: 560px) {
+    .prb { grid-template-columns: 1fr auto; row-gap: 4px; }
+    .prb > span:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+    .prb .bar { height: 18px; }
+    .prb .val small { display: inline; margin-left: 6px; }
+    .praxis { grid-template-columns: 1fr; }
+    .praxis > span:first-child, .praxis .sp { display: none; }
+    .prbars { gap: 12px; }
+  }
   .lb-row .val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
   .lb-row .val .d { font-weight: 600; font-size: 12px; margin-left: 6px; }
   .up { color: var(--good); } .down { color: var(--bad); }
@@ -246,6 +270,30 @@ function lbRows(r, fmt, opts = {}) {
     <span class="track"><i style="width:${pct(x.v)}%"></i></span>
     <span class="val">${fmt(x.v, x.a)}${opts.delta ? opts.delta(x.a) : ''}</span></div>`).join('')}</div>`;
 }
+// Strip chart: every athlete as a dot on one line, better always to the right, leader in green.
+function lbChart(r, fmt, opts = {}) {
+  if (!r.length) return '<p class="muted small">No data yet.</p>';
+  const W = 320, L = 14, Rr = 14, vals = r.map(x => x.v);
+  let lo = Math.min(...vals), hi = Math.max(...vals); if (hi === lo) { lo -= 1; hi += 1; }
+  const pad = (hi - lo) * 0.08, a = lo - pad, b = hi + pad;
+  const X = v => { const t = (v - a) / (b - a); return L + (opts.lower ? 1 - t : t) * (W - L - Rr); };
+  const ini = n => n.split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  // place labels on alternating rows when dots crowd each other
+  const pts = r.map(x => ({ x, px: X(x.v) })).sort((p, q) => p.px - q.px), lastAt = [-99, -99, -99];
+  pts.forEach(p => { let lv = lastAt.findIndex(v => p.px - v >= 22); if (lv < 0) lv = lastAt.indexOf(Math.min(...lastAt)); p.lv = lv; lastAt[lv] = p.px; });
+  const levels = Math.max(...pts.map(p => p.lv)) + 1, axY = 14 + levels * 14 + 8, H = axY + 26;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spread of results"><line x1="${L}" x2="${W - Rr}" y1="${axY}" y2="${axY}" stroke="var(--line)" stroke-width="2"/>`;
+  pts.slice().sort((p, q) => (p.x.rank === 1) - (q.x.rank === 1)).forEach(p => {
+    const lead = p.x.rank === 1, ly = 12 + p.lv * 14;
+    svg += `<line x1="${p.px}" x2="${p.px}" y1="${ly + 3}" y2="${axY - 6}" stroke="${lead ? 'var(--chart-1)' : 'var(--grey-dot)'}" stroke-width="1" opacity=".6"/>`;
+    svg += `<circle cx="${p.px}" cy="${axY}" r="${lead ? 7 : 5.5}" fill="${lead ? 'var(--chart-1)' : 'var(--grey-dot)'}" stroke="var(--surface)" stroke-width="2"><title>${esc(p.x.a.name)}: ${fmt(p.x.v)}</title></circle>`;
+    svg += `<text x="${p.px}" y="${ly}" text-anchor="middle" class="${lead ? 'lead' : ''}">${ini(p.x.a.name)}</text>`;
+  });
+  const worst = r[r.length - 1].v, best = r[0].v;
+  svg += `<text x="${L}" y="${axY + 20}">${fmt(worst)}</text><text x="${W - Rr}" y="${axY + 20}" text-anchor="end" class="lead">${fmt(best)} best</text></svg>`;
+  const gapTxt = x => { if (x.rank === 1) return 'leader'; const d = Math.abs(x.v - best); return (opts.lower ? '+' : '−') + (opts.gap ? opts.gap(d) : d.toFixed(2)); };
+  return `<div class="lbc">${svg}<div class="lbl">${r.slice(0, opts.top || 99).map(x => `<div class="row ${x.rank === 1 ? 'first' : ''}"><span class="rk">${x.rank}</span><span class="nm" title="${esc(x.a.name)}">${esc(x.a.name)}</span><span class="v">${fmt(x.v)}</span><span class="gap">${gapTxt(x)}</span></div>`).join('')}</div></div>`;
+}
 function deltaHtml(m, d) {
   if (d == null || Math.abs(d) < 1e-9) return '';
   const b = better(m, d), s = (d > 0 ? '+' : '−') + Math.abs(d).toFixed(m.dp);
@@ -280,12 +328,21 @@ function viewTeam() {
   const maxPR = Math.max(...list.map(a => R(a.id).pr || 0));
   let h = '';
   if (maxPR > 0) {
-    h += `<div class="card"><div class="bar-row"><h2 style="margin:0">Highest PRs</h2><span class="small muted">${list.length} vaulters · leader in green · tap a name for the profile</span></div><div class="prbars">`;
+    h += `<div class="card"><div class="bar-row"><h2 style="margin:0">Highest PRs</h2><span class="small muted">${list.length} vaulters · bars zoomed in on each group · tap a name for the profile</span></div><div class="prbars">`;
     groups.forEach(([g, label]) => {
       const r = ranked(list.filter(a => a.g === g), a => R(a.id).pr, false);
       if (!r.length) return;
       if (groups.length > 1) h += `<div class="prgrp">${label}</div>`;
-      r.forEach(x => h += `<div class="prb ${x.rank === 1 ? 'top' : ''}" data-open="${x.a.id}"><span class="nm" title="${esc(x.a.name)}">${esc(x.a.name)}</span><span><div class="bar" style="width:${(x.v / maxPR * 100).toFixed(1)}%"></div></span><span class="val">${x.v.toFixed(2)} m<small>${ftIn(x.v)}</small></span></div>`);
+      // zoomed scale per group so small differences are visible; the axis under the bars says where it starts
+      const hi = r[0].v, lo = r[r.length - 1].v, span = Math.max(hi - lo, 0.1);
+      const floor = Math.floor((lo - span * 0.6) / 0.1) * 0.1, top = Math.ceil((hi + 1e-6) / 0.1) * 0.1;
+      r.forEach(x => {
+        const gap = Math.round((hi - x.v) * 100);
+        h += `<div class="prb ${x.rank === 1 ? 'top' : ''}" data-open="${x.a.id}"><span class="nm" title="${esc(x.a.name)}">${esc(x.a.name)}</span><span><div class="bar" style="width:${((x.v - floor) / (top - floor) * 100).toFixed(1)}%"></div></span><span class="val">${x.v.toFixed(2)} m<small>${ftIn(x.v)}${gap ? ` · −${gap} cm` : ''}</small></span></div>`;
+      });
+      const ticks = []; for (let t = floor; t <= top + 1e-6; t += 0.1) ticks.push(t.toFixed(1));
+      const show = ticks.length > 6 ? ticks.filter((_, i) => i % 2 === 0 || i === ticks.length - 1) : ticks;
+      h += `<div class="praxis"><span></span><span class="ax">${show.map(t => `<span>${t}</span>`).join('')}</span><span class="sp">meters</span></div>`;
     });
     h += `</div></div>`;
   }
@@ -318,14 +375,14 @@ function viewTeam() {
   h += `</tbody></table></div><p class="small muted" style="margin:10px 0 0" ${anyRun ? '' : 'hidden'}>"vs elite" compares run-up speed to an elite average (${ELITE.M} m/s men, ${ELITE.F} m/s women).</p></div>`;
 
   // testing leaderboards
-  h += `<div class="bar-row"><h2 style="margin:0">Testing leaderboards</h2><span class="small muted">Leader in green · latest result for each athlete · small number is change since the first test</span></div><div class="metric-grid">`;
+  h += `<div class="bar-row"><h2 style="margin:0">Testing leaderboards</h2><span class="small muted">Latest result for each athlete · better is always to the right · gap is distance from the leader</span></div><div class="metric-grid">`;
   MET.forEach(m => {
     const r = ranked(list, a => latest(a.id, m.k), m.lower);
     if (!r.length) return;
-    h += `<div class="card"><h3>${m.label} <span>${m.lower ? 'lower is better' : 'higher is better'}</span></h3>${lbRows(r, v => fmtM(m, v), { lower: m.lower, top: 8, delta: a => deltaHtml(m, change(a.id, m)) })}</div>`;
+    h += `<div class="card"><h3>${m.label} <span>${m.lower ? 'lower is better' : 'higher is better'}</span></h3>${lbChart(r, v => fmtM(m, v), { lower: m.lower, top: 8, gap: d => d.toFixed(m.dp) + ' ' + m.unit })}</div>`;
   });
   const keep = ranked(list, a => poleKeep(a.id), false);
-  if (keep.length) h += `<div class="card"><h3>Speed kept with pole <span>higher is better</span></h3>${lbRows(keep, v => v.toFixed(1) + '%', { top: 8 })}<p class="small muted" style="margin:8px 0 0">Fly 20 m time without the pole divided by time with it.</p></div>`;
+  if (keep.length) h += `<div class="card"><h3>Speed kept with pole <span>higher is better</span></h3>${lbChart(keep, v => v.toFixed(1) + '%', { top: 8, gap: d => d.toFixed(1) })}<p class="small muted" style="margin:8px 0 0">Fly 20 m time without the pole divided by time with it.</p></div>`;
   h += `</div>`;
   return h;
 }
