@@ -7,7 +7,7 @@
 <meta name="description" content="Sports performance apps by Payton Pitts, D1 pole vaulter at USF.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@800&family=Barlow+Condensed:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@800&family=Barlow+Condensed:wght@700&family=Source+Serif+4:opsz,wght@8..60,600&display=swap">
 <link rel="stylesheet" href="assets/style.css?v=3">
 <style>
   .hero { padding: 44px 0 22px; }
@@ -22,8 +22,12 @@
   .app img, .app .ic { width: 64px; height: 64px; border-radius: 15px; display: block; }
   .app .ic { display: grid; place-items: center; background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
   .app .ic svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .app .ic.blue { background: linear-gradient(135deg, #4f8ff0, #1d5fd1); }
-  .app .ic.indigo { background: linear-gradient(135deg, #6f6cf0, #4338ca); }
+  /* the three lab apps share the serif title used inside them, each in its own accent */
+  .wm-lab { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; letter-spacing: -.01em; font-size: 25px !important; }
+  .t-purple { --app: #6d28d9; } .t-indigo { --app: #4338ca; } .t-blue { --app: #1d5fd1; }
+  @media (prefers-color-scheme: dark) { .t-purple { --app: #b49cff; } .t-indigo { --app: #a5adff; } .t-blue { --app: #7cb2ff; } }
+  .app[class*="t-"] .tag, .app[class*="t-"]:hover .go { color: var(--app); }
+  .app[class*="t-"]:hover { border-color: var(--app); }
   .app .meta { min-width: 0; }
   .app .tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
   .app .name { font-size: 22px; line-height: 1.15; margin: 2px 0 4px; font-weight: 700; color: var(--text); }
@@ -97,31 +101,31 @@
       <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
 
-    <a class="card app" href="vault/">
-      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20L18 4"/><path d="M14 4h6"/><circle cx="6" cy="9" r="2"/></svg></span>
+    <a class="card app t-purple" href="vault/">
+      <img src="vault/icon.svg" alt="" width="64" height="64">
       <div class="meta">
         <div class="tag">Biomechanics</div>
-        <div class="name">Pole Vault Energy Calculator</div>
+        <div class="name wm-lab">Vault Energy</div>
         <p>Turns takeoff speed into an estimated bar height using energy conservation, and works out the speed you'd need for a target bar.</p>
       </div>
       <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
 
-    <a class="card app" href="testing/">
-      <span class="ic indigo" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+    <a class="card app t-indigo" href="testing/">
+      <img src="testing/icon.svg" alt="" width="64" height="64">
       <div class="meta">
         <div class="tag">Testing</div>
-        <div class="name">Testing Day Sheet</div>
+        <div class="name wm-lab">Testing Day</div>
         <p>Fast entry for team testing sessions. Takes the best attempt, ranks the group, and makes a shareable card for each athlete.</p>
       </div>
       <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
 
-    <a class="card app" href="jump/">
-      <span class="ic blue" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></span>
+    <a class="card app t-blue" href="jump/">
+      <img src="jump/icon.svg" alt="" width="64" height="64">
       <div class="meta">
         <div class="tag">Monitoring</div>
-        <div class="name">Jump Test Tracker</div>
+        <div class="name wm-lab">Jump Tracker</div>
         <p>Logs countermovement jumps for a whole team, shows each athlete's trend against their own baseline, and flags drops that could mean fatigue.</p>
       </div>
       <span class="go" aria-hidden="true">&rsaquo;</span>
