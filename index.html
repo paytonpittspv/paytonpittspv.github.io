@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payton Pitts · Sports Apps</title>
+<meta name="description" content="Small sports performance apps by Payton Pitts, D1 pole vaulter at USF.">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .hero { padding: 48px 0 24px; }
+  .hero p { max-width: 620px; font-size: 17px; }
+  .app-card { display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; transition: transform .15s; }
+  .app-card:hover { transform: translateY(-2px); }
+  .app-card .tag { font-size: 12px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+  .app-card p { color: var(--muted); margin: 0; flex: 1; }
+  .app-card .go { font-weight: 600; color: var(--accent); }
+  .icon { width: 40px; height: 40px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 14%, transparent); display: grid; place-items: center; }
+  .icon svg { width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <a class="brand" href="./">Payton Pitts<span>.</span></a>
+  <nav>
+    <a href="jump/">Jump Tracker</a>
+    <a href="vault/">Vault Calculator</a>
+    <a href="testing/">Testing Day</a>
+    <a href="https://github.com/paytonpittspv">GitHub</a>
+  </nav>
+</div></div>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Sports apps for coaches and athletes</h1>
+    <p>I'm a D1 pole vaulter at the University of South Florida and a health science major. I'm into biomechanics, and I spend a lot of time helping coaches track and refine training. These are small tools I built around that: quick to use, easy to read, and easy to share with athletes.</p>
+  </section>
+
+  <section class="grid three">
+    <a class="card app-card" href="jump/">
+      <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div>
+      <div class="tag">Monitoring</div>
+      <h3>Jump Test Tracker</h3>
+      <p>Log countermovement jumps for a whole team, see each athlete's trend against their own baseline, and flag drops that could mean fatigue.</p>
+      <span class="go">Open app &rarr;</span>
+    </a>
+    <a class="card app-card" href="vault/">
+      <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 20L18 4"/><path d="M14 4h6"/><circle cx="6" cy="9" r="2"/></svg></div>
+      <div class="tag">Biomechanics</div>
+      <h3>Pole Vault Energy Calculator</h3>
+      <p>Turn takeoff speed into an estimated peak height using energy conservation, and work out the speed you'd need for a target bar.</p>
+      <span class="go">Open app &rarr;</span>
+    </a>
+    <a class="card app-card" href="testing/">
+      <div class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+      <div class="tag">Testing</div>
+      <h3>Testing Day Sheet</h3>
+      <p>Fast entry for team testing sessions. Takes the best attempt, ranks the group, and makes a shareable card for each athlete.</p>
+      <span class="go">Open app &rarr;</span>
+    </a>
+  </section>
+</main>
+
+<footer class="site"><div class="wrap">
+  Built by Payton Pitts · Code on <a href="https://github.com/paytonpittspv/paytonpittspv.github.io">GitHub</a> · Data you enter stays in your browser.
+</div></footer>
+</body>
+</html>

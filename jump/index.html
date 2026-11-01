@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jump Test Tracker</title>
+<meta name="description" content="Track countermovement jumps for a team and flag drops against each athlete's own baseline.">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+  tbody tr { cursor: pointer; }
+  tbody tr.sel { background: var(--surface-2); box-shadow: inset 3px 0 0 var(--accent); }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; align-items: end; }
+  #chart { width: 100%; height: 260px; display: block; }
+  .legend { display: flex; gap: 14px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <a class="brand" href="../">Payton Pitts<span>.</span></a>
+  <nav>
+    <a href="./" aria-current="page">Jump Tracker</a>
+    <a href="../vault/">Vault Calculator</a>
+    <a href="../testing/">Testing Day</a>
+  </nav>
+</div></div>
+
+<main class="wrap stack">
+  <header class="page">
+    <h1>Jump Test Tracker</h1>
+    <p class="muted">Log countermovement jumps (CMJ) for your group. Each athlete is compared to their own recent average, not to the team, so you can see who's fresh and who's flat today.</p>
+  </header>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Units">
+      <button data-unit="in">inches</button>
+      <button data-unit="cm">cm</button>
+    </div>
+    <div class="row">
+      <label style="min-width:170px">Flag when below baseline by
+        <select id="threshold">
+          <option value="5">5% or more</option>
+          <option value="7">7% or more</option>
+          <option value="10">10% or more</option>
+        </select>
+      </label>
+    </div>
+  </div>
+
+  <section class="stats">
+    <div class="card stat"><span class="k">Athletes</span><span class="v num" id="sAthletes">0</span></div>
+    <div class="card stat"><span class="k">Jumps logged</span><span class="v num" id="sJumps">0</span></div>
+    <div class="card stat"><span class="k">Flagged</span><span class="v num" id="sFlagged">0</span></div>
+    <div class="card stat"><span class="k">Last session</span><span class="v num" id="sLast" style="font-size:20px">–</span></div>
+  </section>
+
+  <section class="card">
+    <h2>Log a jump</h2>
+    <form id="logForm" class="form-grid" autocomplete="off">
+      <label>Athlete
+        <input id="fName" list="athleteList" placeholder="Name" required>
+        <datalist id="athleteList"></datalist>
+      </label>
+      <label>Date <input id="fDate" type="date" required></label>
+      <label><span>Jump height (<span class="unitLbl">in</span>)</span> <input id="fHeight" type="number" step="0.1" min="0" required></label>
+      <label>RSI-mod (optional) <input id="fRsi" type="number" step="0.01" min="0" placeholder="e.g. 0.45"></label>
+      <button class="primary" type="submit">Add jump</button>
+    </form>
+    <p class="small muted" style="margin:10px 0 0">If you log more than one jump for the same athlete on the same day, the best one counts.</p>
+  </section>
+
+  <section class="card">
+    <div class="toolbar" style="margin-bottom:8px">
+      <h2 style="margin:0">Team today</h2>
+      <span class="small muted">Tap an athlete to see their trend</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>Athlete</th><th class="r">Latest</th><th class="r">Baseline</th><th class="r">Change</th><th>Status</th><th class="r">Sessions</th>
+        </tr></thead>
+        <tbody id="teamBody"></tbody>
+      </table>
+    </div>
+    <p id="emptyMsg" class="muted" hidden>No jumps yet. Add one above or load the sample team.</p>
+  </section>
+
+  <section class="card" id="detail" hidden>
+    <div class="toolbar">
+      <h2 id="dName" style="margin:0"></h2>
+      <div class="legend">
+        <span><i style="background:var(--chart-1)"></i>Jump height</span>
+        <span><i style="background:var(--chart-3)"></i>Baseline (avg of previous 5)</span>
+      </div>
+    </div>
+    <svg id="chart" role="img" aria-label="Jump height over time"></svg>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Date</th><th class="r">Height</th><th class="r">RSI-mod</th><th class="r">vs baseline</th><th></th></tr></thead>
+        <tbody id="histBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="note">
+    <strong>How the flag works:</strong> baseline is the average of an athlete's previous five sessions (at least two needed). A drop past your chosen threshold gets flagged red, and a drop past half of it gets yellow. It's a prompt to check in with the athlete, not a diagnosis. Use the same jump protocol every time (hands on hips, same warm-up) so the numbers are comparable.
+  </div>
+
+  <div class="row">
+    <button id="exportBtn">Export CSV</button>
+    <button id="sampleBtn" class="ghost">Load sample team</button>
+    <button id="clearBtn" class="ghost">Clear all</button>
+  </div>
+</main>
+
+<footer class="site"><div class="wrap">
+  Built by Payton Pitts · <a href="../">All apps</a> · Data stays in your browser.
+</div></footer>
+
+<script>
+(() => {
+  const KEY = 'pp-jump-v1';
+  const CM_PER_IN = 2.54;
+  const $ = (id) => document.getElementById(id);
+
+  let state = load() || sample();
+  let selected = null;
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch {}
+  }
+
+  // Heights are stored in cm.
+  function sample() {
+    const names = ['Jordan Reyes', 'Maya Chen', 'Tyler Brooks', 'Aaliyah Grant', 'Ben Kowalski', 'Sofia Alvarez'];
+    const bases = [61, 52, 58, 49, 55, 47];
+    const entries = [];
+    const today = new Date();
+    for (let s = 9; s >= 0; s--) {
+      const d = new Date(today); d.setDate(d.getDate() - s * 3);
+      const date = d.toISOString().slice(0, 10);
+      names.forEach((n, i) => {
+        let h = bases[i] + Math.sin(s * 1.3 + i) * 1.2 + (i * 7 + s * 3) % 5 * .3;
+        if (i === 2 && s === 0) h -= 7;            // Tyler: flat today
+        if (i === 4 && s === 0) h -= 2.6;           // Ben: slight dip
+        if (i === 1) h += (9 - s) * .25;            // Maya: trending up
+        entries.push({ name: n, date, cm: +h.toFixed(1), rsi: +(0.32 + bases[i] / 200 + Math.cos(s + i) * .02).toFixed(2) });
+      });
+    }
+    return { unit: 'in', threshold: 7, entries };
+  }
+
+  const toUnit = (cm) => state.unit === 'in' ? cm / CM_PER_IN : cm;
+  const fromUnit = (v) => state.unit === 'in' ? v * CM_PER_IN : v;
+  const fmt = (cm) => toUnit(cm).toFixed(1);
+  const fmtDate = (iso) => new Date(iso + 'T12:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+  // One value per athlete per day (best jump), sorted by date.
+  function sessionsFor(name) {
+    const byDay = new Map();
+    state.entries.filter(e => e.name === name).forEach(e => {
+      const cur = byDay.get(e.date);
+      if (!cur || e.cm > cur.cm) byDay.set(e.date, e);
+    });
+    const list = [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date));
+    return list.map((e, i) => {
+      const prev = list.slice(Math.max(0, i - 5), i);
+      const baseline = prev.length >= 2 ? prev.reduce((s, p) => s + p.cm, 0) / prev.length : null;
+      const change = baseline ? (e.cm - baseline) / baseline * 100 : null;
+      return { ...e, baseline, change };
+    });
+  }
+
+  function status(change) {
+    const t = state.threshold;
+    if (change == null) return { cls: '', txt: 'Building baseline' };
+    if (change <= -t) return { cls: 'bad', txt: 'Check in' };
+    if (change <= -t / 2) return { cls: 'warn', txt: 'Watch' };
+    return { cls: 'good', txt: 'Good to go' };
+  }
+
+  function athletes() {
+    return [...new Set(state.entries.map(e => e.name))].sort();
+  }
+
+  function render() {
+    document.querySelectorAll('[data-unit]').forEach(b => b.setAttribute('aria-pressed', b.dataset.unit === state.unit));
+    document.querySelectorAll('.unitLbl').forEach(el => el.textContent = state.unit);
+    $('threshold').value = state.threshold;
+
+    const names = athletes();
+    $('athleteList').innerHTML = names.map(n => `<option value="${esc(n)}">`).join('');
+
+    const rows = names.map(n => {
+      const s = sessionsFor(n);
+      return { name: n, last: s[s.length - 1], count: s.length };
+    }).sort((a, b) => (a.last.change ?? 99) - (b.last.change ?? 99));
+
+    let flagged = 0;
+    $('teamBody').innerHTML = rows.map(r => {
+      const st = status(r.last.change);
+      if (st.cls === 'bad') flagged++;
+      const ch = r.last.change == null ? '–' : (r.last.change > 0 ? '+' : '') + r.last.change.toFixed(1) + '%';
+      return `<tr data-name="${esc(r.name)}" class="${r.name === selected ? 'sel' : ''}">
+        <td><strong>${esc(r.name)}</strong></td>
+        <td class="r num">${fmt(r.last.cm)} ${state.unit}</td>
+        <td class="r num">${r.last.baseline ? fmt(r.last.baseline) + ' ' + state.unit : '–'}</td>
+        <td class="r num">${ch}</td>
+        <td><span class="pill ${st.cls}">${st.txt}</span></td>
+        <td class="r num">${r.count}</td>
+      </tr>`;
+    }).join('');
+    $('emptyMsg').hidden = rows.length > 0;
+
+    const dates = state.entries.map(e => e.date).sort();
+    $('sAthletes').textContent = names.length;
+    $('sJumps').textContent = state.entries.length;
+    $('sFlagged').textContent = flagged;
+    $('sLast').textContent = dates.length ? fmtDate(dates[dates.length - 1]) : '–';
+
+    if (selected && !names.includes(selected)) selected = null;
+    renderDetail();
+  }
+
+  function renderDetail() {
+    const box = $('detail');
+    if (!selected) { box.hidden = true; return; }
+    box.hidden = false;
+    const s = sessionsFor(selected);
+    $('dName').textContent = selected;
+    drawChart(s);
+    $('histBody').innerHTML = s.slice().reverse().map(e => {
+      const st = status(e.change);
+      const ch = e.change == null ? '–' : (e.change > 0 ? '+' : '') + e.change.toFixed(1) + '%';
+      return `<tr>
+        <td>${fmtDate(e.date)}</td>
+        <td class="r num">${fmt(e.cm)} ${state.unit}</td>
+        <td class="r num">${e.rsi ?? '–'}</td>
+        <td class="r num"><span class="pill ${st.cls}">${ch}</span></td>
+        <td class="r"><button class="ghost small" data-del="${esc(e.date)}" title="Delete this day">✕</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function drawChart(s) {
+    const svg = $('chart');
+    const W = svg.clientWidth || 600, H = 260, P = { l: 40, r: 12, t: 14, b: 26 };
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    if (!s.length) { svg.innerHTML = ''; return; }
+    const vals = s.flatMap(e => [e.cm, e.baseline].filter(v => v != null)).map(toUnit);
+    let lo = Math.min(...vals), hi = Math.max(...vals);
+    const pad = Math.max((hi - lo) * .2, 1); lo -= pad; hi += pad;
+    const x = (i) => s.length === 1 ? (P.l + W - P.r) / 2 : P.l + i * (W - P.l - P.r) / (s.length - 1);
+    const y = (v) => P.t + (hi - toUnit(v)) / (hi - lo) * (H - P.t - P.b);
+    const yv = (u) => P.t + (hi - u) / (hi - lo) * (H - P.t - P.b);
+
+    let out = '';
+    const ticks = 4;
+    for (let k = 0; k <= ticks; k++) {
+      const u = lo + (hi - lo) * k / ticks;
+      out += `<line x1="${P.l}" x2="${W - P.r}" y1="${yv(u)}" y2="${yv(u)}" stroke="var(--line)"/>`;
+      out += `<text x="${P.l - 6}" y="${yv(u) + 4}" text-anchor="end">${u.toFixed(hi - lo < 6 ? 1 : 0)}</text>`;
+    }
+    const step = Math.ceil(s.length / Math.max(2, Math.floor((W - P.l) / 70)));
+    s.forEach((e, i) => { if (i % step === 0 || i === s.length - 1) out += `<text x="${x(i)}" y="${H - 6}" text-anchor="${i === s.length - 1 && s.length > 1 ? 'end' : i === 0 && s.length > 1 ? 'start' : 'middle'}">${fmtDate(e.date)}</text>`; });
+
+    const base = s.map((e, i) => e.baseline != null ? `${x(i)},${y(e.baseline)}` : null).filter(Boolean);
+    if (base.length > 1) out += `<polyline points="${base.join(' ')}" fill="none" stroke="var(--chart-3)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    out += `<polyline points="${s.map((e, i) => `${x(i)},${y(e.cm)}`).join(' ')}" fill="none" stroke="var(--chart-1)" stroke-width="2.5" stroke-linejoin="round"/>`;
+    s.forEach((e, i) => {
+      const st = status(e.change);
+      const col = st.cls === 'bad' ? 'var(--bad)' : st.cls === 'warn' ? 'var(--warn)' : 'var(--chart-1)';
+      out += `<circle cx="${x(i)}" cy="${y(e.cm)}" r="4" fill="var(--surface)" stroke="${col}" stroke-width="2.5"><title>${fmtDate(e.date)}: ${fmt(e.cm)} ${state.unit}</title></circle>`;
+    });
+    svg.innerHTML = out;
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+  // Events
+  $('fDate').value = new Date().toISOString().slice(0, 10);
+  $('logForm').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const name = $('fName').value.trim();
+    const h = parseFloat($('fHeight').value);
+    if (!name || !(h > 0)) return;
+    const rsi = parseFloat($('fRsi').value);
+    state.entries.push({ name, date: $('fDate').value, cm: +fromUnit(h).toFixed(1), rsi: rsi > 0 ? rsi : null });
+    selected = name;
+    save(); render();
+    $('fHeight').value = ''; $('fRsi').value = ''; $('fName').focus(); $('fName').select();
+  });
+  $('teamBody').addEventListener('click', (ev) => {
+    const tr = ev.target.closest('tr[data-name]');
+    if (!tr) return;
+    selected = selected === tr.dataset.name ? null : tr.dataset.name;
+    render();
+    if (selected) $('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+  $('histBody').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-del]');
+    if (!b) return;
+    state.entries = state.entries.filter(e => !(e.name === selected && e.date === b.dataset.del));
+    save(); render();
+  });
+  document.querySelectorAll('[data-unit]').forEach(b => b.addEventListener('click', () => { state.unit = b.dataset.unit; save(); render(); }));
+  $('threshold').addEventListener('change', (e) => { state.threshold = +e.target.value; save(); render(); });
+  $('sampleBtn').addEventListener('click', () => {
+    if (state.entries.length && !confirm('Replace your data with the sample team?')) return;
+    state = sample(); selected = null; save(); render();
+  });
+  $('clearBtn').addEventListener('click', () => {
+    if (!confirm('Delete all jumps?')) return;
+    state.entries = []; selected = null; save(); render();
+  });
+  $('exportBtn').addEventListener('click', () => {
+    const lines = [['athlete', 'date', `height_${state.unit}`, 'rsi_mod', `baseline_${state.unit}`, 'change_pct']];
+    athletes().forEach(n => sessionsFor(n).forEach(e => lines.push([
+      n, e.date, fmt(e.cm), e.rsi ?? '', e.baseline ? fmt(e.baseline) : '', e.change == null ? '' : e.change.toFixed(1)
+    ])));
+    const csv = lines.map(r => r.map(c => /[",]/.test(c) ? `"${String(c).replace(/"/g, '""')}"` : c).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = 'jump-tests.csv'; a.click();
+  });
+  window.addEventListener('resize', () => selected && renderDetail());
+
+  render();
+})();
+</script>
+</body>
+</html>

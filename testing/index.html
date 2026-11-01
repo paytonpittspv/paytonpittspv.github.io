@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Testing Day Sheet</title>
+<meta name="description" content="Fast data entry for team testing days, with automatic best attempts, leaderboards and shareable athlete cards.">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .entry input { width: 84px; padding: 6px 8px; text-align: right; font-variant-numeric: tabular-nums; }
+  .entry td { padding: 6px 8px; }
+  .best { font-weight: 700; }
+  .lb { display: grid; gap: 8px; }
+  .lb-row { display: grid; grid-template-columns: 28px minmax(90px, 160px) 1fr 70px; gap: 10px; align-items: center; font-size: 14px; }
+  .lb-row .rank { font-weight: 700; color: var(--muted); text-align: right; }
+  .lb-row .bar { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+  .lb-row .bar i { display: block; height: 100%; background: var(--chart-1); border-radius: 5px; }
+  .lb-row .val { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .lb-row.top .rank { color: var(--accent); }
+  #cardCanvas { width: 100%; max-width: 360px; border-radius: 12px; border: 1px solid var(--line); display: block; }
+  .card-layout { display: grid; grid-template-columns: minmax(220px, 360px) 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 700px) { .card-layout { grid-template-columns: 1fr; } }
+  details summary { cursor: pointer; font-weight: 600; }
+  .test-edit { display: grid; grid-template-columns: 1fr 80px 120px 36px; gap: 8px; align-items: center; margin-top: 8px; }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <a class="brand" href="../">Payton Pitts<span>.</span></a>
+  <nav>
+    <a href="../jump/">Jump Tracker</a>
+    <a href="../vault/">Vault Calculator</a>
+    <a href="./" aria-current="page">Testing Day</a>
+  </nav>
+</div></div>
+
+<main class="wrap stack">
+  <header class="page">
+    <h1>Testing Day Sheet</h1>
+    <p class="muted">Built for standing on the track with an iPad. Type attempts, hit Tab, keep moving. The best attempt is picked for you, the group gets ranked, and every athlete gets a card they can actually post.</p>
+  </header>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between">
+      <label style="flex:1;min-width:200px">Session name <input id="session" placeholder="e.g. Fall testing, week 1"></label>
+      <label>Date <input id="sDate" type="date"></label>
+    </div>
+    <details style="margin-top:14px">
+      <summary>Athletes and tests</summary>
+      <div class="grid two" style="margin-top:12px">
+        <div>
+          <h3>Athletes</h3>
+          <form id="addAthlete" class="row" autocomplete="off">
+            <input id="newAthlete" placeholder="Add athlete name" style="flex:1">
+            <button type="submit">Add</button>
+          </form>
+          <div id="athleteChips" class="row" style="margin-top:10px;gap:6px"></div>
+        </div>
+        <div>
+          <h3>Tests</h3>
+          <div id="testList"></div>
+          <button id="addTest" class="ghost" style="margin-top:10px">+ Add test</button>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="tabs" id="tabs"></div>
+      <span class="small muted" id="testHint"></span>
+    </div>
+    <div class="table-wrap">
+      <table class="entry">
+        <thead id="entryHead"></thead>
+        <tbody id="entryBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 id="lbTitle">Leaderboard</h2>
+    <div class="lb" id="lb"></div>
+  </section>
+
+  <section class="card">
+    <h2>Athlete card</h2>
+    <div class="card-layout">
+      <canvas id="cardCanvas" width="1080" height="1350"></canvas>
+      <div class="stack">
+        <label>Athlete <select id="cardAthlete"></select></label>
+        <div class="row">
+          <button class="primary" id="shareBtn">Share</button>
+          <button id="downloadBtn">Download PNG</button>
+        </div>
+        <p class="small muted">Cards are sized for Instagram posts and stories (4:5). They show each test's best mark and where it ranks in the group.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="row">
+    <button id="exportBtn">Export CSV</button>
+    <button id="sampleBtn" class="ghost">Load sample session</button>
+    <button id="clearBtn" class="ghost">Clear results</button>
+  </div>
+</main>
+
+<footer class="site"><div class="wrap">
+  Built by Payton Pitts · <a href="../">All apps</a> · Data stays in your browser.
+</div></footer>
+
+<script>
+(() => {
+  const KEY = 'pp-testing-v1', ATTEMPTS = 3;
+  const $ = (id) => document.getElementById(id);
+  const uid = () => Math.random().toString(36).slice(2, 9);
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function blank() {
+    return {
+      session: '', date: new Date().toISOString().slice(0, 10),
+      tests: [
+        { id: 't10', name: '10 m sprint', unit: 's', better: 'lower' },
+        { id: 't30', name: '30 m sprint', unit: 's', better: 'lower' },
+        { id: 'tcmj', name: 'Vertical jump', unit: 'in', better: 'higher' },
+        { id: 'tbj', name: 'Broad jump', unit: 'in', better: 'higher' },
+      ],
+      athletes: [], results: {}, active: 't10', cardAthlete: null,
+    };
+  }
+  function sample() {
+    const s = blank();
+    s.session = 'Fall testing, week 1';
+    const people = [
+      ['Jordan Reyes', 1.72, 4.05, 27.5, 112], ['Maya Chen', 1.88, 4.38, 22.0, 98], ['Tyler Brooks', 1.69, 3.98, 29.0, 116],
+      ['Aaliyah Grant', 1.91, 4.45, 20.5, 95], ['Ben Kowalski', 1.78, 4.15, 25.0, 106], ['Sofia Alvarez', 1.95, 4.52, 19.5, 92],
+      ['Marcus Hill', 1.75, 4.09, 26.0, 109], ['Emma Laurent', 1.86, 4.33, 22.5, 100],
+    ];
+    people.forEach(([name, t10, t30, vj, bj], i) => {
+      const id = uid();
+      s.athletes.push({ id, name });
+      const jit = (k) => ((i * 7 + k * 3) % 5 - 2);
+      s.results[id] = {
+        t10: [t10 + .04, t10, t10 + .02].map((v, k) => +(v + jit(k) * .005).toFixed(2)),
+        t30: [t30 + .03, t30 + .05, t30].map((v, k) => +(v + jit(k) * .005).toFixed(2)),
+        tcmj: [vj - 1, vj, vj - .5].map((v, k) => +(v + jit(k) * .1).toFixed(1)),
+        tbj: [bj - 2, bj - 1, bj].map(v => v),
+      };
+    });
+    s.cardAthlete = s.athletes[0].id;
+    return s;
+  }
+
+  let s;
+  try { s = JSON.parse(localStorage.getItem(KEY)) || sample(); } catch { s = sample(); }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} };
+
+  const test = () => s.tests.find(t => t.id === s.active) || s.tests[0];
+  const attempts = (aid, tid) => (s.results[aid]?.[tid] || []);
+  function best(aid, t) {
+    const vals = attempts(aid, t.id).filter(v => typeof v === 'number' && v > 0);
+    if (!vals.length) return null;
+    return t.better === 'lower' ? Math.min(...vals) : Math.max(...vals);
+  }
+  function ranking(t) {
+    return s.athletes.map(a => ({ a, v: best(a.id, t) })).filter(r => r.v != null)
+      .sort((x, y) => t.better === 'lower' ? x.v - y.v : y.v - x.v)
+      .map((r, i, arr) => ({ ...r, rank: i > 0 && arr[i - 1].v === r.v ? null : i + 1 }))
+      .map((r, i, arr) => ({ ...r, rank: r.rank ?? arr.slice(0, i).reverse().find(p => p.rank)?.rank }));
+  }
+  const fmtV = (v, t) => v == null ? '–' : (t.unit === 's' ? v.toFixed(2) : String(+v.toFixed(1))) + ' ' + t.unit;
+
+  function render() {
+    $('session').value = s.session;
+    $('sDate').value = s.date;
+    if (!s.tests.find(t => t.id === s.active)) s.active = s.tests[0]?.id;
+
+    // Setup
+    $('athleteChips').innerHTML = s.athletes.map(a =>
+      `<span class="pill">${esc(a.name)} <button class="ghost" data-rm="${a.id}" style="padding:0 0 0 4px;border:0;font-size:12px" aria-label="Remove ${esc(a.name)}">✕</button></span>`).join('');
+    $('testList').innerHTML = s.tests.map(t => `<div class="test-edit" data-tid="${t.id}">
+      <input data-f="name" value="${esc(t.name)}" aria-label="Test name">
+      <input data-f="unit" value="${esc(t.unit)}" aria-label="Unit">
+      <select data-f="better" aria-label="Better is"><option value="lower" ${t.better === 'lower' ? 'selected' : ''}>lower wins</option><option value="higher" ${t.better === 'higher' ? 'selected' : ''}>higher wins</option></select>
+      <button class="ghost" data-rmtest="${t.id}" aria-label="Remove test">✕</button>
+    </div>`).join('');
+
+    $('tabs').innerHTML = s.tests.map(t => `<button data-tab="${t.id}" aria-pressed="${t.id === s.active}">${esc(t.name)}</button>`).join('');
+    renderEntry();
+    renderBoard();
+    renderCardSelect();
+    drawCard();
+  }
+
+  function renderEntry() {
+    const t = test();
+    if (!t) { $('entryHead').innerHTML = ''; $('entryBody').innerHTML = ''; return; }
+    $('testHint').textContent = `${t.unit}, ${t.better} wins · Tab moves to the next box`;
+    $('entryHead').innerHTML = `<tr><th>Athlete</th>${Array.from({ length: ATTEMPTS }, (_, i) => `<th class="r">Try ${i + 1}</th>`).join('')}<th class="r">Best</th></tr>`;
+    if (!s.athletes.length) { $('entryBody').innerHTML = `<tr><td colspan="${ATTEMPTS + 2}" class="muted">Add athletes under "Athletes and tests" above.</td></tr>`; return; }
+    $('entryBody').innerHTML = s.athletes.map(a => {
+      const at = attempts(a.id, t.id);
+      return `<tr><td><strong>${esc(a.name)}</strong></td>${Array.from({ length: ATTEMPTS }, (_, i) =>
+        `<td class="r"><input type="number" inputmode="decimal" step="0.01" min="0" data-aid="${a.id}" data-i="${i}" value="${at[i] ?? ''}" aria-label="${esc(a.name)} try ${i + 1}"></td>`).join('')}
+        <td class="r best num" data-best="${a.id}">${fmtV(best(a.id, t), t)}</td></tr>`;
+    }).join('');
+  }
+
+  function renderBoard() {
+    const t = test();
+    if (!t) { $('lb').innerHTML = ''; return; }
+    $('lbTitle').textContent = `Leaderboard · ${t.name}`;
+    const r = ranking(t);
+    if (!r.length) { $('lb').innerHTML = '<p class="muted">No marks yet.</p>'; return; }
+    const vals = r.map(x => x.v), lo = Math.min(...vals), hi = Math.max(...vals);
+    const pct = (v) => hi === lo ? 100 : t.better === 'lower' ? 35 + 65 * (hi - v) / (hi - lo) : 35 + 65 * (v - lo) / (hi - lo);
+    $('lb').innerHTML = r.map(x => `<div class="lb-row ${x.rank === 1 ? 'top' : ''}">
+      <span class="rank">${x.rank}</span><span>${esc(x.a.name)}</span>
+      <span class="bar"><i style="width:${pct(x.v)}%"></i></span><span class="val">${fmtV(x.v, t)}</span></div>`).join('');
+  }
+
+  function renderCardSelect() {
+    if (!s.athletes.find(a => a.id === s.cardAthlete)) s.cardAthlete = s.athletes[0]?.id || null;
+    $('cardAthlete').innerHTML = s.athletes.map(a => `<option value="${a.id}" ${a.id === s.cardAthlete ? 'selected' : ''}>${esc(a.name)}</option>`).join('');
+  }
+
+  function drawCard() {
+    const c = $('cardCanvas'), g = c.getContext('2d');
+    const W = 1080, H = 1350;
+    const a = s.athletes.find(x => x.id === s.cardAthlete);
+    const grad = g.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, '#12161f'); grad.addColorStop(1, '#1f2937');
+    g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#ff6b3d'; g.fillRect(0, 0, W, 14);
+
+    const font = (w, px) => `${w} ${px}px Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
+    g.fillStyle = '#96a0b2'; g.font = font(600, 34);
+    g.fillText((s.session || 'Testing day').toUpperCase(), 80, 120);
+    g.font = font(500, 30);
+    g.fillText(new Date(s.date + 'T12:00').toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }), 80, 166);
+
+    g.fillStyle = '#ffffff'; g.font = font(800, 92);
+    const name = a ? a.name : 'Add an athlete';
+    let size = 92;
+    while (g.measureText(name).width > W - 160 && size > 50) { size -= 4; g.font = font(800, size); }
+    g.fillText(name, 80, 290);
+
+    if (!a) return;
+    const rows = s.tests.map(t => {
+      const r = ranking(t), me = r.find(x => x.a.id === a.id);
+      return { t, v: me?.v ?? null, rank: me?.rank ?? null, of: r.length };
+    });
+    const top = 360, avail = H - top - 150, rowH = Math.min(200, avail / Math.max(rows.length, 1));
+    rows.forEach((row, i) => {
+      const y = top + i * rowH;
+      g.fillStyle = 'rgba(255,255,255,0.05)';
+      roundRect(g, 60, y, W - 120, rowH - 20, 24); g.fill();
+      g.fillStyle = '#96a0b2'; g.font = font(600, 30);
+      g.fillText(row.t.name.toUpperCase(), 100, y + 58);
+      g.fillStyle = '#ffffff'; g.font = font(800, Math.min(76, rowH * .42));
+      const val = row.v == null ? '–' : (row.t.unit === 's' ? row.v.toFixed(2) : String(+row.v.toFixed(1)));
+      g.fillText(val, 100, y + rowH - 50);
+      const vw = g.measureText(val).width;
+      g.fillStyle = '#96a0b2'; g.font = font(600, 34);
+      g.fillText(row.t.unit, 100 + vw + 14, y + rowH - 50);
+      if (row.rank) {
+        const label = `#${row.rank}`, sub = `of ${row.of}`;
+        g.textAlign = 'right';
+        g.fillStyle = row.rank === 1 ? '#ff6b3d' : '#ffffff'; g.font = font(800, Math.min(70, rowH * .38));
+        g.fillText(label, W - 100, y + rowH / 2 + 4);
+        g.fillStyle = '#96a0b2'; g.font = font(600, 28);
+        g.fillText(sub, W - 100, y + rowH / 2 + 44);
+        g.textAlign = 'left';
+      }
+    });
+    g.fillStyle = '#6c778a'; g.font = font(500, 26);
+    g.fillText('Best of 3 attempts · ranked within this session', 80, H - 70);
+  }
+  function roundRect(g, x, y, w, h, r) {
+    g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+  }
+
+  // Events
+  $('session').addEventListener('input', e => { s.session = e.target.value; save(); drawCard(); });
+  $('sDate').addEventListener('change', e => { s.date = e.target.value; save(); drawCard(); });
+  $('addAthlete').addEventListener('submit', e => {
+    e.preventDefault();
+    const n = $('newAthlete').value.trim(); if (!n) return;
+    const id = uid(); s.athletes.push({ id, name: n }); s.results[id] = {};
+    $('newAthlete').value = ''; save(); render(); $('newAthlete').focus();
+  });
+  $('athleteChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-rm]'); if (!b) return;
+    s.athletes = s.athletes.filter(a => a.id !== b.dataset.rm); delete s.results[b.dataset.rm]; save(); render();
+  });
+  $('testList').addEventListener('change', e => {
+    const row = e.target.closest('[data-tid]'); if (!row) return;
+    const t = s.tests.find(x => x.id === row.dataset.tid); t[e.target.dataset.f] = e.target.value.trim() || t[e.target.dataset.f];
+    save(); render();
+  });
+  $('testList').addEventListener('click', e => {
+    const b = e.target.closest('[data-rmtest]'); if (!b) return;
+    if (!confirm('Remove this test and its results?')) return;
+    s.tests = s.tests.filter(t => t.id !== b.dataset.rmtest); save(); render();
+  });
+  $('addTest').addEventListener('click', () => {
+    const id = 't' + uid(); s.tests.push({ id, name: 'New test', unit: 's', better: 'lower' }); s.active = id; save(); render();
+  });
+  $('tabs').addEventListener('click', e => {
+    const b = e.target.closest('[data-tab]'); if (!b) return; s.active = b.dataset.tab; save(); render();
+  });
+  $('entryBody').addEventListener('input', e => {
+    const inp = e.target.closest('input[data-aid]'); if (!inp) return;
+    const t = test(), aid = inp.dataset.aid, i = +inp.dataset.i;
+    s.results[aid] = s.results[aid] || {};
+    const arr = s.results[aid][t.id] = s.results[aid][t.id] || [];
+    const v = parseFloat(inp.value); arr[i] = v > 0 ? v : null;
+    save();
+    document.querySelector(`[data-best="${aid}"]`).textContent = fmtV(best(aid, t), t);
+    renderBoard(); drawCard();
+  });
+  $('cardAthlete').addEventListener('change', e => { s.cardAthlete = e.target.value; save(); drawCard(); });
+
+  const cardName = () => (s.athletes.find(a => a.id === s.cardAthlete)?.name || 'athlete').replace(/\s+/g, '-').toLowerCase() + '-testing.png';
+  $('downloadBtn').addEventListener('click', () => {
+    const a = document.createElement('a'); a.href = $('cardCanvas').toDataURL('image/png'); a.download = cardName(); a.click();
+  });
+  $('shareBtn').addEventListener('click', () => {
+    $('cardCanvas').toBlob(async (blob) => {
+      const file = new File([blob], cardName(), { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'Testing results' }); } catch {}
+      } else {
+        $('downloadBtn').click();
+      }
+    });
+  });
+  $('exportBtn').addEventListener('click', () => {
+    const head = ['athlete', ...s.tests.flatMap(t => [...Array.from({ length: ATTEMPTS }, (_, i) => `${t.name} try ${i + 1} (${t.unit})`), `${t.name} best`, `${t.name} rank`])];
+    const ranks = Object.fromEntries(s.tests.map(t => [t.id, Object.fromEntries(ranking(t).map(r => [r.a.id, r.rank]))]));
+    const rows = s.athletes.map(a => [a.name, ...s.tests.flatMap(t => [
+      ...Array.from({ length: ATTEMPTS }, (_, i) => attempts(a.id, t.id)[i] ?? ''), best(a.id, t) ?? '', ranks[t.id][a.id] ?? ''])]);
+    const csv = [head, ...rows].map(r => r.map(c => /[",]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : c).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'testing-day.csv'; a.click();
+  });
+  $('sampleBtn').addEventListener('click', () => {
+    if (s.athletes.length && !confirm('Replace everything with the sample session?')) return;
+    s = sample(); save(); render();
+  });
+  $('clearBtn').addEventListener('click', () => {
+    if (!confirm('Clear all results? Athletes and tests stay.')) return;
+    s.results = {}; save(); render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
