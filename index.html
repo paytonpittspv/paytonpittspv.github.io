@@ -4,18 +4,47 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Payton Pitts · Sports Apps</title>
-<meta name="description" content="Small sports performance apps by Payton Pitts, D1 pole vaulter at USF.">
+<meta name="description" content="Sports performance apps by Payton Pitts, D1 pole vaulter at USF.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@800&family=Barlow+Condensed:wght@700&display=swap">
 <link rel="stylesheet" href="assets/style.css">
 <style>
-  .hero { padding: 48px 0 24px; }
+  .hero { padding: 44px 0 22px; }
   .hero p { max-width: 620px; font-size: 17px; }
-  .app-card { display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; transition: transform .15s; }
-  .app-card:hover { transform: translateY(-2px); }
-  .app-card .tag { font-size: 12px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
-  .app-card p { color: var(--muted); margin: 0; flex: 1; }
-  .app-card .go { font-weight: 600; color: var(--accent); }
-  .icon { width: 40px; height: 40px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 14%, transparent); display: grid; place-items: center; }
-  .icon svg { width: 22px; height: 22px; stroke: var(--accent); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .apps { display: grid; gap: 12px; }
+  .app {
+    display: grid; grid-template-columns: 64px 1fr auto; gap: 16px; align-items: center;
+    padding: 16px 18px; text-decoration: none; color: inherit;
+    transition: border-color .15s, transform .15s;
+  }
+  .app:hover { border-color: var(--accent); transform: translateX(2px); }
+  .app img, .app .ic { width: 64px; height: 64px; border-radius: 15px; display: block; }
+  .app .ic { display: grid; place-items: center; background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+  .app .ic svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .app .meta { min-width: 0; }
+  .app .tag { font-size: 11px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+  .app .name { font-size: 22px; line-height: 1.15; margin: 2px 0 4px; font-weight: 700; color: var(--text); }
+  .app p { margin: 0; color: var(--muted); font-size: 14px; }
+  .app .go { color: var(--muted); font-size: 22px; padding-left: 4px; }
+  .app:hover .go { color: var(--accent); }
+
+  /* each app's own wordmark */
+  .wm-gatecam { font-family: "Figtree", system-ui, sans-serif; font-weight: 800; letter-spacing: -.01em; }
+  .wm-gatecam em { font-style: normal; background: linear-gradient(100deg, #F59A5B, #D58FB3 50%, #B48BF2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .wm-team { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; font-size: 19px !important; color: #006747 !important; }
+  .wm-chord { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; font-weight: 700; text-transform: uppercase; letter-spacing: .01em; font-size: 26px !important; }
+  .wm-chord em { font-style: normal; background: linear-gradient(90deg, #e3167b, #6a35e0, #1f6cf0); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  @media (prefers-color-scheme: dark) {
+    .wm-team { color: #34c784 !important; }
+    .wm-chord em { background-image: linear-gradient(90deg, #ff4fa3, #9474ff, #4f9bff); }
+  }
+  @media (max-width: 560px) {
+    .app { grid-template-columns: 52px 1fr; gap: 12px; padding: 14px; align-items: start; }
+    .app img, .app .ic { width: 52px; height: 52px; border-radius: 12px; }
+    .app .go { display: none; }
+    .app .name { font-size: 20px; }
+  }
 </style>
 </head>
 <body>
@@ -24,9 +53,6 @@
   <nav>
     <a href="gatecam/">GateCamLive</a>
     <a href="team/">Team Stats</a>
-    <a href="jump/">Jump Tracker</a>
-    <a href="vault/">Vault Calculator</a>
-    <a href="testing/">Testing Day</a>
     <a href="chord/">Chord Season</a>
     <a href="https://github.com/paytonpittspv">GitHub</a>
   </nav>
@@ -35,51 +61,68 @@
 <main class="wrap">
   <section class="hero">
     <h1>Sports apps for coaches and athletes</h1>
-    <p>I'm a D1 pole vaulter at the University of South Florida and a health science major. I'm into biomechanics, and I spend a lot of time helping coaches track and refine training. These are small tools I built around that: quick to use, easy to read, and easy to share with athletes.</p>
+    <p>I'm a D1 pole vaulter at the University of South Florida and a health science major. I'm into biomechanics, and I spend a lot of time helping coaches track and refine training. These are tools I built around that: quick to use, easy to read, and easy to share with athletes.</p>
   </section>
 
-  <section class="grid three" style="grid-template-columns:repeat(auto-fit,minmax(290px,1fr))">
-    <a class="card app-card" href="gatecam/">
-      <div class="icon"><svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div>
-      <div class="tag">Speed timing</div>
-      <h3>GateCamLive</h3>
-      <p>Turns a phone or iPad on a tripod into sprint timing gates. Times flying sprints, splits and pole vault approaches from the camera, then ranks the group and tracks speed with and without the pole.</p>
-      <span class="go">Open app &rarr;</span>
+  <section class="apps">
+    <a class="card app" href="gatecam/">
+      <img src="gatecam/icon-180.png" alt="" width="64" height="64">
+      <div class="meta">
+        <div class="tag">Speed timing</div>
+        <div class="name wm-gatecam">GateCam<em>Live</em></div>
+        <p>Turns a phone or iPad on a tripod into sprint timing gates. Times flying sprints, splits and pole vault approaches, then ranks the group and tracks speed with and without the pole.</p>
+      </div>
+      <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
-    <a class="card app-card" href="team/">
-      <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 20V11M10 20V4M16 20v-7M22 20H2"/></svg></div>
-      <div class="tag">Team data</div>
-      <h3>Vault Team Stats</h3>
-      <p>A pole vault team's PRs, run-up speed, approach PRs by lefts and testing trends in one place. Big numbers up front, rankings, side-by-side compares, and plain-language takeaways for each athlete.</p>
-      <span class="go">Open app &rarr;</span>
+
+    <a class="card app" href="team/">
+      <img src="team/icon-192.png" alt="" width="64" height="64">
+      <div class="meta">
+        <div class="tag">Team data</div>
+        <div class="name wm-team">Vault Team Stats</div>
+        <p>Our vault group's PRs, approach PRs by lefts and testing results in one place. Big numbers up front, rankings, side-by-side compares, and plain-language takeaways for each athlete.</p>
+      </div>
+      <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
-    <a class="card app-card" href="jump/">
-      <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div>
-      <div class="tag">Monitoring</div>
-      <h3>Jump Test Tracker</h3>
-      <p>Log countermovement jumps for a whole team, see each athlete's trend against their own baseline, and flag drops that could mean fatigue.</p>
-      <span class="go">Open app &rarr;</span>
+
+    <a class="card app" href="chord/">
+      <img src="chord/icons/apple-touch-icon.png" alt="" width="64" height="64">
+      <div class="meta">
+        <div class="tag">Training</div>
+        <div class="name wm-chord">Chord <em>Season</em></div>
+        <p>My daily pole vault training plan for the whole season. Phase timeline, a day-by-day checklist you can edit, and a countdown to the first meet. Installs on your phone and works offline.</p>
+      </div>
+      <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
-    <a class="card app-card" href="vault/">
-      <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 20L18 4"/><path d="M14 4h6"/><circle cx="6" cy="9" r="2"/></svg></div>
-      <div class="tag">Biomechanics</div>
-      <h3>Pole Vault Energy Calculator</h3>
-      <p>Turn takeoff speed into an estimated peak height using energy conservation, and work out the speed you'd need for a target bar.</p>
-      <span class="go">Open app &rarr;</span>
+
+    <a class="card app" href="vault/">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20L18 4"/><path d="M14 4h6"/><circle cx="6" cy="9" r="2"/></svg></span>
+      <div class="meta">
+        <div class="tag">Biomechanics</div>
+        <div class="name">Pole Vault Energy Calculator</div>
+        <p>Turns takeoff speed into an estimated bar height using energy conservation, and works out the speed you'd need for a target bar.</p>
+      </div>
+      <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
-    <a class="card app-card" href="testing/">
-      <div class="icon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
-      <div class="tag">Testing</div>
-      <h3>Testing Day Sheet</h3>
-      <p>Fast entry for team testing sessions. Takes the best attempt, ranks the group, and makes a shareable card for each athlete.</p>
-      <span class="go">Open app &rarr;</span>
+
+    <a class="card app" href="testing/">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+      <div class="meta">
+        <div class="tag">Testing</div>
+        <div class="name">Testing Day Sheet</div>
+        <p>Fast entry for team testing sessions. Takes the best attempt, ranks the group, and makes a shareable card for each athlete.</p>
+      </div>
+      <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
-    <a class="card app-card" href="chord/">
-      <div class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4M8 14l2 2 4-4"/></svg></div>
-      <div class="tag">Training</div>
-      <h3>Chord Season</h3>
-      <p>My daily pole vault training plan for the whole season, from fall build to outdoor peak. Phase timeline, a day-by-day checklist, and a countdown to the first meet. Installs on your phone and works offline.</p>
-      <span class="go">Open app &rarr;</span>
+
+    <a class="card app" href="jump/">
+      <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></span>
+      <div class="meta">
+        <div class="tag">Monitoring</div>
+        <div class="name">Jump Test Tracker</div>
+        <p>Logs countermovement jumps for a whole team, shows each athlete's trend against their own baseline, and flags drops that could mean fatigue.</p>
+      </div>
+      <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
   </section>
 </main>

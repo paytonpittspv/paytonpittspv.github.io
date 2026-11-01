@@ -233,7 +233,7 @@
     const grad = g.createLinearGradient(0, 0, W, H);
     grad.addColorStop(0, '#12161f'); grad.addColorStop(1, '#1f2937');
     g.fillStyle = grad; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#ff6b3d'; g.fillRect(0, 0, W, 14);
+    g.fillStyle = '#a78bfa'; g.fillRect(0, 0, W, 14);
 
     const font = (w, px) => `${w} ${px}px Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif`;
     g.fillStyle = '#96a0b2'; g.font = font(600, 34);
@@ -268,7 +268,7 @@
       if (row.rank) {
         const label = `#${row.rank}`, sub = `of ${row.of}`;
         g.textAlign = 'right';
-        g.fillStyle = row.rank === 1 ? '#ff6b3d' : '#ffffff'; g.font = font(800, Math.min(70, rowH * .38));
+        g.fillStyle = row.rank === 1 ? '#a78bfa' : '#ffffff'; g.font = font(800, Math.min(70, rowH * .38));
         g.fillText(label, W - 100, y + rowH / 2 + 4);
         g.fillStyle = '#96a0b2'; g.font = font(600, 28);
         g.fillText(sub, W - 100, y + rowH / 2 + 44);
