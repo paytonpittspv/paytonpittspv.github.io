@@ -119,6 +119,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 #season .item .cue { font-size: 13px; color: var(--muted); }
 #season .item.on .nm { text-decoration: line-through; text-decoration-color: var(--muted); color: var(--muted); }
 #season .item.on .dose { color: var(--muted); }
+#season .ed { display: grid; grid-template-columns: 1fr 96px auto; gap: 6px; padding: 9px 0; border-top: 1px solid var(--line); align-items: center; }
+#season .ed input, #season .addf input, #season .addf select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 9px; min-height: 40px; width: 100%; min-width: 0; }
+#season .ed .acts { display: flex; gap: 4px; }
+#season .ed .acts button { min-height: 40px; padding: 6px 10px; font-size: 13px; }
+#season .ed .tag { grid-column: 1 / -1; font-size: 12px; color: var(--muted); margin-top: -2px; }
+#season .addf { display: grid; grid-template-columns: 1fr 110px; gap: 8px; }
+#season .addf .full { grid-column: 1 / -1; }
+#season .hidden-list { font-size: 13px; color: var(--muted); }
+#season .hidden-list button { min-height: 32px; padding: 3px 10px; font-size: 12px; margin: 4px 4px 0 0; }
+#season .item .mine { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; margin-left: 6px; }
+@media (max-width: 420px) { #season .ed { grid-template-columns: 1fr 80px; } #season .ed .acts { grid-column: 1 / -1; } }
 #season .callout { border-left: 4px solid var(--gold); background: var(--gold-soft); padding: 10px 12px; border-radius: 6px; font-size: 14px; }
 #season .toggle { display: flex; align-items: center; gap: 10px; }
 #season .toggle input { width: 20px; height: 20px; accent-color: var(--meet); }
@@ -355,6 +366,9 @@ let cfg = { ...DEFAULTS };
 let checks = {}; // date -> {itemId: true}
 let db = null, store = 'local';
 let sel = null;
+let edits = {};   // date -> { hide: [itemId], ren: { itemId: {name, dose} }, skip: [customId] }
+let custom = [];  // [{ id, name, dose, note, repeat: 'once'|'day'|'week', date, dow }]
+let editing = false;
 
 const $ = (s, el = document) => el.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -488,8 +502,30 @@ function dayPlan(s) {
   if (cx.length) out.sections.push({ t: 'Compex · evening', items: cx });
   const zz = sleepItems(s, k, out.kind);
   if (zz.length) out.sections.push({ t: 'Sleep', items: zz });
+  return applyEdits(s, out);
+}
+
+// ---------- your own edits: hide, rename, add tasks ----------
+const customFor = s => custom.filter(c => c.date <= s && (c.repeat === 'day' || (c.repeat === 'week' && dow(s) === c.dow) || (c.repeat === 'once' && c.date === s)));
+function applyEdits(s, out) {
+  const e = edits[s] || {}, hide = e.hide || [], ren = e.ren || {}, skip = e.skip || [];
+  out.hidden = [];
+  out.sections = out.sections.map(sec => ({ ...sec, items: sec.items.filter(it => {
+    if (hide.includes(it.id)) { out.hidden.push({ ...it, ...(ren[it.id] || {}) }); return false; }
+    return true;
+  }).map(it => ren[it.id] ? { ...it, ...ren[it.id], edited: true } : it) })).filter(sec => sec.items.length);
+  const mine = customFor(s).filter(c => !skip.includes(c.id))
+    .map(c => ({ id: 'u_' + c.id, cid: c.id, name: c.name, dose: c.dose || '', cue: c.note ? esc(c.note) : '', mine: true, repeat: c.repeat }));
+  if (mine.length) out.sections.push({ t: 'My tasks', items: mine });
+  out.skipped = customFor(s).filter(c => skip.includes(c.id));
   return out;
 }
+function saveEdits() {
+  for (const k in edits) { const e = edits[k]; if (!(e.hide || []).length && !Object.keys(e.ren || {}).length && !(e.skip || []).length) delete edits[k]; }
+  lsSet('chordseason.edits', edits); lsSet('chordseason.custom', custom);
+}
+const dayEdits = s => (edits[s] = edits[s] || { hide: [], ren: {}, skip: [] }, edits[s].hide ||= [], edits[s].ren ||= {}, edits[s].skip ||= [], edits[s]);
+const REPEAT_LBL = c => c.repeat === 'day' ? 'Every day' : c.repeat === 'week' ? `Every ${fmt(c.date, { weekday: 'long' })}` : 'This day only';
 
 function corePlan(s) {
   const ph = phaseOf(s), k = ph.key, d = dow(s);
@@ -637,10 +673,28 @@ function render(keepScroll) {
     ph.deload ? '<span class="chip deload">Deload</span>' : '',
   ].join('');
 
-  const secs = plan.sections.map(sec => `<section class="panel sec"><h3>${esc(sec.t)}</h3>${sec.items.map(it => `
+  const edRow = it => it.mine
+    ? `<div class="ed" data-cid="${it.cid}">
+        <input value="${esc(it.name)}" data-f="name" aria-label="Task name"><input value="${esc(it.dose)}" data-f="dose" placeholder="Amount" aria-label="Amount">
+        <div class="acts">${it.repeat === 'once' ? '' : `<button class="ghost" data-skip="${it.cid}">Skip today</button>`}<button class="ghost" data-delc="${it.cid}">Delete</button></div>
+        <div class="tag">${esc(REPEAT_LBL(custom.find(c => c.id === it.cid) || {}))}${it.repeat === 'once' ? '' : ' · name changes apply to every day'}</div></div>`
+    : `<div class="ed" data-iid="${it.id}">
+        <input value="${esc(it.name)}" data-f="name" aria-label="Task name"><input value="${esc(it.dose || '')}" data-f="dose" placeholder="Amount" aria-label="Amount">
+        <div class="acts"><button class="ghost" data-hide="${it.id}">Remove</button></div>
+        ${it.edited ? `<div class="tag">Changed for this day · <a href="#" data-reset="${it.id}">undo</a></div>` : ''}</div>`;
+  const editSecs = plan.sections.map(sec => `<section class="panel sec"><h3>${esc(sec.t)}</h3>${sec.items.map(edRow).join('')}</section>`).join('');
+  const hiddenList = (plan.hidden.length || plan.skipped.length) ? `<div class="hidden-list">Removed from this day: ${plan.hidden.map(it => `<button class="ghost" data-unhide="${it.id}">↺ ${esc(it.name)}</button>`).join('')}${plan.skipped.map(c => `<button class="ghost" data-unskip="${c.id}">↺ ${esc(c.name)}</button>`).join('')}</div>` : '';
+  const addForm = `<section class="panel"><h3>Add a task</h3>
+      <form class="addf" id="addtask" autocomplete="off" style="margin-top:10px">
+        <input id="at-name" placeholder="Task, e.g. Hip mobility" required><input id="at-dose" placeholder="Amount, e.g. 10 min">
+        <input class="full" id="at-note" placeholder="Note (optional)">
+        <select id="at-rep" class="full"><option value="once">This day only</option><option value="week">Every ${fmt(sel, { weekday: 'long' })} from now on</option><option value="day">Every day from now on</option></select>
+        <button class="primary full" type="submit">Add task</button>
+      </form></section>`;
+  const secs = editing ? editSecs + hiddenList + addForm : plan.sections.map(sec => `<section class="panel sec"><h3>${esc(sec.t)}</h3>${sec.items.map(it => `
       <label class="item ${c[it.id] ? 'on' : ''}" for="i-${it.id}">
         <input type="checkbox" id="i-${it.id}" data-item="${it.id}" ${c[it.id] ? 'checked' : ''}>
-        <span><span class="nm">${esc(it.name)}</span>${it.dose ? `<span class="dose">${esc(it.dose)}</span>` : ''}${it.cue ? `<div class="cue">${it.cue}</div>` : ''}</span>
+        <span><span class="nm">${esc(it.name)}</span>${it.mine ? '<span class="mine">mine</span>' : ''}${it.dose ? `<span class="dose">${esc(it.dose)}</span>` : ''}${it.cue ? `<div class="cue">${it.cue}</div>` : ''}</span>
       </label>`).join('')}</section>`).join('');
 
   const b = bounds();
@@ -665,7 +719,7 @@ function render(keepScroll) {
     <section class="stack" style="gap:10px">
       <div class="dayhead">
         <div><div class="eyebrow">${esc(phLabel)}</div><h2>${fmt(sel, { weekday: 'long', month: 'long', day: 'numeric' })}</h2></div>
-        <div class="row" style="justify-content:end">${chips}</div>
+        <div class="row" style="justify-content:end">${chips}<button class="${editing ? 'primary' : 'ghost'}" id="editday">${editing ? 'Done' : 'Edit day'}</button></div>
       </div>
       ${st.total ? `<div class="row" style="justify-content:space-between"><span class="note num">${st.done} of ${st.total} done</span></div><div class="prog"><i style="width:${st.total ? st.done / st.total * 100 : 0}%"></i></div>` : ''}
       ${plan.note ? `<div class="callout">${esc(plan.note)}</div>` : ''}
@@ -704,6 +758,31 @@ function bind() {
   $('#nextw').onclick = () => { sel = add(sel, 7); render(); };
   const td = $('#today'); if (td) td.onclick = () => { sel = clampSel(todayStr()); render(); };
   document.querySelectorAll('[data-item]').forEach(cb => cb.onchange = () => setCheck(sel, cb.dataset.item, cb.checked));
+  $('#editday').onclick = () => { editing = !editing; render(true); };
+  const root = $('#season-app');
+  root.querySelectorAll('.ed input').forEach(inp => inp.onchange = () => {
+    const row = inp.closest('.ed'), f = inp.dataset.f, v = inp.value.trim();
+    if (row.dataset.cid) { const c = custom.find(x => x.id === row.dataset.cid); if (c && (v || f === 'dose')) c[f] = v; }
+    else { const e = dayEdits(sel), id = row.dataset.iid; e.ren[id] = { ...(e.ren[id] || {}) }; if (v || f === 'dose') e.ren[id][f] = v; }
+    saveEdits(); render(true);
+  });
+  root.querySelectorAll('[data-hide]').forEach(b => b.onclick = () => { const e = dayEdits(sel); e.hide.push(b.dataset.hide); saveEdits(); render(true); });
+  root.querySelectorAll('[data-unhide]').forEach(b => b.onclick = () => { const e = dayEdits(sel); e.hide = e.hide.filter(x => x !== b.dataset.unhide); saveEdits(); render(true); });
+  root.querySelectorAll('[data-reset]').forEach(a => a.onclick = ev => { ev.preventDefault(); const e = dayEdits(sel); delete e.ren[a.dataset.reset]; saveEdits(); render(true); });
+  root.querySelectorAll('[data-skip]').forEach(b => b.onclick = () => { const e = dayEdits(sel); e.skip.push(b.dataset.skip); saveEdits(); render(true); });
+  root.querySelectorAll('[data-unskip]').forEach(b => b.onclick = () => { const e = dayEdits(sel); e.skip = e.skip.filter(x => x !== b.dataset.unskip); saveEdits(); render(true); });
+  root.querySelectorAll('[data-delc]').forEach(b => b.onclick = () => {
+    const c = custom.find(x => x.id === b.dataset.delc); if (!c) return;
+    if (c.repeat !== 'once' && !confirm(`Delete "${c.name}" from every day? Use "Skip today" to drop it just for today.`)) return;
+    custom = custom.filter(x => x.id !== c.id); saveEdits(); render(true);
+  });
+  const af = $('#addtask');
+  if (af) af.onsubmit = ev => {
+    ev.preventDefault();
+    const name = $('#at-name').value.trim(); if (!name) return;
+    custom.push({ id: Math.random().toString(36).slice(2, 9), name, dose: $('#at-dose').value.trim(), note: $('#at-note').value.trim(), repeat: $('#at-rep').value, date: sel, dow: dow(sel) });
+    saveEdits(); render(true); toast('Task added');
+  };
   const mt = $('#meettoggle');
   if (mt) mt.onchange = () => { cfg.meets = mt.checked ? [...new Set([...cfg.meets, sel])] : cfg.meets.filter(m => m !== sel); saveCfg(); };
   $('#savecfg').onclick = () => {
@@ -726,6 +805,8 @@ function clampSel(s) { return s < cfg.start ? cfg.start : s > cfg.lastMeet ? cfg
 // ---------- boot ----------
 cfg = { ...DEFAULTS, ...lsGet('chordseason.cfg', {}) };
 checks = lsGet('chordseason.checks', {});
+edits = lsGet('chordseason.edits', {});
+custom = lsGet('chordseason.custom', []);
 sel = clampSel(todayStr());
 render();
 
@@ -1037,7 +1118,7 @@ loadLocal();
 
 <script>
 (function () {
-  const KEYS = ['chordseason.cfg', 'chordseason.checks', 'chordcheck.jumps', 'chord.theme'];
+  const KEYS = ['chordseason.cfg', 'chordseason.checks', 'chordseason.edits', 'chordseason.custom', 'chordcheck.jumps', 'chord.theme'];
   const msg = t => { document.getElementById('bk-msg').textContent = t; };
   document.getElementById('bk-save').addEventListener('click', () => {
     const data = { app: 'compress-the-chord', version: 1, savedAt: new Date().toISOString(), keys: {} };
