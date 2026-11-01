@@ -24,8 +24,8 @@
   .app .ic svg { width: 32px; height: 32px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   /* the three lab apps share the serif title used inside them, each in its own accent */
   .wm-lab { font-family: "Source Serif 4", Georgia, serif; font-weight: 600; letter-spacing: -.01em; font-size: 25px !important; }
-  .t-purple { --app: #6d28d9; } .t-indigo { --app: #4338ca; } .t-blue { --app: #1d5fd1; }
-  @media (prefers-color-scheme: dark) { .t-purple { --app: #b49cff; } .t-indigo { --app: #a5adff; } .t-blue { --app: #7cb2ff; } }
+  .t-coral { --app: #e2663f; } .t-green { --app: #13804f; } .t-pink { --app: #c81d77; } .t-purple { --app: #6d28d9; } .t-indigo { --app: #4338ca; } .t-blue { --app: #1d5fd1; }
+  @media (prefers-color-scheme: dark) { .t-coral { --app: #ff9a7a; } .t-green { --app: #4cc38a; } .t-pink { --app: #ff7ab8; } .t-purple { --app: #b49cff; } .t-indigo { --app: #a5adff; } .t-blue { --app: #7cb2ff; } }
   .app[class*="t-"] .tag, .app[class*="t-"]:hover .go { color: var(--app); }
   .app[class*="t-"]:hover { border-color: var(--app); }
   .app .meta { min-width: 0; }
@@ -71,7 +71,7 @@
   </section>
 
   <section class="apps">
-    <a class="card app" href="gatecam/">
+    <a class="card app t-coral" href="gatecam/">
       <img src="gatecam/icon-180.png" alt="" width="64" height="64">
       <div class="meta">
         <div class="tag">Speed timing</div>
@@ -81,7 +81,7 @@
       <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
 
-    <a class="card app" href="team/">
+    <a class="card app t-green" href="team/">
       <img src="team/icon-192.png" alt="" width="64" height="64">
       <div class="meta">
         <div class="tag">Team data</div>
@@ -91,7 +91,7 @@
       <span class="go" aria-hidden="true">&rsaquo;</span>
     </a>
 
-    <a class="card app" href="chord/">
+    <a class="card app t-pink" href="chord/">
       <img src="chord/icons/apple-touch-icon.png" alt="" width="64" height="64">
       <div class="meta">
         <div class="tag">Training</div>
