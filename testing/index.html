@@ -111,7 +111,7 @@
   Built by Payton Pitts · <a href="../">All apps</a> · Data stays in your browser.
 </div></footer>
 
-<script src="../assets/lab.js?v=1"></script>
+<script src="../assets/lab.js?v=2"></script>
 <script>
 (() => {
   const KEY = 'pp-testing-v1', ATTEMPTS = 3;
@@ -234,11 +234,17 @@
       // plot so that "better" is always up
       const Y = v => t.better === 'lower' ? -v : v;
       const every = Math.ceil(r.length / Math.max(2, Math.floor(W / 70)));
+      // value axis in the test's own unit, about four easy-to-read lines
+      const span = hi - lo || 1, raw = span / 3, mag = 10 ** Math.floor(Math.log10(raw)), stp = [1, 2, 2.5, 5, 10].map(k => k * mag).find(k => k >= raw);
+      const grid = []; for (let u = Math.ceil((lo - pad * .2) / stp) * stp; u <= hi + pad * .2 + 1e-9; u += stp) grid.push(+u.toFixed(4));
+      const showLbl = i => r.length <= 10 || i % Math.ceil(r.length / 10) === 0 || i === r.length - 1;
       box.innerHTML = Lab.area({
         W, H, x0: 0, x1: r.length - 1, y0, y1, label: `Best ${t.name} for each rank`, detail: true,
         pts: r.map((x, i) => ({ x: i, y: Y(x.v) })),
         xTicks: r.map((x, i) => ({ v: i, t: '#' + x.rank, grid: false, anchor: i === 0 ? 'start' : i === r.length - 1 ? 'end' : 'middle' })).filter((_, i) => i % every === 0 || i === r.length - 1),
         xTitle: t.better === 'lower' ? 'rank (faster is higher on the chart)' : 'rank',
+        yGrid: grid.map(Y), yLabels: v => `${num(Math.abs(v), t)} ${t.unit}`, padL: 8,
+        dots: r.map((x, i) => i === 0 ? null : ({ x: i, y: Y(x.v), r: 3.5, lbl: showLbl(i) ? num(x.v, t) : '', anchor: i === r.length - 1 ? 'end' : 'middle', t: `${x.a.name}: ${fmtV(x.v, t)}` })).filter(Boolean),
         marks: [{ x: r.findIndex(x => (t.better === 'lower' ? x.v >= avg : x.v <= avg)) - 0.5, t: 'avg', c: 'var(--chart-3)' }].filter(m => m.x > 0),
         peak: { x: 0, y: Y(top.v), t: `${fmtV(top.v, t)} · ${top.a.name.split(' ')[0]}` },
       });

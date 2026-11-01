@@ -71,7 +71,10 @@
       s += `<line x1="${f(X(mk.x))}" x2="${f(X(mk.x))}" y1="${P.t - 20}" y2="${yb}" stroke="${mk.c || 'var(--accent)'}" stroke-width="1.6" stroke-dasharray="3 4"/>`;
       if (mk.t) s += `<text x="${f(X(mk.x))}" y="${P.t - 26}" text-anchor="${mk.anchor || 'middle'}" style="fill:${mk.c || 'var(--accent)'};font-weight:600">${mk.t}</text>`;
     });
-    (o.dots || []).forEach(d => s += `<circle cx="${f(X(d.x))}" cy="${f(Y(d.y))}" r="${d.r || 4.5}" fill="var(--surface)" stroke="${d.c || 'var(--chart-1)'}" stroke-width="2.5"><title>${d.t || ''}</title></circle>`);
+    (o.dots || []).forEach(d => {
+      s += `<circle cx="${f(X(d.x))}" cy="${f(Y(d.y))}" r="${d.r || 4.5}" fill="var(--surface)" stroke="${d.c || 'var(--chart-1)'}" stroke-width="2.5"><title>${d.t || ''}</title></circle>`;
+      if (d.lbl) s += `<text x="${f(X(d.x))}" y="${f(Y(d.y) - 11)}" text-anchor="${d.anchor || 'middle'}" style="fill:var(--text);font-weight:600">${d.lbl}</text>`;
+    });
     if (o.peak) {
       const px = X(o.peak.x), py = Y(o.peak.y);
       s += `<circle cx="${f(px)}" cy="${f(py)}" r="7.5" fill="var(--surface)" stroke="var(--chart-1)" stroke-width="3"/>`;
