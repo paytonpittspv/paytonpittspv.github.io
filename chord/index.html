@@ -1,0 +1,1067 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Compress the Chord</title>
+<meta name="description" content="Daily Compress the Chord training checklist and jump review for pole vault.">
+<meta name="theme-color" content="#0b0a1f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Chord">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font: 14px system-ui, -apple-system, sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+</head>
+<body>
+<style>
+:root {
+  --bg: #ffffff; --surface: #ffffff; --fg: #15122e; --muted: #625d7d; --line: #e4e1f0;
+  --pink: #e3167b; --purple: #6a35e0; --blue: #1f6cf0;
+  --accent: #6a35e0; --accent-ink: #ffffff; --gold: #f5b800; --gold-soft: #fff6d6; --yellow: #f5b800; --yellow-ink: #1a1500;
+  --done: #1f6cf0; --done-bg: #e8f0ff; --meet: #e3167b; --meet-bg: #fdeaf3;
+  --p1: #2a7cf0; --p2: #4a5be8; --p3: #6b44e0; --pin: #8a3ad6; --pbr: #dcd8ea; --por: #b02fc4; --poc: #d32aa6; --ptp: #ec1c78; --pass: #1f6cf0; --pass-bg: #e8f0ff; --fail: #d6262f; --fail-bg: #fde8e9; --unk: #a86a00; --unk-bg: #fff2d9;
+  --display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+:root:not([data-theme="light"]) {
+    --bg: #0b0a1f; --surface: #15132e; --fg: #f1effa; --muted: #a39fc0; --line: #2a2750;
+    --pink: #ff4fa3; --purple: #9474ff; --blue: #4f9bff;
+    --accent: #9474ff; --accent-ink: #0b0a1f; --gold: #ffd23f; --gold-soft: #3a3214; --yellow: #ffd23f; --yellow-ink: #1a1500;
+    --done: #4f9bff; --done-bg: #142a52; --meet: #ff4fa3; --meet-bg: #3d1430;
+    --p1: #4a95ff; --p2: #6d7cff; --p3: #8f66ff; --pin: #ac5cf5; --pbr: #34305a; --por: #cf55e6; --poc: #ef4fc4; --ptp: #ff3d8f; --pass: #4f9bff; --pass-bg: #142a52; --fail: #ff6b6b; --fail-bg: #3d1a20; --unk: #f2c14e; --unk-bg: #3a2e12;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0a1f; --surface: #15132e; --fg: #f1effa; --muted: #a39fc0; --line: #2a2750;
+  --pink: #ff4fa3; --purple: #9474ff; --blue: #4f9bff;
+  --accent: #9474ff; --accent-ink: #0b0a1f; --gold: #ffd23f; --gold-soft: #3a3214; --yellow: #ffd23f; --yellow-ink: #1a1500;
+  --done: #4f9bff; --done-bg: #142a52; --meet: #ff4fa3; --meet-bg: #3d1430;
+  --p1: #4a95ff; --p2: #6d7cff; --p3: #8f66ff; --pin: #ac5cf5; --pbr: #34305a; --por: #cf55e6; --poc: #ef4fc4; --ptp: #ff3d8f; --pass: #4f9bff; --pass-bg: #142a52; --fail: #ff6b6b; --fail-bg: #3d1a20; --unk: #f2c14e; --unk-bg: #3a2e12;
+  color-scheme: dark;
+}
+:root[data-theme="light"] { color-scheme: light; }
+#season .grad { background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue)); }
+#season header.top { border-bottom: 0 !important; position: relative; }
+#season header.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue)); }
+#season .prog i { background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue)) !important; }
+#season .primary { background: linear-gradient(90deg, var(--pink), var(--purple)) !important; border-color: transparent !important; color: #ffffff !important; }
+#season .themes { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; padding: 2px; gap: 2px; }
+#season .themes button { min-height: 30px; padding: 3px 10px; font-size: 12px; border: 0; border-radius: 99px; background: transparent; color: var(--muted); font-weight: 600; }
+#season .themes button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+#season h1 .hl { background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 15px; line-height: 1.45; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+#season .wrap { max-width: 600px; margin: 0 auto; padding-block: 16px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#season h1, #season h2, #season h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: .01em; }
+#season h1 { font-size: 34px; line-height: 1; text-transform: uppercase; }
+#season h2 { font-size: 26px; line-height: 1.05; text-transform: uppercase; }
+#season h3 { font-size: 18px; text-transform: uppercase; letter-spacing: .04em; }
+#season .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
+#season .note { font-size: 13px; color: var(--muted); }
+#season .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+#season .stack { display: flex; flex-direction: column; gap: 14px; }
+#season .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#season .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+#season button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 8px 12px; min-height: 40px; }
+#season button:focus-visible, #season input:focus-visible, #season a:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+#season .primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+#season .ghost { background: transparent; }
+#season a { color: var(--accent); }
+#season header.top { display: flex; justify-content: space-between; align-items: end; gap: 12px; padding-bottom: 12px; border-bottom: 3px solid var(--accent); }
+#season .count { text-align: right; }
+#season .count b { font-family: var(--mono); font-size: 22px; display: block; line-height: 1.1; }
+#season .tl { position: relative; height: 18px; border-radius: 4px; overflow: hidden; display: flex; }
+#season .tl > span { height: 100%; }
+#season .tl-wrap { position: relative; padding-top: 6px; }
+#season .tl-mark { position: absolute; top: 0; width: 2px; height: 30px; background: var(--fg); }
+#season .tl-meet { position: absolute; top: 24px; width: 8px; height: 8px; border-radius: 50%; background: var(--meet); transform: translateX(-4px); }
+#season .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12px; color: var(--muted); margin-top: 14px; }
+#season .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+#season .weekhead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+#season .strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+#season .strip button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; min-height: 64px; min-width: 0; }
+#season .strip .dow { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+#season .strip .dn { font-family: var(--mono); font-size: 16px; }
+#season .strip .st { font-size: 11px; font-family: var(--mono); color: var(--muted); }
+#season .strip button.sel { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+#season .strip button.today .dn { color: var(--accent); font-weight: 700; }
+#season .strip button.full .st { color: var(--done); font-weight: 600; }
+#season .strip button.meet { background: var(--meet-bg); }
+#season .strip button.rest .st { color: var(--muted); }
+#season .dayhead { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+#season .chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; text-transform: uppercase; letter-spacing: .05em; background: var(--gold-soft); color: var(--fg); }
+#season .chip.meet { background: var(--meet-bg); color: var(--meet); }
+#season .chip.deload { background: var(--done-bg); color: var(--done); }
+#season .prog { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+#season .prog i { display: block; height: 100%; background: var(--done); }
+#season .sec { display: flex; flex-direction: column; gap: 0; }
+#season .sec h3 { padding: 4px 0 8px; }
+#season .item { display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); cursor: pointer; align-items: start; }
+#season .item input { width: 22px; height: 22px; margin: 2px 0 0; accent-color: var(--accent); cursor: pointer; }
+#season .item .nm { font-weight: 600; }
+#season .item .dose { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-left: 6px; white-space: nowrap; }
+#season .item .cue { font-size: 13px; color: var(--muted); }
+#season .item.on .nm { text-decoration: line-through; text-decoration-color: var(--muted); color: var(--muted); }
+#season .item.on .dose { color: var(--muted); }
+#season .callout { border-left: 4px solid var(--gold); background: var(--gold-soft); padding: 10px 12px; border-radius: 6px; font-size: 14px; }
+#season .toggle { display: flex; align-items: center; gap: 10px; }
+#season .toggle input { width: 20px; height: 20px; accent-color: var(--meet); }
+#season label.f { font-size: 13px; color: var(--muted); font-weight: 500; display: flex; flex-direction: column; gap: 4px; }
+#season label.f input { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; min-height: 42px; width: 100%; }
+#season .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#season .grid2 > * { min-width: 0; }
+#season .phases { width: 100%; border-collapse: collapse; font-size: 13px; }
+#season .phases td { padding: 6px 4px; border-top: 1px solid var(--line); vertical-align: top; }
+#season .phases td:first-child { white-space: nowrap; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+#season .tblwrap { overflow-x: auto; }
+#season details > summary { cursor: pointer; font-weight: 600; list-style: none; }
+#season details > summary::-webkit-details-marker { display: none; }
+#season details > summary::before { content: "+ "; color: var(--accent); }
+#season details[open] > summary::before { content: "\2212 "; }
+.toast { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 14px; z-index: 20; }
+@media (max-width: 380px) {
+#season .grid2 { grid-template-columns: 1fr; }
+#season .strip { gap: 3px; }
+#season .strip .dow { font-size: 10px; }
+}
+#check .wrap { max-width: 560px; margin: 0 auto; padding-block: 16px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+#check h1, #check h2, #check h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: .01em; }
+#check h1 { font-size: 34px; line-height: 1; text-transform: uppercase; }
+#check h2 { font-size: 24px; text-transform: uppercase; }
+#check .eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); font-weight: 600; }
+#check .stack { display: flex; flex-direction: column; gap: 12px; }
+#check .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#check .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+#check .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+#check button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 10px 14px; min-height: 44px; }
+#check button:focus-visible, #check input:focus-visible, #check textarea:focus-visible, #check select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+#check .primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+#check .ghost { background: transparent; }
+#check .small { min-height: 36px; padding: 6px 10px; font-size: 13px; }
+#check .danger { color: var(--fail); border-color: var(--fail); background: transparent; }
+#check label { font-size: 13px; color: var(--muted); font-weight: 500; display: flex; flex-direction: column; gap: 4px; }
+#check input, #check textarea, #check select { font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; min-height: 44px; width: 100%; }
+#check textarea { min-height: 70px; resize: vertical; }
+#check .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+#check .grid2 > * { min-width: 0; }
+#check header.top { display: flex; justify-content: space-between; align-items: end; gap: 12px; padding-bottom: 14px; border-bottom: 3px solid var(--accent); margin-bottom: 16px; }
+#check .brand-sub { color: var(--muted); font-size: 13px; }
+#check .note { font-size: 13px; color: var(--muted); }
+#check .gate { display: flex; gap: 14px; align-items: center; }
+#check .gate-dots { display: flex; gap: 6px; }
+#check .dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--line); }
+#check .dot.ok { background: var(--pass); border-color: var(--pass); }
+#check .dot.no { background: var(--fail-bg); border-color: var(--fail); }
+#check .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 99px; text-transform: uppercase; letter-spacing: .05em; }
+#check .pill.ok { background: var(--pass-bg); color: var(--pass); }
+#check .pill.no { background: var(--fail-bg); color: var(--fail); }
+#check .pill.mid { background: var(--unk-bg); color: var(--unk); }
+#check .hist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+#check .hist button { width: 100%; text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 14px; }
+#check .hist .meta { font-size: 13px; color: var(--muted); }
+#check .hist .score { grid-row: span 2; align-self: center; text-align: right; }
+#check .sticky { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--bg); padding-block: 10px; z-index: 5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+#check .bar { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+#check .bar > i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+#check .view-tag { font-family: var(--display); font-size: 15px; text-transform: uppercase; letter-spacing: .06em; padding: 2px 10px; border-radius: 6px; background: var(--accent); color: var(--accent-ink); }
+#check .view-tag.rear { background: var(--gold); color: #1b1a12; }
+#check .check-card { padding: 22px 18px; }
+#check .check-card h2 { font-size: 30px; line-height: 1.05; text-transform: none; margin: 8px 0 12px; }
+#check .must { font-size: 12px; font-weight: 600; color: var(--fail); text-transform: uppercase; letter-spacing: .06em; }
+#check .kv { display: grid; grid-template-columns: 92px 1fr; gap: 6px 10px; font-size: 14px; }
+#check .kv dt { color: var(--muted); font-weight: 500; }
+#check .kv dd { margin: 0; }
+#check .verdicts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+#check .verdicts button { min-height: 64px; font-weight: 600; font-size: 16px; }
+#check .v-pass { border-color: var(--pass); color: var(--pass); }
+#check .v-fail { border-color: var(--fail); color: var(--fail); }
+#check .v-unk { border-color: var(--unk); color: var(--unk); }
+#check .v-pass.on { background: var(--pass); color: var(--surface); }
+#check .v-fail.on { background: var(--fail); color: var(--surface); }
+#check .v-unk.on { background: var(--unk); color: var(--surface); }
+#check .res { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+#check .res li { display: grid; grid-template-columns: 54px 1fr auto; gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+#check .res li:last-child { border-bottom: 0; }
+#check .res .tag { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+#check .cue { font-family: var(--display); font-size: 28px; text-transform: uppercase; color: var(--accent); line-height: 1.05; }
+#check .stat { display: flex; flex-direction: column; }
+#check .stat b { font-family: var(--mono); font-size: 22px; font-variant-numeric: tabular-nums; }
+#check .stat span { font-size: 12px; color: var(--muted); }
+#check .statrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+#check .statrow > * { min-width: 0; }
+.toast { position: fixed; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 14px; z-index: 20; }
+@media (max-width: 380px) {
+#check .grid2 { grid-template-columns: 1fr; }
+#check .check-card h2 { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+#check .bar > i { transition: none; }
+}
+#check header.top { border-bottom: 0 !important; position: relative; }
+#check header.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue)); }
+#check .bar > i { background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue)) !important; }
+#check .primary { background: linear-gradient(90deg, var(--pink), var(--purple)) !important; border-color: transparent !important; color: #ffffff !important; }
+#check .view-tag { background: var(--blue) !important; color: #ffffff !important; }
+#check .view-tag.rear { background: var(--pink) !important; color: #ffffff !important; }
+#check .themes { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; padding: 2px; gap: 2px; }
+#check .themes button { min-height: 30px; padding: 3px 10px; font-size: 12px; border: 0; border-radius: 99px; background: transparent; color: var(--muted); font-weight: 600; }
+#check .themes button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+#check h1 .hl { background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Shell: one app, two tabs (Season plan, Jump review) under a shared top bar. */
+.topbar { max-width: 600px; margin: 0 auto; padding-block: 10px 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tabs, .themes { display: inline-flex; border: 1px solid var(--line); border-radius: 99px; padding: 3px; gap: 2px; background: var(--surface); }
+.tabs button, .themes button { font: inherit; cursor: pointer; border: 0; border-radius: 99px; background: transparent; color: var(--muted); font-weight: 600; }
+.tabs button { min-height: 38px; padding: 4px 16px; font-family: var(--display); font-size: 17px; text-transform: uppercase; letter-spacing: .05em; }
+.themes button { min-height: 30px; padding: 3px 10px; font-size: 12px; }
+.tabs button[aria-selected="true"] { background: linear-gradient(90deg, var(--pink), var(--purple)); color: #ffffff; }
+.themes button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.tabs button:focus-visible, .themes button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* Yellow highlights */
+#season header.top::after, #check header.top::after { background: linear-gradient(90deg, var(--pink), var(--purple), var(--blue) 82%, var(--yellow) 82%) !important; }
+#season .count b { display: table; margin-left: auto; background: var(--yellow); color: var(--yellow-ink); padding: 0 8px; border-radius: 6px; margin-bottom: 2px; }
+#season .strip button.today .dn { color: var(--fg); background: var(--yellow); color: var(--yellow-ink); border-radius: 4px; padding: 0 5px; }
+#season .tl-mark { width: 3px; background: var(--yellow); box-shadow: 0 0 0 1px var(--bg); }
+#season .callout { border-left-color: var(--yellow); }
+#season .chip.deload { background: var(--yellow); color: var(--yellow-ink); }
+#season .chip { background: var(--gold-soft); }
+#check .dot.ok { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3px var(--yellow); }
+#check .cue { color: var(--fg); background: linear-gradient(transparent 62%, var(--yellow) 62%, var(--yellow) 92%, transparent 92%); display: inline; }
+#check .v-unk { border-color: var(--yellow); }
+#check .v-unk.on { background: var(--yellow); color: var(--yellow-ink); }
+
+.backup-wrap { max-width: 600px; margin: 0 auto; padding-block: 0 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); font-family: var(--body); }
+.backup { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; color: var(--fg); }
+.backup summary { cursor: pointer; font-weight: 600; }
+.backup p { font-size: 13px; color: var(--muted); margin: 10px 0; }
+.backup .brow { display: flex; gap: 8px; flex-wrap: wrap; }
+.backup button, .bk-file { font: inherit; font-size: 14px; cursor: pointer; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 8px 12px; min-height: 40px; display: inline-flex; align-items: center; }
+.bk-file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.bk-file:focus-within, .backup button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+</style>
+
+<div class="topbar">
+  <div class="tabs" role="tablist" aria-label="Section">
+    <button role="tab" id="tab-season" data-tab="season" aria-selected="true">Season</button>
+    <button role="tab" id="tab-review" data-tab="review" aria-selected="false">Review</button>
+  </div>
+  <div class="themes" role="group" aria-label="Theme">
+    <button data-theme-set="light">Light</button><button data-theme-set="dark">Dark</button><button data-theme-set="auto">Auto</button>
+  </div>
+</div>
+<div id="season"><div class="wrap" id="season-app"></div></div>
+<div id="check" hidden><div class="wrap" id="check-app"></div></div>
+
+<div class="backup-wrap">
+  <details class="backup">
+    <summary>Backup and restore</summary>
+    <p>Your checklist, dates and jump reviews are saved in this browser on this device. Download a backup now and then, and restore it on a new phone or after clearing your browser.</p>
+    <div class="brow">
+      <button type="button" id="bk-save">Download backup</button>
+      <label class="bk-file">Restore from file<input type="file" id="bk-load" accept="application/json,.json"></label>
+    </div>
+    <p id="bk-msg" role="status"></p>
+  </details>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+
+(function () {
+  function lsG(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }
+  function lsS(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  function setTheme(m) {
+    lsS('chord.theme', m);
+    if (m === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', m);
+    document.querySelectorAll('[data-theme-set]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.themeSet === m)));
+  }
+  setTheme(lsG('chord.theme', 'dark'));
+  document.querySelectorAll('[data-theme-set]').forEach(b => b.addEventListener('click', () => setTheme(b.dataset.themeSet)));
+  function show(tab) {
+    const review = tab === 'review';
+    document.getElementById('season').hidden = review;
+    document.getElementById('check').hidden = !review;
+    document.getElementById('tab-season').setAttribute('aria-selected', String(!review));
+    document.getElementById('tab-review').setAttribute('aria-selected', String(review));
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
+    const t = b.dataset.tab; if (location.hash !== '#' + t) location.hash = t; else show(t);
+  }));
+  window.addEventListener('hashchange', () => show(location.hash === '#review' ? 'review' : 'season'));
+  show(location.hash === '#review' ? 'review' : 'season');
+})();
+(function () {
+
+const CHORD_CHECK = '#review';
+const DEFAULTS = {
+  start: '2026-10-27',          // program start (week 1 = the Mon–Sun week containing it)
+  bed: '21:45',                 // lights out (8+ h before ~6:00 wake for 7:00 practice)
+  firstMeet: '2027-01-15',
+  lastMeet: '2027-06-18',
+  breakStart: '2027-03-15',     // Monday after indoor ends (editable)
+  breakWeeks: 4,
+  meets: ['2027-01-15', '2027-06-18']
+};
+const PH = {
+  pre: { name: 'Before the program', color: '--line', short: 'Pre' },
+  p1:  { name: 'Phase 1 · Build the strut', color: '--p1', short: 'Build' },
+  p2:  { name: 'Phase 2 · Transfer', color: '--p2', short: 'Transfer' },
+  p3:  { name: 'Phase 3 · Load and compete', color: '--p3', short: 'Load' },
+  in:  { name: 'Indoor season', color: '--pin', short: 'Indoor' },
+  br:  { name: 'Reset break', color: '--pbr', short: 'Break' },
+  or:  { name: 'Outdoor rebuild', color: '--por', short: 'Rebuild' },
+  oc:  { name: 'Outdoor season', color: '--poc', short: 'Outdoor' },
+  tp:  { name: 'Peak for the last meet', color: '--ptp', short: 'Peak' },
+  post:{ name: 'Season complete', color: '--line', short: 'Done' },
+};
+
+// ---------- dates (UTC-safe) ----------
+const D = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+const S = t => new Date(t).toISOString().slice(0, 10);
+const DAY = 864e5;
+const add = (s, n) => S(D(s) + n * DAY);
+const dow = s => (new Date(D(s)).getUTCDay() + 6) % 7; // 0 = Mon
+const monday = s => add(s, -dow(s));
+const diff = (a, b) => Math.round((D(a) - D(b)) / DAY);
+const todayStr = () => { const n = new Date(); return S(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())); };
+const fmt = (s, o) => new Date(D(s)).toLocaleDateString('en-US', { timeZone: 'UTC', ...o });
+const DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+// ---------- state ----------
+let cfg = { ...DEFAULTS };
+let checks = {}; // date -> {itemId: true}
+let db = null, store = 'local';
+let sel = null;
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2000); }
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+// ---------- season model ----------
+function bounds() {
+  const base = monday(cfg.start);
+  const prepEnd = add(base, 84);                      // end of 12-week program
+  const bS = monday(cfg.breakStart);
+  const bE = add(bS, 7 * cfg.breakWeeks);
+  const rebuildEnd = add(bE, 14);
+  const peakStart = add(cfg.lastMeet, -13);
+  return { base, prepEnd, bS, bE, rebuildEnd, peakStart };
+}
+function phaseOf(s) {
+  const b = bounds();
+  if (s < cfg.start) return { key: 'pre' };
+  if (s > cfg.lastMeet) return { key: 'post' };
+  const wk = Math.floor(diff(s, b.base) / 7) + 1;
+  if (s < b.prepEnd) {
+    const key = wk <= 4 ? 'p1' : wk <= 8 ? 'p2' : 'p3';
+    return { key, wk, deload: wk % 4 === 0 };
+  }
+  if (s < b.bS) return { key: 'in', wk: Math.floor(diff(s, b.prepEnd) / 7) + 1 };
+  if (s < b.bE) return { key: 'br', wk: Math.floor(diff(s, b.bS) / 7) + 1 };
+  if (s < b.rebuildEnd) return { key: 'or', wk: Math.floor(diff(s, b.bE) / 7) + 1 };
+  if (s >= b.peakStart) return { key: 'tp', wk: Math.floor(diff(s, b.peakStart) / 7) + 1 };
+  return { key: 'oc', wk: Math.floor(diff(s, b.rebuildEnd) / 7) + 1 };
+}
+const isMeet = s => cfg.meets.includes(s);
+
+// ---------- daily content ----------
+const I = (id, name, dose, cue) => ({ id, name, dose, cue });
+
+function drills(full) {
+  const a = [
+    I('d_wall', 'Wall plant', '2 × 5', 'Hold 2 s. Hands forward of the forehead, bottom arm locked, chest behind the pole.'),
+  ];
+  if (full) a.push(
+    I('d_walk', 'Walking pole plants into box', '2 × 4', 'Tip hits the back of the box first; hands rise as it loads.'),
+    I('d_carry', 'Pole carry → plant (3 lefts)', '1 × 6', 'Feel the run go through the pole, not up.'));
+  a.push(I('d_freeze', 'Take-off freeze', '1 × 5', 'Freeze the take-off. Partner checks bottom arm and trunk.'));
+  return a;
+}
+function strutA(sets, iso) {
+  return [
+    I('a_iso', 'Plant-position isometric (partner/band)', `${sets} × 3 × ${iso} s`, 'Top arm overhead, bottom arm extended, trunk braced. Nothing gives.'),
+    I('a_sapd', 'Straight-arm lat pulldown', `${sets} × 10`, 'Shoulder extension strength for the support phase.'),
+    I('a_pull', 'DB or barbell pullover', `${sets} × 8`, 'Full overhead range under control.'),
+    I('a_wheel', 'Ab-wheel rollout', `${sets} × 6–8`, 'No low-back sag. Trunk does not bow toward the pit.'),
+    I('a_hollow', 'Hollow hold', `${sets} × 30 s`, 'Ribs down; same shape as the swing.'),
+  ];
+}
+function strutB(sets) {
+  return [
+    I('b_swing', 'Rope or high-bar swing', `${sets} × 5`, 'Long swing, hips leading up.'),
+    I('b_inv', 'Inverted pull-down / bar inversion', `${sets} × 4–5`, 'Hips stay close to the bar line: hips up the chord.'),
+    I('b_carry', 'Single-arm overhead carry', `${sets} × 30 m each`, 'Locked arm, trunk stacked.'),
+    I('b_land', 'Landmine overhead hold', `${sets} × 20 s`, 'Arm long, forward and up, like the bottom arm at plant.'),
+    I('b_pallof', 'Pallof press', `${sets} × 10 each`, 'Anti-rotation; stay in the pole plane.'),
+  ];
+}
+function legs(light, sets) {
+  const s = light ? Math.max(2, sets - 1) : sets;
+  return [
+    I('l_pogo', 'Pogo hops', `${s} × ${light ? 10 : 15}`, 'Stiff ankle, short contacts. Only once cleared by the ATC.'),
+    I('l_hang', 'Hanging knee-to-chest / leg raise', `${s} × 8`, 'Hip flexor strength for the drive knee and swing.'),
+    I('l_knee', 'Banded knee drive', `${s} × ${light ? 8 : 10} each`, 'Fast drive knee at take-off.'),
+    I('l_catch', 'Eccentric plant catch (band)', `3 × 5`, 'Step into the plant against a heavy band and stop instantly.'),
+    I('l_calf', 'Single-leg calf raise, slow down', `${s} × 10`, 'Take-off ankle durability.'),
+  ];
+}
+function poleRuns(key, wk) {
+  if (key === 'p1' || (key === 'or' && wk === 1)) return [I('r_pole', 'Pole runs ending in a plant (6 lefts)', '2–3 reps', 'Plant into the box, no take-off. Run through the pole.')];
+  if (key === 'p2' || key === 'or') return [I('r_pole', 'Mid-approach plant + take-off run-throughs', '3–4 reps', 'Film from the side; note velocity at touchdown and take-off.')];
+  if (key === 'p3') return [I('r_pole', 'Full-approach run-throughs', '2–3 reps', 'Competition speed. Hands forward, run off the ground.')];
+  return [I('r_pole', 'Run-throughs with plant', '2 reps', 'Competition speed; keep the plant sharp.')];
+}
+function jumping(key, wk, day) {
+  const film = I('j_film', 'Film every jump (side + rear)', '', 'Highest frame rate your phone allows.');
+  const rev = I('j_review', 'Review jumps in Chord Check', '', `<a href="${CHORD_CHECK}" >Open Review</a> · one cue for next session.`);
+  let j;
+  if (key === 'p1' || (key === 'or' && wk === 1)) j = I('j_jump', 'Short-approach jumps (4–6 lefts)', '8–12 jumps', 'One cue per jump.');
+  else if (key === 'p2' || key === 'or') j = I('j_jump', 'Build approach 6 → 8 → 10 lefts', '8–10 jumps', 'Step up only after the Chord Check gate is green.');
+  else if (key === 'p3') j = I('j_jump', 'Mid to full approach', '6–8 jumps', 'Add work in the swing while hips stay on the chord.');
+  else if (key === 'tp') j = I('j_jump', 'Quality jumps, mid to full approach', '4–6 jumps', 'Sharp, fresh, one cue.');
+  else j = I('j_jump', day === 'thu' ? 'Short-approach technical jumps' : 'Mid to full approach jumps', day === 'thu' ? '4–6 jumps' : '6–8 jumps', 'Coach’s session; carry your one cue.');
+  return [j, film, rev];
+}
+
+// ---------- Compex + sleep ----------
+const meetWithin = (s, n) => Array.from({ length: n }, (_, i) => add(s, i + 1)).some(isMeet);
+function compexItems(s, k, d, kind, deload) {
+  if (k === 'pre' || k === 'post' || kind === 'meet') return [];
+  if (kind === 'primer') return [I('c_none', 'No Compex strength today', '', 'Nothing hard within 48 h of a meet. Recovery program only if legs feel heavy.')];
+  const rec = (id, where) => I(id, `Compex · Active Recovery (${where})`, '1 session', 'Low intensity, comfortable twitch. Do it the evening of a hard day.');
+  const rehab = I('c_rehab', 'Compex · rehab program', '1 session', 'Use the Rehabilitation category on the muscles your athletic trainer is targeting. Pair with your rehab sheet. Drop this once you are cleared.');
+  const abs = I('c_abs', 'Compex · Strength on abs, holding a plank', '1 session', 'Brace against every contraction, same shape as the take-off strut.');
+  const strengthOK = !meetWithin(s, 2) && k !== 'tp' && k !== 'br';
+  const calves = I('c_calf', 'Compex · Strength on calves + tibialis', '1 session', 'Ankle stiffness for take-off. Raise intensity gradually; stop if the ankle complains.');
+  const glutes = I('c_glute', 'Compex · Explosive Strength on glutes', '1 session', 'Bridge position, 6-pad glute placement. Stretch hamstrings first; stop at the first cramp, don’t chase the number.');
+  if (kind === 'recover') return [rec('c_rec', 'legs + back'), rehab];
+  if (k === 'br') return (d === 2 || d === 6) ? [I('c_rec', 'Compex · Recovery or Massage (optional)', '1 session', 'Only if you want it.')] : [];
+  const out = [];
+  if (d === 0) out.push(rec('c_rec', 'calves + quads'));
+  if (d === 1) { if (strengthOK && !deload) out.push(calves); else out.push(rec('c_rec', 'calves')); }
+  if (d === 2) { out.push(rehab); if (k !== 'tp') out.push(abs); }
+  if (d === 3) out.push(rec('c_rec', 'hamstrings + calves'));
+  if (d === 4) { if (strengthOK && !deload) out.push(glutes); else out.push(rec('c_rec', 'glutes + hamstrings')); }
+  if (d === 6) out.push(rehab, rec('c_rec2', 'back + lats'));
+  return out;
+}
+function to12(t) { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; }
+function sleepItems(s, k, kind) {
+  if (k === 'pre' || k === 'post') return [];
+  const bed = cfg.bed || DEFAULTS.bed;
+  const out = [I('z_wind', 'Screens off, wind down', '30 min before bed', 'Light band work or stretching is fine. Cool, dark room.'),
+    I('z_bed', `Lights out by ${to12(bed)}`, '8–9 h', 'Same wake time every day, weekends included.')];
+  if (kind === 'primer') out[1] = I('z_bed', `Lights out by ${to12(bed)}`, '9 h', 'Most important sleep of the week. Pack your bag before bed.');
+  if (kind === 'meet') out.splice(0, 2, I('z_bed', 'Back to normal bedtime tonight', '8–9 h', 'Even after a late meet, protect the next two nights.'));
+  if (dow(s) === 5 && kind !== 'meet') out.push(I('z_nap', 'Optional nap', '20–30 min', 'Before 3 PM so it doesn’t push back bedtime.'));
+  return out;
+}
+
+function dayPlan(s) {
+  const out = corePlan(s), k = out.phase.key;
+  const cx = compexItems(s, k, dow(s), out.kind, out.phase.deload);
+  if (cx.length) out.sections.push({ t: 'Compex · evening', items: cx });
+  const zz = sleepItems(s, k, out.kind);
+  if (zz.length) out.sections.push({ t: 'Sleep', items: zz });
+  return out;
+}
+
+function corePlan(s) {
+  const ph = phaseOf(s), k = ph.key, d = dow(s);
+  const out = { phase: ph, sections: [], note: '', kind: 'train' };
+  if (k === 'pre') { out.kind = 'rest'; out.note = `The program starts ${fmt(cfg.start, { weekday: 'long', month: 'short', day: 'numeric' })}.`; return out; }
+  if (k === 'post') { out.kind = 'rest'; out.note = 'Season complete. Enjoy the rest.'; return out; }
+
+  // meet overrides
+  if (isMeet(s)) {
+    out.kind = 'meet';
+    out.sections.push({ t: 'Meet day', items: [
+      I('m_drill', 'Plant warm-up: wall plants + walking plants', '1 × 5, 1 × 3', 'Hands forward, bottom arm long. Then your normal warm-up.'),
+      I('m_cue', 'Pick ONE cue for the day', '', 'Use the last cue from Chord Check.'),
+      I('m_film', 'Get every jump filmed (side + rear)', '', 'Ask a teammate or coach before warm-ups.'),
+      I('m_log', 'Log height, pole and grip', '', 'Enter them in Chord Check after the meet.'),
+    ]});
+    return out;
+  }
+  if (isMeet(add(s, 1)) && k !== 'br') {
+    out.kind = 'primer';
+    out.sections.push({ t: 'Pre-meet primer', items: [
+      I('p_wall', 'Wall plant', '1 × 5', 'Crisp, not tiring.'),
+      I('p_iso', 'Plant-position isometric', '2 × 3 × 3 s', 'Fast onset, full stiffness.'),
+      I('p_runs', 'Short pole runs', '2 reps', 'Rhythm and plant timing only.'),
+      I('p_mob', 'Mobility + light band activation', '10 min', 'No heavy lifting today.'),
+    ]});
+    return out;
+  }
+  if (isMeet(add(s, -1)) && k !== 'br') {
+    out.kind = 'recover';
+    out.sections.push({ t: 'Post-meet recovery', items: [
+        I('rc_mob', 'Light mobility and band work', '15 min', ''),
+      I('rc_rev', 'Review meet jumps in Chord Check', '', `<a href="${CHORD_CHECK}" >Open Review</a>`),
+    ]});
+    return out;
+  }
+
+  if (k === 'br') {
+    out.kind = 'rest';
+    out.note = 'Reset month. No program work. Sleep, recover, and come back hungry.';
+    if (d === 2 || d === 5) out.sections.push({ t: 'Optional', items: [I('br_mob', 'Easy mobility, walk or swim', '20–30 min', 'Only if you feel like it.')] });
+    return out;
+  }
+
+  // sets / iso by phase
+  let sets = 3, iso = 6;
+  if (k === 'p2') iso = 3;
+  if (k === 'p3') { sets = 2; iso = 3; }
+  if (k === 'in' || k === 'oc') { sets = 2; iso = 3; }
+  if (k === 'or') { sets = 3; iso = ph.wk === 1 ? 6 : 3; }
+  if (k === 'tp') { sets = 2; iso = 3; }
+  if (ph.deload) sets = 2;
+
+  const comp = k === 'in' || k === 'oc' || k === 'tp';
+  if (d === 0) {
+    out.sections.push({ t: 'Vault · before jumping', items: drills(true) });
+    out.sections.push({ t: 'Vault · jumping', items: jumping(k, ph.wk, 'mon') });
+    out.sections.push({ t: 'Lift · Strut A (after main lifts)', items: k === 'tp' ? strutA(sets, iso).slice(0, 1).concat(strutA(sets, iso).slice(3)) : strutA(sets, iso) });
+  } else if (d === 1) {
+    out.sections.push({ t: 'Run day · after sprints', items: poleRuns(k, ph.wk) });
+    out.sections.push({ t: 'Lift · Legs + stiffness', items: k === 'tp' ? legs(true, sets).slice(3) : legs(comp, sets) });
+  } else if (d === 2) {
+    out.kind = 'rest';
+    out.sections.push({ t: 'Optional recovery', items: [
+      I('w_mob', 'Mobility + light band work', '15 min', 'Monster walks, banded squats, bear crawls.'),
+    ]});
+  } else if (d === 3) {
+    out.sections.push({ t: 'Vault · before jumping', items: drills(false) });
+    out.sections.push({ t: 'Vault · jumping', items: jumping(k, ph.wk, 'thu') });
+    out.sections.push({ t: 'Lift · Strut B (after main lifts)', items: k === 'tp' ? strutB(sets).slice(0, 2) : strutB(sets) });
+  } else if (d === 4) {
+    out.sections.push({ t: 'Run day · after sprints', items: poleRuns(k, ph.wk) });
+    out.sections.push({ t: 'Lift · Legs + stiffness (light)', items: k === 'tp' ? legs(true, sets).slice(3, 4) : legs(true, sets) });
+  } else if (d === 5) {
+    out.kind = 'rest'; out.note = 'Off from training. Keep your normal wake time.';
+  } else {
+    out.kind = 'rest';
+    out.sections.push({ t: 'Weekend', items: [I('s_week', 'Weekly video review in Chord Check', '10–15 min', `Check the progression gate. <a href="${CHORD_CHECK}" >Open Review</a>`)] });
+  }
+  if (ph.deload) out.note = 'Deload week: about 40% less accessory volume, and no longer approach than last week.';
+  if (k === 'p2' && d === 0) out.note = out.note || 'Step up approach length only when the Chord Check gate is green.';
+  return out;
+}
+const allItems = s => dayPlan(s).sections.flatMap(x => x.items);
+function dayStatus(s) {
+  const its = allItems(s), c = checks[s] || {};
+  const done = its.filter(i => c[i.id]).length;
+  return { done, total: its.length };
+}
+
+// ---------- persistence ----------
+async function setCheck(s, id, val) {
+  const cur = { ...(checks[s] || {}) };
+  if (val) cur[id] = true; else delete cur[id];
+  checks[s] = cur;
+  render(true);
+  if (db) { try { await db.collection('days').doc(s).set({ date: s, done: cur }); return; } catch {} }
+  lsSet('chordseason.checks', checks);
+}
+async function saveCfg() {
+  render();
+  if (db) { try { await db.doc('settings/main').set(cfg); toast('Saved'); return; } catch {} }
+  lsSet('chordseason.cfg', cfg); toast('Saved on this device');
+}
+
+// ---------- render ----------
+function timeline() {
+  const b = bounds(), start = cfg.start, end = add(cfg.lastMeet, 1), total = diff(end, start);
+  const segs = [['p1', start, add(b.base, 28)], ['p2', add(b.base, 28), add(b.base, 56)], ['p3', add(b.base, 56), b.prepEnd],
+    ['in', b.prepEnd, b.bS], ['br', b.bS, b.bE], ['or', b.bE, b.rebuildEnd], ['oc', b.rebuildEnd, b.peakStart], ['tp', b.peakStart, end]];
+  const pct = s => Math.max(0, Math.min(100, diff(s, start) / total * 100));
+  const bar = segs.map(([k, a, z]) => `<span title="${PH[k].name}" style="width:${Math.max(0, diff(z, a)) / total * 100}%;background:var(${PH[k].color})"></span>`).join('');
+  const meets = cfg.meets.map(m => `<span class="tl-meet" title="Meet ${fmt(m, { month: 'short', day: 'numeric' })}" style="left:${pct(m)}%"></span>`).join('');
+  const t = todayStr();
+  const mark = t >= start && t <= cfg.lastMeet ? `<span class="tl-mark" style="left:${pct(t)}%"></span>` : '';
+  const legend = ['p1', 'p2', 'p3', 'in', 'br', 'or', 'oc', 'tp'].map(k => `<span><i style="background:var(${PH[k].color})"></i>${PH[k].short}</span>`).join('');
+  return `<div class="tl-wrap"><div class="tl">${bar}</div>${mark}${meets}</div>
+    <div class="row note" style="justify-content:space-between;margin-top:14px"><span>${fmt(start, { month: 'short', day: 'numeric' })}</span><span>${fmt(cfg.lastMeet, { month: 'short', day: 'numeric' })}</span></div>
+    <div class="legend">${legend}<span><i style="background:var(--meet);border-radius:50%"></i>Meet</span></div>`;
+}
+
+function render(keepScroll) {
+  const t = todayStr();
+  const first = diff(cfg.firstMeet, t), last = diff(cfg.lastMeet, t);
+  const countTxt = first > 0 ? `<b>${first}</b><span class="note">days to first meet</span>` : last >= 0 ? `<b>${last}</b><span class="note">days to last meet</span>` : `<b>—</b><span class="note">season over</span>`;
+  const wkStart = monday(sel);
+  const days = Array.from({ length: 7 }, (_, i) => add(wkStart, i));
+  const wkDone = days.reduce((a, s) => { const st = dayStatus(s); return [a[0] + st.done, a[1] + st.total]; }, [0, 0]);
+  const ph = phaseOf(sel);
+  const phLabel = PH[ph.key].name + (ph.wk && ph.key !== 'pre' && ph.key !== 'post' ? ` · week ${ph.wk}` : '');
+  const plan = dayPlan(sel);
+  const st = dayStatus(sel);
+  const c = checks[sel] || {};
+
+  const strip = days.map((s, i) => {
+    const x = dayStatus(s);
+    const cls = [s === sel && 'sel', s === t && 'today', x.total && x.done === x.total && 'full', isMeet(s) && 'meet', !x.total && 'rest'].filter(Boolean).join(' ');
+    const lab = isMeet(s) ? 'MEET' : x.total ? `${x.done}/${x.total}` : 'off';
+    return `<button class="${cls}" data-day="${s}" aria-label="${fmt(s, { weekday: 'long', month: 'long', day: 'numeric' })}"><span class="dow">${DOW[i]}</span><span class="dn">${fmt(s, { day: 'numeric' })}</span><span class="st">${lab}</span></button>`;
+  }).join('');
+
+  const chips = [
+    plan.kind === 'meet' ? '<span class="chip meet">Meet</span>' : '',
+    plan.kind === 'primer' ? '<span class="chip">Day before meet</span>' : '',
+    ph.deload ? '<span class="chip deload">Deload</span>' : '',
+  ].join('');
+
+  const secs = plan.sections.map(sec => `<section class="panel sec"><h3>${esc(sec.t)}</h3>${sec.items.map(it => `
+      <label class="item ${c[it.id] ? 'on' : ''}" for="i-${it.id}">
+        <input type="checkbox" id="i-${it.id}" data-item="${it.id}" ${c[it.id] ? 'checked' : ''}>
+        <span><span class="nm">${esc(it.name)}</span>${it.dose ? `<span class="dose">${esc(it.dose)}</span>` : ''}${it.cue ? `<div class="cue">${it.cue}</div>` : ''}</span>
+      </label>`).join('')}</section>`).join('');
+
+  const b = bounds();
+  const sc = window.scrollY;
+  $('#season-app').innerHTML = `
+  
+  <header class="top"><div><div class="eyebrow">Compress the Chord</div><h1>Chord <span class="hl">Season</span></h1></div><div class="count">${countTxt}</div></header>
+  <div class="stack" style="margin-top:14px">
+    <section class="panel">${timeline()}</section>
+
+    <section class="stack" style="gap:8px">
+      <div class="weekhead">
+        <button class="ghost" id="prevw" aria-label="Previous week">‹ Week</button>
+        <div style="text-align:center"><div class="eyebrow">${esc(PH[phaseOf(wkStart < cfg.start ? cfg.start : wkStart).key].short)} · ${fmt(wkStart, { month: 'short', day: 'numeric' })}–${fmt(add(wkStart, 6), { month: 'short', day: 'numeric' })}</div>
+          <div class="note num">${wkDone[0]}/${wkDone[1]} done this week</div></div>
+        <button class="ghost" id="nextw" aria-label="Next week">Week ›</button>
+      </div>
+      <div class="strip">${strip}</div>
+      ${sel !== t ? '<button class="ghost" id="today" style="align-self:center">Go to today</button>' : ''}
+    </section>
+
+    <section class="stack" style="gap:10px">
+      <div class="dayhead">
+        <div><div class="eyebrow">${esc(phLabel)}</div><h2>${fmt(sel, { weekday: 'long', month: 'long', day: 'numeric' })}</h2></div>
+        <div class="row" style="justify-content:end">${chips}</div>
+      </div>
+      ${st.total ? `<div class="row" style="justify-content:space-between"><span class="note num">${st.done} of ${st.total} done</span></div><div class="prog"><i style="width:${st.total ? st.done / st.total * 100 : 0}%"></i></div>` : ''}
+      ${plan.note ? `<div class="callout">${esc(plan.note)}</div>` : ''}
+      ${secs || (plan.kind === 'rest' && !plan.note ? '<div class="callout">Rest day.</div>' : '')}
+      ${ph.key !== 'pre' && ph.key !== 'post' ? `<label class="toggle note"><input type="checkbox" id="meettoggle" ${isMeet(sel) ? 'checked' : ''}> This day is a meet</label>` : ''}
+    </section>
+
+    <details class="panel">
+      <summary>Season dates and phases</summary>
+      <div class="stack" style="margin-top:12px">
+        <div class="tblwrap"><table class="phases"><tbody>
+          ${[['p1', cfg.start, add(b.base, 27)], ['p2', add(b.base, 28), add(b.base, 55)], ['p3', add(b.base, 56), add(b.prepEnd, -1)], ['in', b.prepEnd, add(b.bS, -1)], ['br', b.bS, add(b.bE, -1)], ['or', b.bE, add(b.rebuildEnd, -1)], ['oc', b.rebuildEnd, add(b.peakStart, -1)], ['tp', b.peakStart, cfg.lastMeet]]
+            .map(([k, a, z]) => `<tr><td>${fmt(a, { month: 'short', day: 'numeric' })} – ${fmt(z, { month: 'short', day: 'numeric' })}</td><td>${PH[k].name}</td></tr>`).join('')}
+        </tbody></table></div>
+        <div class="grid2">
+          <label class="f">Program start<input type="date" id="c-start" value="${cfg.start}"></label>
+          <label class="f">Lights out<input type="time" id="c-bed" value="${cfg.bed || DEFAULTS.bed}"></label>
+          <label class="f">First meet<input type="date" id="c-first" value="${cfg.firstMeet}"></label>
+          <label class="f">Break starts<input type="date" id="c-break" value="${cfg.breakStart}"></label>
+          <label class="f">Break length (weeks)<input type="number" min="1" max="8" id="c-bw" value="${cfg.breakWeeks}"></label>
+          <label class="f">Last meet<input type="date" id="c-last" value="${cfg.lastMeet}"></label>
+        </div>
+        <div class="note">Meets: ${cfg.meets.slice().sort().map(m => fmt(m, { month: 'short', day: 'numeric' })).join(', ')}. Mark more meets from any day’s page.</div>
+        <button class="primary" id="savecfg">Save dates</button>
+        <div class="note">${store === 'db' ? 'Check-offs sync across your devices.' : 'Check-offs are saved on this device only.'}</div>
+      </div>
+    </details>
+  </div>`;
+  if (keepScroll) window.scrollTo(0, sc);
+  bind();
+}
+
+function bind() {
+  document.querySelectorAll('[data-day]').forEach(b => b.onclick = () => { sel = b.dataset.day; render(); });
+  $('#prevw').onclick = () => { sel = add(sel, -7); render(); };
+  $('#nextw').onclick = () => { sel = add(sel, 7); render(); };
+  const td = $('#today'); if (td) td.onclick = () => { sel = clampSel(todayStr()); render(); };
+  document.querySelectorAll('[data-item]').forEach(cb => cb.onchange = () => setCheck(sel, cb.dataset.item, cb.checked));
+  const mt = $('#meettoggle');
+  if (mt) mt.onchange = () => { cfg.meets = mt.checked ? [...new Set([...cfg.meets, sel])] : cfg.meets.filter(m => m !== sel); saveCfg(); };
+  $('#savecfg').onclick = () => {
+    const v = id => $(id).value;
+    const oldFirst = cfg.firstMeet, oldLast = cfg.lastMeet;
+    cfg.start = v('#c-start') || cfg.start;
+    cfg.bed = v('#c-bed') || cfg.bed || DEFAULTS.bed;
+    cfg.firstMeet = v('#c-first') || cfg.firstMeet;
+    cfg.breakStart = v('#c-break') || cfg.breakStart;
+    cfg.breakWeeks = Math.max(1, Math.min(8, parseInt(v('#c-bw')) || 4));
+    cfg.lastMeet = v('#c-last') || cfg.lastMeet;
+    cfg.meets = [...new Set(cfg.meets.filter(m => m !== oldFirst && m !== oldLast).concat([cfg.firstMeet, cfg.lastMeet]))];
+    saveCfg();
+  };
+}
+
+function clampSel(s) { return s < cfg.start ? cfg.start : s > cfg.lastMeet ? cfg.lastMeet : s; }
+
+
+// ---------- boot ----------
+cfg = { ...DEFAULTS, ...lsGet('chordseason.cfg', {}) };
+checks = lsGet('chordseason.checks', {});
+sel = clampSel(todayStr());
+render();
+
+(async () => {
+  try { db = window.claude?.use ? await window.claude.use('db') : null; } catch { db = null; }
+  if (!db) return;
+  store = 'db';
+  db.doc('settings/main').onSnapshot(snap => {
+    if (snap.exists) { cfg = { ...DEFAULTS, ...snap.data() }; }
+    if (!document.activeElement || !document.activeElement.id?.startsWith('c-')) render(true);
+  }, () => {});
+  db.collection('days').limit(1000).onSnapshot(snap => {
+    const next = {};
+    snap.docs.forEach(d => { const x = d.data(); next[x.date || d.id] = x.done || {}; });
+    checks = next;
+    if (!document.activeElement || !document.activeElement.id?.startsWith('c-')) render(true);
+  }, () => { db = null; store = 'local'; render(true); });
+})();
+
+})();
+(function () {
+
+const CHECKS = [
+  { id: 's_approach', view: 'side', phase: 'Approach', must: false, title: 'Speed kept into the last steps',
+    frame: 'Last 3 steps before take-off', pass: 'Tall, quick rhythm; no reaching or slowing; pole tip dropping smoothly.' },
+  { id: 's_hands', view: 'side', phase: 'Plant', must: true, title: 'Top hand forward of the forehead',
+    frame: 'Moment the pole tip hits the box', pass: 'Top hand is ahead of the forehead, driving forward, not pulled back behind the head.' },
+  { id: 's_box', view: 'side', phase: 'Plant', must: false, title: 'Tip hits the back of the box, then hands rise',
+    frame: 'Pole strike through take-off', pass: 'Tip seats in the back of the box first; hands keep rising as the pole loads.' },
+  { id: 's_takeoff', view: 'side', phase: 'Take-off', must: false, title: 'Ran off the ground, didn’t jump up',
+    frame: 'Last frame the take-off foot touches', pass: 'Low, forward take-off (around 18°); speed carried into the pole, no vertical jump.' },
+  { id: 's_arm', view: 'side', phase: 'Take-off', must: true, title: 'Bottom arm extended in front of the face',
+    frame: 'Take-off through first 20% of bend', pass: 'Bottom arm stays long; elbow does not collapse; distance from the pole is kept.' },
+  { id: 's_cave', view: 'side', phase: 'Pole bend', must: true, title: 'No shoulder or trunk cave',
+    frame: 'Just after take-off', pass: 'Body acts as a strut. Shoulders and chest do not give back toward the pit.' },
+  { id: 's_work', view: 'side', phase: 'Pole bend', must: false, title: 'Work added without losing position',
+    frame: 'Drive knee and early swing', pass: 'Drive and swing load the pole while the arm and trunk keep their shape.' },
+  { id: 's_hips', view: 'side', phase: 'Swing / rock-back', must: true, title: 'Hips travel up the chord',
+    frame: 'Swing through rock-back', pass: 'Hips move up the line from top hand to pole tip and stay close to the pole.' },
+  { id: 's_extend', view: 'side', phase: 'Extension', must: false, title: 'Body rides the recoil up the pole',
+    frame: 'Pole straightening', pass: 'Body extends up the pole’s line, not out toward the pit or back toward the runway.' },
+  { id: 'r_plane', view: 'rear', phase: 'Plant', must: true, title: 'Pole, hands and body in the runway plane',
+    frame: 'Plant through take-off', pass: 'Pole, top hand and head line up with the centre of the runway and box.' },
+  { id: 'r_foot', view: 'rear', phase: 'Take-off', must: false, title: 'Take-off foot under the top hand line',
+    frame: 'Take-off', pass: 'Foot is not wide of the top hand; no sideways lean into the pole.' },
+  { id: 'r_arm', view: 'rear', phase: 'Take-off', must: false, title: 'Bottom arm in line with the pole',
+    frame: 'Take-off through early bend', pass: 'Bottom arm is behind the pole, not flared out to the side.' },
+  { id: 'r_swing', view: 'rear', phase: 'Swing', must: false, title: 'Hips square, swing in line',
+    frame: 'Swing', pass: 'Hips stay square and the swing follows the pole; no drift left or right.' },
+  { id: 'r_hips', view: 'rear', phase: 'Rock-back / inversion', must: true, title: 'Hips go straight up the chord',
+    frame: 'Rock-back to inversion', pass: 'Hips rise straight up the pole’s line; the pole bends in plane, not sideways.' },
+  { id: 'r_turn', view: 'rear', phase: 'Turn / fly-away', must: false, title: 'Turn over the top, not off to the side',
+    frame: 'Turn and push', pass: 'Body turns over the pole and leaves straight toward the bar.' },
+];
+const CUES = {
+  s_approach: 'Run tall to the box', s_hands: 'Hands forward', s_box: 'Back of the box', s_takeoff: 'Run off the ground',
+  s_arm: 'Long bottom arm', s_cave: 'Through the pole', s_work: 'Drive from position', s_hips: 'Hips up the pole',
+  s_extend: 'Ride the pole up', r_plane: 'Plant down the middle', r_foot: 'Foot under the hand', r_arm: 'Arm behind the pole',
+  r_swing: 'Swing straight', r_hips: 'Hips up the pole', r_turn: 'Turn over the top'
+};
+const MUST = CHECKS.filter(c => c.must).map(c => c.id);
+
+let db = null, unsub = null, store = 'local';
+window.chordCheckRender = () => render();
+let jumps = [];
+let state = { view: 'home', draft: null, step: 0, detail: null, confirmDel: false };
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const today = () => new Date().toLocaleDateString('en-CA');
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2200); }
+
+// ---------- storage ----------
+function lsGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+function loadLocal() { jumps = lsGet('chordcheck.jumps', []); render(); }
+async function saveJump(j) {
+  if (db) {
+    try { await db.collection('jumps').doc(j.id).set(j); return true; }
+    catch (e) { if (e && e.code === 'quota_exceeded') { toast('Storage full. Delete old jumps to save more.'); return false; } }
+  }
+  jumps = [j, ...jumps.filter(x => x.id !== j.id)]; lsSet('chordcheck.jumps', jumps); render(); return true;
+}
+async function deleteJump(id) {
+  if (db) { try { await db.collection('jumps').doc(id).delete(); return; } catch {} }
+  jumps = jumps.filter(x => x.id !== id); lsSet('chordcheck.jumps', jumps); render();
+}
+
+// ---------- logic ----------
+function passesMust(j) { return MUST.every(id => j.results?.[id] === 'pass'); }
+function sorted() { return [...jumps].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); }
+function counts(j) {
+  const v = Object.values(j.results || {});
+  return { pass: v.filter(x => x === 'pass').length, rated: v.filter(x => x === 'pass' || x === 'fail').length };
+}
+function velLoss(j) {
+  const a = parseFloat(j.vTD), b = parseFloat(j.vTO);
+  return isFinite(a) && isFinite(b) ? (a - b) : null;
+}
+function nextCue(j) {
+  const order = ['s_hands', 's_arm', 's_cave', 's_hips', 'r_plane', 'r_hips', 's_takeoff', 's_box', 's_work', 's_extend', 's_approach', 'r_foot', 'r_arm', 'r_swing', 'r_turn'];
+  const miss = order.find(id => j.results?.[id] === 'fail');
+  return miss ? CUES[miss] : null;
+}
+
+// ---------- views ----------
+function render() {
+  const app = $('#check-app');
+  if (state.view === 'home') app.innerHTML = homeView();
+  else if (state.view === 'setup') app.innerHTML = setupView();
+  else if (state.view === 'review') app.innerHTML = reviewView();
+  else if (state.view === 'summary') app.innerHTML = summaryView(state.draft, true);
+  else if (state.view === 'detail') { const j = jumps.find(x => x.id === state.detail); app.innerHTML = j ? summaryView(j, false) : homeView(); }
+  bind();
+}
+
+function header(sub) {
+  return `<header class="top"><div><div class="eyebrow">Compress the Chord</div><h1>Chord <span class="hl">Check</span></h1></div><div class="brand-sub">${esc(sub)}</div></header>`;
+}
+
+function homeView() {
+  const list = sorted();
+  const last5 = list.slice(0, 5);
+  const ok = last5.filter(passesMust).length;
+  const gateOpen = last5.length === 5 && ok >= 4;
+  const dots = Array.from({ length: 5 }, (_, i) => last5[i] ? `<span class="dot ${passesMust(last5[i]) ? 'ok' : 'no'}" title="${passesMust(last5[i]) ? 'Passed' : 'Missed'} all must-pass"></span>` : '<span class="dot"></span>').join('');
+  const storeNote = store === 'db' ? 'Jumps sync across your devices.' : 'Jumps are saved on this device only.';
+  return `${header(list.length + (list.length === 1 ? ' jump' : ' jumps') + ' reviewed')}
+  <div class="stack">
+    <button class="primary" id="new" style="min-height:56px;font-size:17px">Review a jump</button>
+    <section class="panel stack">
+      <div class="row" style="justify-content:space-between"><div class="eyebrow">Progression gate · last 5 jumps</div>
+        <span class="pill ${gateOpen ? 'ok' : last5.length < 5 ? 'mid' : 'no'}">${gateOpen ? 'Ready to step up' : last5.length < 5 ? 'Need 5 jumps' : 'Hold this step'}</span></div>
+      <div class="gate"><div class="gate-dots">${dots}</div><div class="num" style="font-size:20px">${ok}/5</div></div>
+      <div class="note">Step up approach or pole when at least 4 of the last 5 jumps pass every must-pass check and velocity loss is no worse.</div>
+    </section>
+    <section class="stack">
+      <div class="eyebrow">Recent jumps</div>
+      ${list.length ? `<ul class="hist">${list.slice(0, 40).map(j => {
+        const c = counts(j), loss = velLoss(j);
+        return `<li><button data-open="${esc(j.id)}">
+          <strong>${esc(j.date)} · ${esc(j.approach ? j.approach + ' lefts' : 'Jump')}${j.pole ? ' · ' + esc(j.pole) : ''}</strong>
+          <span class="score"><span class="pill ${passesMust(j) ? 'ok' : 'no'}">${passesMust(j) ? 'Must-pass' : 'Missed'}</span><br><span class="num meta">${c.pass}/${c.rated}</span></span>
+          <span class="meta">${[esc(j.result || ''), loss !== null ? 'vel. loss <span class="num">' + loss.toFixed(2) + '</span> m/s' : '', nextCue(j) ? 'next: ' + esc(nextCue(j)) : ''].filter(Boolean).join(' · ')}</span>
+        </button></li>`; }).join('')}</ul>` : `<div class="panel note">No jumps yet. Tap <b>Review a jump</b>, enter the details, then step through the side view and rear view one checkpoint at a time.</div>`}
+    </section>
+    ${list.length ? '<button class="ghost small" id="copycsv">Copy all jumps as CSV</button>' : ''}
+    <div class="note">${storeNote}</div>
+  </div>`;
+}
+
+function setupView() {
+  const d = state.draft;
+  return `${header('Jump details')}
+  <form class="stack" id="setup">
+    <div class="grid2">
+      <label>Date<input id="f-date" type="date" value="${esc(d.date)}"></label>
+      <label>Approach (lefts)<input id="f-approach" inputmode="numeric" value="${esc(d.approach)}" placeholder="6"></label>
+      <label>Pole (length / weight)<input id="f-pole" value="${esc(d.pole)}" placeholder="15'1 / 175"></label>
+      <label>Grip<input id="f-grip" value="${esc(d.grip)}" placeholder="4.40"></label>
+    </div>
+    <label>Result<input id="f-result" value="${esc(d.result)}" placeholder="Cleared 4.90 / short drill / ran through"></label>
+    <div class="grid2">
+      <label>Velocity at touchdown (m/s)<input id="f-vTD" inputmode="decimal" value="${esc(d.vTD)}" placeholder="8.9"></label>
+      <label>Velocity at take-off (m/s)<input id="f-vTO" inputmode="decimal" value="${esc(d.vTO)}" placeholder="7.5"></label>
+      <label>Take-off angle (°)<input id="f-angle" inputmode="decimal" value="${esc(d.angle)}" placeholder="18"></label>
+      <label>Bottom elbow at take-off (°)<input id="f-elbow" inputmode="decimal" value="${esc(d.elbow)}" placeholder="165"></label>
+    </div>
+    <div class="note">Measurements are optional. Get velocities from frame-by-frame video in your timing app.</div>
+    <div class="row"><button type="button" class="ghost" id="cancel">Cancel</button><button type="submit" class="primary" style="flex:1">Start side view</button></div>
+  </form>`;
+}
+
+function reviewView() {
+  const d = state.draft, i = state.step, c = CHECKS[i];
+  const v = d.results[c.id];
+  const pct = Math.round((i / CHECKS.length) * 100);
+  const firstRear = CHECKS.findIndex(x => x.view === 'rear');
+  const switchNote = i === firstRear ? `<div class="panel" style="border-color:var(--gold)"><b>Switch to the rear video.</b> <span class="note">Same jump, camera behind the runway.</span></div>` : '';
+  return `<div class="sticky stack" style="gap:8px">
+      <div class="row" style="justify-content:space-between">
+        <span class="view-tag ${c.view === 'rear' ? 'rear' : ''}">${c.view === 'rear' ? 'Rear view' : 'Side view'}</span>
+        <span class="num note">${i + 1} / ${CHECKS.length}</span>
+      </div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+    </div>
+    <div class="stack">
+      ${switchNote}
+      <section class="panel check-card">
+        <div class="row" style="justify-content:space-between"><span class="eyebrow">${esc(c.phase)}</span>${c.must ? '<span class="must">Must pass</span>' : ''}</div>
+        <h2>${esc(c.title)}</h2>
+        <dl class="kv"><dt>Find frame</dt><dd>${esc(c.frame)}</dd><dt>Pass if</dt><dd>${esc(c.pass)}</dd></dl>
+      </section>
+      <div class="verdicts">
+        <button class="v-pass ${v === 'pass' ? 'on' : ''}" data-v="pass" aria-pressed="${v === 'pass'}">Pass</button>
+        <button class="v-fail ${v === 'fail' ? 'on' : ''}" data-v="fail" aria-pressed="${v === 'fail'}">Miss</button>
+        <button class="v-unk ${v === 'unk' ? 'on' : ''}" data-v="unk" aria-pressed="${v === 'unk'}">Can’t see</button>
+      </div>
+      <div class="row">
+        <button class="ghost" id="back" ${i === 0 ? 'disabled' : ''}>Back</button>
+        <button class="ghost" id="quit">Save and exit</button>
+      </div>
+    </div>`;
+}
+
+function summaryView(j, isNew) {
+  const loss = velLoss(j), cue = nextCue(j), c = counts(j);
+  const items = CHECKS.map(ch => {
+    const v = j.results?.[ch.id];
+    const pill = v === 'pass' ? '<span class="pill ok">Pass</span>' : v === 'fail' ? '<span class="pill no">Miss</span>' : v === 'unk' ? '<span class="pill mid">Unclear</span>' : '<span class="pill mid">—</span>';
+    return `<li><span class="tag">${ch.view}</span><span>${esc(ch.title)}${ch.must ? ' <span class="must">· must</span>' : ''}</span>${pill}</li>`;
+  }).join('');
+  const del = !isNew ? (state.confirmDel
+    ? `<div class="row"><span class="note">Delete this jump for good?</span><button class="danger small" id="delyes">Delete</button><button class="ghost small" id="delno">Keep</button></div>`
+    : `<button class="ghost small danger" id="del">Delete jump</button>`) : '';
+  return `${header(isNew ? 'Review complete' : esc(j.date))}
+  <div class="stack">
+    <section class="panel stack">
+      <div class="row" style="justify-content:space-between"><div class="eyebrow">Must-pass checks</div>
+        <span class="pill ${passesMust(j) ? 'ok' : 'no'}">${passesMust(j) ? 'All passed' : 'Not all passed'}</span></div>
+      <div class="eyebrow" style="margin-top:4px">Cue for the next jump</div>
+      <div class="cue">${esc(cue || 'Same again')}</div>
+    </section>
+    <div class="statrow">
+      <div class="panel stat"><b>${c.pass}/${c.rated}</b><span>checks passed</span></div>
+      <div class="panel stat"><b>${loss !== null ? loss.toFixed(2) : '—'}</b><span>vel. loss m/s</span></div>
+      <div class="panel stat"><b>${j.angle ? esc(j.angle) + '°' : '—'}</b><span>take-off angle</span></div>
+    </div>
+    <section class="panel"><div class="note" style="margin-bottom:6px">${esc([j.approach && j.approach + ' lefts', j.pole, j.grip && 'grip ' + j.grip, j.result].filter(Boolean).join(' · ') || 'No details entered')}</div><ul class="res">${items}</ul></section>
+    <label>Notes<textarea id="f-notes" placeholder="What you felt, what the coach said">${esc(j.notes || '')}</textarea></label>
+    <div class="row">
+      ${isNew ? '<button class="ghost" id="redo">Change answers</button><button class="primary" id="save" style="flex:1">Save jump</button>'
+              : '<button class="ghost" id="home">All jumps</button><button class="primary" id="savenotes" style="flex:1">Save notes</button>'}
+    </div>
+    ${del}
+  </div>`;
+}
+
+// ---------- events ----------
+function newDraft() {
+  return { id: 'j' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: today(), approach: '', pole: '', grip: '', result: '', vTD: '', vTO: '', angle: '', elbow: '', notes: '', results: {}, createdAt: Date.now() };
+}
+function readSetup() {
+  for (const k of ['date', 'approach', 'pole', 'grip', 'result', 'vTD', 'vTO', 'angle', 'elbow']) state.draft[k] = $('#f-' + k).value.trim();
+}
+function go(view) { state.view = view; state.confirmDel = false; render(); if (!document.getElementById('check').hidden) window.scrollTo(0, 0); lsSet('chordcheck.draft', state.view === 'home' ? null : { draft: state.draft, step: state.step, view: state.view }); }
+
+function bind() {
+  const on = (sel, fn) => { const el = $(sel); if (el) el.addEventListener('click', fn); };
+  on('#new', () => { state.draft = newDraft(); state.step = 0; go('setup'); });
+  on('#cancel', () => go('home'));
+  const setup = $('#setup');
+  if (setup) setup.addEventListener('submit', e => { e.preventDefault(); readSetup(); state.step = 0; go('review'); });
+  document.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => {
+    state.draft.results[CHECKS[state.step].id] = b.dataset.v;
+    if (state.step < CHECKS.length - 1) { state.step++; go('review'); } else go('summary');
+  }));
+  on('#back', () => { if (state.step > 0) { state.step--; go('review'); } });
+  on('#quit', () => go('summary'));
+  on('#redo', () => { state.step = 0; go('review'); });
+  on('#save', async () => {
+    state.draft.notes = $('#f-notes').value.trim();
+    const ok = await saveJump({ ...state.draft });
+    if (ok) { toast('Jump saved'); state.draft = null; go('home'); }
+  });
+  on('#home', () => go('home'));
+  on('#savenotes', async () => {
+    const j = jumps.find(x => x.id === state.detail); if (!j) return;
+    await saveJump({ ...j, notes: $('#f-notes').value.trim() }); toast('Notes saved');
+  });
+  on('#del', () => { state.confirmDel = true; render(); });
+  on('#delno', () => { state.confirmDel = false; render(); });
+  on('#delyes', async () => { await deleteJump(state.detail); toast('Jump deleted'); go('home'); });
+  document.querySelectorAll('[data-open]').forEach(b => b.addEventListener('click', () => { state.detail = b.dataset.open; go('detail'); }));
+  on('#copycsv', async () => {
+    const cols = ['date', 'approach', 'pole', 'grip', 'result', 'vTD', 'vTO', 'angle', 'elbow'];
+    const head = [...cols, 'vel_loss', 'must_pass', ...CHECKS.map(c => c.id), 'notes'];
+    const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const rows = sorted().map(j => [...cols.map(k => j[k]), velLoss(j)?.toFixed(2) ?? '', passesMust(j) ? 'yes' : 'no', ...CHECKS.map(c => j.results?.[c.id] || ''), j.notes].map(q).join(','));
+    const text = [head.join(','), ...rows].join('\n');
+    try { await navigator.clipboard.writeText(text); toast('CSV copied'); }
+    catch { const ta = document.createElement('textarea'); ta.value = text; ta.style.width = '100%'; ta.rows = 6; $('#copycsv').after(ta); ta.select(); toast('Select and copy the text below'); }
+  });
+}
+
+
+// ---------- boot ----------
+const saved = lsGet('chordcheck.draft', null);
+if (saved && saved.draft && saved.view !== 'home' && saved.view !== 'detail') { state.draft = saved.draft; state.step = saved.step || 0; state.view = saved.view; }
+loadLocal();
+
+(async () => {
+  try {
+    db = window.claude?.use ? await window.claude.use('db') : null;
+  } catch { db = null; }
+  if (!db) return;
+  store = 'db';
+  unsub = db.collection('jumps').orderBy('createdAt', 'desc').limit(500).onSnapshot(snap => {
+    jumps = snap.docs.map(d => d.data());
+    const focus = document.activeElement && document.activeElement.id;
+    if (focus === 'f-notes' || state.view === 'setup') return; // don't wipe typing
+    render();
+  }, () => { db = null; store = 'local'; loadLocal(); });
+})();
+
+})();
+</script>
+
+<script>
+(function () {
+  const KEYS = ['chordseason.cfg', 'chordseason.checks', 'chordcheck.jumps', 'chord.theme'];
+  const msg = t => { document.getElementById('bk-msg').textContent = t; };
+  document.getElementById('bk-save').addEventListener('click', () => {
+    const data = { app: 'compress-the-chord', version: 1, savedAt: new Date().toISOString(), keys: {} };
+    KEYS.forEach(k => { try { const v = localStorage.getItem(k); if (v !== null) data.keys[k] = v; } catch {} });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'compress-the-chord-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    msg('Backup downloaded.');
+  });
+  document.getElementById('bk-load').addEventListener('change', async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      if (data.app !== 'compress-the-chord' || !data.keys) throw new Error('bad');
+      Object.entries(data.keys).forEach(([k, v]) => { if (KEYS.includes(k)) localStorage.setItem(k, v); });
+      msg('Restored. Reloading…');
+      setTimeout(() => location.reload(), 600);
+    } catch { msg('That file isn\u2019t a Compress the Chord backup. Pick the .json file you downloaded from this app.'); }
+  });
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+})();
+</script>
+</body>
+</html>

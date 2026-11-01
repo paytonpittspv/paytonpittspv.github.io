@@ -1,0 +1,16 @@
+{
+  "name": "Compress the Chord",
+  "short_name": "Chord",
+  "description": "Daily training checklist and jump review for the Compress the Chord pole vault program.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b0a1f",
+  "theme_color": "#0b0a1f",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
