@@ -288,6 +288,10 @@
     g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
     const a = s.athletes.find(x => x.id === s.cardAthlete);
     g.fillStyle = C.acc; g.font = sans(700, 30); g.fillText('TESTING DAY', 90, 130);
+    // Payton's wordmark, same as the site header: name in ink, dot in the brand purple
+    { const brandDot = dark ? '#a78bfa' : '#7c3aed'; g.font = sans(700, 36); g.textAlign = 'right';
+      g.fillStyle = brandDot; g.fillText('.', W - 90, 130); const dw = g.measureText('.').width;
+      g.fillStyle = C.ink; g.fillText('Payton Pitts', W - 90 - dw, 130); g.textAlign = 'left'; }
     g.fillStyle = C.ink; let size = 104; g.font = serif(size);
     const name = a ? a.name : 'Add an athlete';
     while (g.measureText(name).width > W - 180 && size > 56) { size -= 4; g.font = serif(size); }
@@ -317,8 +321,9 @@
       g.textAlign = 'left'; y += 96;
     });
     const have = d.filter(x => x.pct != null), ov = have.length ? have.reduce((p, x) => p + x.pct, 0) / have.length : null;
-    g.fillStyle = C.ink; g.font = sans(500, 44); g.fillText('Overall', 90, H - 90);
-    g.textAlign = 'right'; g.fillStyle = C.acc; g.font = sans(800, 54); g.fillText(ov == null ? '–' : `${Math.round(ov)} % of group best`, W - 90, H - 90); g.textAlign = 'left';
+    g.fillStyle = C.ink; g.font = sans(500, 44); g.fillText('Overall', 90, H - 120);
+    g.textAlign = 'right'; g.fillStyle = C.acc; g.font = sans(800, 54); g.fillText(ov == null ? '–' : `${Math.round(ov)} % of group best`, W - 90, H - 120);
+    g.textAlign = 'center'; g.fillStyle = C.mute; g.font = sans(500, 28); g.fillText('paytonpittspv.github.io', W / 2, H - 44); g.textAlign = 'left';
   }
   function round(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 
