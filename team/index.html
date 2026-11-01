@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vault Team Stats</title>
+<meta name="description" content="Pole vault team stats: PRs, run-up speed, approach PRs by lefts, testing trends and plain-language takeaways for every athlete.">
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  :root { --accent: #006747; --chart-1: #00875c; --accent-ink: #fff; }
+  @media (prefers-color-scheme: dark) { :root { --accent: #34c784; --chart-1: #34c784; --accent-ink: #0d1117; } }
+
+  .tabs { display: flex; gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 10px; width: fit-content; max-width: 100%; overflow-x: auto; }
+  .tabs button { border: 0; background: transparent; padding: 8px 14px; border-radius: 7px; white-space: nowrap; }
+  .tabs button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow); color: var(--text); }
+  .bar-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .tile .k { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+  .tile .v { font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .tile .v small { font-size: 14px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+  .tile .s { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .lb { display: grid; gap: 2px; }
+  .lb-row { display: grid; grid-template-columns: 22px minmax(90px, 1fr) minmax(60px, 1.4fr) auto; gap: 10px; align-items: center; padding: 6px 0; font-size: 14px; }
+  .lb-row .rk { color: var(--muted); font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+  .lb-row.first .rk { color: var(--accent); }
+  .lb-row .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-row .track { height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+  .lb-row .track i { display: block; height: 100%; background: var(--chart-1); border-radius: 4px; }
+  .lb-row .val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .lb-row .val .d { font-weight: 600; font-size: 12px; margin-left: 6px; }
+  .up { color: var(--good); } .down { color: var(--bad); }
+
+  .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px; }
+  .metric-grid h3 { display: flex; justify-content: space-between; align-items: baseline; }
+  .metric-grid h3 span { font-size: 12px; color: var(--muted); font-weight: 500; }
+
+  .takeaways { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+  .takeaways li { padding-left: 26px; position: relative; }
+  .takeaways li::before { content: ""; position: absolute; left: 4px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .takeaways li.focus::before { background: var(--warn); }
+
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chips button { padding: 6px 12px; border-radius: 999px; font-size: 13px; }
+  .chips button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+  .hero { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: end; }
+  .hero .big { font-size: clamp(44px, 9vw, 64px); font-weight: 800; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .hero .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero .big small { font-size: 18px; color: var(--muted); font-weight: 600; letter-spacing: 0; margin-left: 6px; }
+
+  .meter { position: relative; height: 10px; background: var(--surface-2); border-radius: 5px; margin: 10px 0 4px; }
+  .meter i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--chart-1); border-radius: 5px; }
+  .meter b { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--text); }
+  .meter-lbl { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+
+  svg.chart { width: 100%; display: block; }
+  td.win { color: var(--accent); font-weight: 700; }
+  .cmp td:first-child { color: var(--muted); }
+  .spark { vertical-align: middle; }
+
+  .edit input { width: 76px; padding: 5px 7px; font-size: 13px; text-align: right; font-variant-numeric: tabular-nums; }
+  .edit td { padding: 5px 6px; }
+  .edit th { padding: 6px; }
+  .sample-note { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <a class="brand" href="../">Payton Pitts<span>.</span></a>
+  <nav>
+    <a href="../gatecam/">GateCamLive</a>
+    <a href="./" aria-current="page">Team Stats</a>
+    <a href="../chord/">Chord Season</a>
+  </nav>
+</div></div>
+
+<main class="wrap stack">
+  <header class="page">
+    <h1>Vault Team Stats</h1>
+    <p class="muted" style="max-width:680px">Every vaulter's PRs, run-up speed, approach PRs and testing results in one place, with the numbers that matter up front and plain-language takeaways underneath.</p>
+  </header>
+
+  <div class="bar-row">
+    <div class="tabs" role="tablist" id="tabs">
+      <button data-tab="team">Team</button>
+      <button data-tab="athlete">Athlete</button>
+      <button data-tab="compare">Compare</button>
+      <button data-tab="data">Data</button>
+    </div>
+    <div class="chips" id="groupFilter" aria-label="Group">
+      <button data-g="all">Everyone</button><button data-g="M">Men</button><button data-g="F">Women</button>
+    </div>
+  </div>
+
+  <div class="note sample-note" id="sampleNote" hidden>
+    <span>This is a sample team with made-up athletes. Load your own data from the Data tab.</span>
+  </div>
+
+  <section id="view-team" class="stack"></section>
+  <section id="view-athlete" class="stack" hidden></section>
+  <section id="view-compare" class="stack" hidden></section>
+  <section id="view-data" class="stack" hidden></section>
+</main>
+
+<footer class="site"><div class="wrap">
+  Built by Payton Pitts · <a href="../">All apps</a> · Data stays in your browser.
+</div></footer>
+
+<script>
+(() => {
+'use strict';
+const KEY = 'pp-team-v1';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Math.random().toString(36).slice(2, 9);
+const num = v => (v === '' || v == null || isNaN(+v)) ? null : +v;
+
+// Elite reference values (men / women) used for context on run-up speed.
+const ELITE = { M: 9.09, F: 7.97 };
+const LEFTS = [3, 4, 5, 6, 7, 8];
+
+const MET = [
+  { k: 'fly10',  label: '10 m fly',           unit: 's',   lower: true,  dp: 2 },
+  { k: 'fly20',  label: 'Fly 20 m',           unit: 's',   lower: true,  dp: 2 },
+  { k: 'fly20p', label: 'Fly 20 m with pole', unit: 's',   lower: true,  dp: 2 },
+  { k: 'm40',    label: '40 m',               unit: 's',   lower: true,  dp: 2 },
+  { k: 'm60',    label: '60 m',               unit: 's',   lower: true,  dp: 2 },
+  { k: 'top',    label: 'Top speed',          unit: 'm/s', lower: false, dp: 2 },
+  { k: 'broad',  label: 'Broad jump',         unit: 'cm',  lower: false, dp: 0, alt: cm => ftIn(cm / 100) },
+  { k: 'vert',   label: 'Vertical jump',      unit: 'cm',  lower: false, dp: 1, alt: cm => (cm / 2.54).toFixed(1) + ' in' },
+];
+const BW = { k: 'bw', label: 'Bodyweight', unit: 'lb', dp: 0 };
+
+function ftIn(m) {
+  const t = m * 39.3701, f = Math.floor(t / 12), i = Math.round(t - f * 12);
+  return i === 12 ? `${f + 1}' 0"` : `${f}' ${i}"`;
+}
+const hgt = m => m == null ? '–' : `${m.toFixed(2)} m`;
+const fmtM = (m, v) => v == null ? '–' : `${v.toFixed(m.dp)} ${m.unit}`;
+
+/* ---------------- sample team ---------------- */
+function sample() {
+  const P = [
+    ['Marcus Hill', 'M', 5.36, 5.20, 4.70, [4.10, 4.45, 4.80, 5.05, 5.20, 5.36], 9.18, 168, [1.05, 2.08, 2.20, 5.12, 7.05, 9.71, 296, 78]],
+    ['Jordan Reyes', 'M', 5.22, 5.22, 4.55, [null, 4.40, 4.70, 4.95, 5.22, null], 8.95, 160, [1.08, 2.14, 2.24, 5.21, 7.18, 9.45, 288, 74]],
+    ['Tyler Brooks', 'M', 5.10, 4.90, 4.50, [4.00, 4.30, 4.65, 4.90, 5.10, null], 9.02, 174, [1.07, 2.12, 2.29, 5.18, 7.15, 9.52, 301, 81]],
+    ['Ben Kowalski', 'M', 4.95, 4.80, 4.40, [3.90, 4.25, 4.55, 4.80, 4.95, null], 8.70, 158, [1.11, 2.20, 2.33, 5.30, 7.34, 9.18, 279, 71]],
+    ['Elijah Ward', 'M', 4.70, 4.60, 4.25, [3.85, 4.20, 4.45, 4.70, null, null], 8.55, 151, [1.13, 2.25, 2.40, 5.38, 7.45, 9.02, 270, 69]],
+    ['Maya Chen', 'F', 4.25, 4.10, 3.85, [3.40, 3.70, 3.95, 4.25, null, null], 8.02, 128, [1.24, 2.46, 2.58, 5.86, 8.12, 8.20, 241, 58]],
+    ['Aaliyah Grant', 'F', 4.05, 4.05, 3.70, [3.30, 3.60, 3.85, 4.05, null, null], 7.81, 134, [1.27, 2.52, 2.66, 5.95, 8.30, 7.98, 236, 55]],
+    ['Sofia Alvarez', 'F', 3.80, 3.65, 3.50, [3.20, 3.45, 3.65, 3.80, null, null], 7.62, 125, [1.30, 2.60, 2.77, 6.10, 8.51, 7.74, 228, 52]],
+  ];
+  const athletes = [], rec = {}, blocks = [
+    { id: uid(), name: 'Start of fall', date: '2026-08-24', rows: {} },
+    { id: uid(), name: 'Mid-October', date: '2026-10-12', rows: {} },
+    { id: uid(), name: 'Pre-Thanksgiving', date: '2026-11-20', rows: {} },
+  ];
+  P.forEach(([name, g, pr, sb, grip, L, runup, bw, base], i) => {
+    const id = 'a' + i;
+    athletes.push({ id, name, g });
+    rec[id] = { pr, sb, grip, runup, L: Object.fromEntries(LEFTS.map((l, j) => [l, L[j]])) };
+    const gain = [0, 0.012 + (i % 3) * 0.006, 0.022 + (i % 4) * 0.007];
+    blocks.forEach((b, bi) => {
+      if (bi === 2 && i === 4) return; // one athlete missed the last test
+      const f = 1 - gain[bi], up = 1 + gain[bi] * 0.8;
+      const [fly10, fly20, fly20p, m40, m60, top, broad, vert] = base;
+      b.rows[id] = {
+        bw: bw + (bi === 2 ? 2 : 0) - (i % 2),
+        fly10: +(fly10 * f).toFixed(2), fly20: +(fly20 * f).toFixed(2), fly20p: +(fly20p * (1 - gain[bi] * 1.15)).toFixed(2),
+        m40: +(m40 * f).toFixed(2), m60: +(m60 * f).toFixed(2), top: +(top * up).toFixed(2),
+        broad: Math.round(broad * up), vert: +(vert * up).toFixed(1),
+      };
+    });
+  });
+  return { v: 1, sample: true, athletes, rec, tests: blocks, ui: { tab: 'team', g: 'all', sel: 'a0', cmp: ['a0', 'a1'], block: 0 } };
+}
+
+/* ---------------- state ---------------- */
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch { S = null; }
+if (!S || !Array.isArray(S.athletes)) S = sample();
+S.ui = S.ui || { tab: 'team', g: 'all', sel: null, cmp: [null, null], block: 0 };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} };
+
+const ath = id => S.athletes.find(a => a.id === id);
+const inGroup = a => S.ui.g === 'all' || a.g === S.ui.g;
+const roster = () => S.athletes.filter(inGroup);
+const tests = () => S.tests.slice(); // kept in the order they were added
+const R = id => S.rec[id] || (S.rec[id] = { pr: null, sb: null, grip: null, runup: null, L: {} });
+
+// Each athlete's values for a metric across test blocks (oldest first), skipping blanks.
+function series(id, k) {
+  return tests().map(t => ({ t, v: num(t.rows[id]?.[k]) })).filter(x => x.v != null);
+}
+const latest = (id, k) => { const s = series(id, k); return s.length ? s[s.length - 1].v : null; };
+function change(id, m) {
+  const s = series(id, m.k); if (s.length < 2) return null;
+  return s[s.length - 1].v - s[0].v;
+}
+const better = (m, d) => d == null || d === 0 ? 0 : (m.lower ? d < 0 : d > 0) ? 1 : -1;
+const poleKeep = id => { const a = latest(id, 'fly20'), b = latest(id, 'fly20p'); return a && b ? a / b * 100 : null; };
+
+function ranked(list, get, lower) {
+  const r = list.map(a => ({ a, v: get(a) })).filter(x => x.v != null).sort((x, y) => lower ? x.v - y.v : y.v - x.v);
+  r.forEach((x, i) => x.rank = i > 0 && r[i - 1].v === x.v ? r[i - 1].rank : i + 1);
+  return r;
+}
+function rankOf(id, get, lower, list) {
+  const a = ath(id), pool = (list || S.athletes.filter(x => x.g === a.g));
+  const r = ranked(pool, get, lower); const me = r.find(x => x.a.id === id);
+  return me ? { rank: me.rank, of: r.length } : null;
+}
+
+/* ---------------- small drawing helpers ---------------- */
+function lbRows(r, fmt, opts = {}) {
+  if (!r.length) return '<p class="muted small">No data yet.</p>';
+  const vals = r.map(x => x.v), lo = Math.min(...vals), hi = Math.max(...vals);
+  const pct = v => hi === lo ? 100 : opts.lower ? 30 + 70 * (hi - v) / (hi - lo) : 30 + 70 * (v - lo) / (hi - lo);
+  return `<div class="lb">${r.slice(0, opts.top || 99).map(x => `<div class="lb-row ${x.rank === 1 ? 'first' : ''}">
+    <span class="rk">${x.rank}</span><span class="nm" title="${esc(x.a.name)}">${esc(x.a.name)}</span>
+    <span class="track"><i style="width:${pct(x.v)}%"></i></span>
+    <span class="val">${fmt(x.v, x.a)}${opts.delta ? opts.delta(x.a) : ''}</span></div>`).join('')}</div>`;
+}
+function deltaHtml(m, d) {
+  if (d == null || Math.abs(d) < 1e-9) return '';
+  const b = better(m, d), s = (d > 0 ? '+' : '−') + Math.abs(d).toFixed(m.dp);
+  return `<span class="d ${b > 0 ? 'up' : 'down'}">${s}</span>`;
+}
+function spark(vals, lower, w = 90, h = 26) {
+  if (vals.length < 2) return '';
+  const lo = Math.min(...vals), hi = Math.max(...vals), sp = hi - lo || 1;
+  const pts = vals.map((v, i) => [3 + i * (w - 6) / (vals.length - 1), 3 + (hi - v) / sp * (h - 6)]);
+  const good = lower ? vals[vals.length - 1] <= vals[0] : vals[vals.length - 1] >= vals[0];
+  const col = good ? 'var(--good)' : 'var(--bad)';
+  const [lx, ly] = pts[pts.length - 1];
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts.map(p => p.join(',')).join(' ')}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round"/><circle cx="${lx}" cy="${ly}" r="3" fill="${col}"/></svg>`;
+}
+
+/* ---------------- TEAM ---------------- */
+function viewTeam() {
+  const list = roster();
+  if (!list.length) return '<div class="card muted">No athletes in this group yet. Add some in the Data tab.</div>';
+  const prR = ranked(list, a => R(a.id).pr, false);
+  const runR = ranked(list, a => R(a.id).runup, false);
+  const fly = MET.find(m => m.k === 'fly20');
+  const impR = ranked(list, a => { const s = series(a.id, 'fly20'); return s.length > 1 ? (s[0].v - s[s.length - 1].v) / s[0].v * 100 : null; }, false);
+  const lastT = tests()[tests().length - 1];
+  const tested = lastT ? list.filter(a => lastT.rows[a.id] && Object.values(lastT.rows[a.id]).some(v => num(v) != null)).length : 0;
+  const nearPR = list.filter(a => { const r = R(a.id); return r.pr && r.sb && r.pr - r.sb <= 0.05; }).length;
+
+  const tile = (k, v, s) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  const leader = prR[0];
+  let h = `<div class="tiles">
+    ${leader ? tile('Highest PR', `${leader.v.toFixed(2)}<small> m</small>`, `${esc(leader.a.name)} · ${ftIn(leader.v)}`) : ''}
+    ${runR[0] ? tile('Fastest run-up', `${runR[0].v.toFixed(2)}<small> m/s</small>`, `${esc(runR[0].a.name)} · ${(runR[0].v * 2.23694).toFixed(1)} mph`) : ''}
+    ${impR[0] && impR[0].v > 0 ? tile('Most improved fly 20', `${impR[0].v.toFixed(1)}<small> %</small>`, `${esc(impR[0].a.name)} · since ${esc(tests()[0].name)}`) : ''}
+    ${tile('Season bests near PR', `${nearPR}<small> of ${list.length}</small>`, 'within 5 cm of their PR')}
+  </div>`;
+
+  // takeaways
+  const tk = teamTakeaways(list);
+  if (tk.length) h += `<div class="card"><h2>What stands out</h2><ul class="takeaways">${tk.map(t => `<li>${t}</li>`).join('')}</ul></div>`;
+
+  // vault table
+  const groups = S.ui.g === 'all' ? [['M', 'Men'], ['F', 'Women']] : [[S.ui.g, S.ui.g === 'M' ? 'Men' : 'Women']];
+  h += `<div class="card"><div class="bar-row"><h2 style="margin:0">Vault marks</h2><span class="small muted">Tap a name for the full profile</span></div><div class="table-wrap" style="margin-top:10px"><table>
+    <thead><tr><th>#</th><th>Athlete</th><th class="r">PR</th><th class="r">Season best</th><th>Season vs PR</th><th class="r">Run-up</th><th class="r">vs elite</th></tr></thead><tbody>`;
+  groups.forEach(([g, label]) => {
+    const r = ranked(list.filter(a => a.g === g), a => R(a.id).pr, false);
+    if (!r.length) return;
+    if (groups.length > 1) h += `<tr><td colspan="7" class="small muted" style="padding-top:14px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">${label}</td></tr>`;
+    r.forEach(x => {
+      const rc = R(x.a.id), pct = rc.sb && rc.pr ? rc.sb / rc.pr * 100 : null, el = rc.runup ? rc.runup / ELITE[x.a.g] * 100 : null;
+      h += `<tr data-open="${x.a.id}" style="cursor:pointer"><td class="muted">${x.rank}</td><td><strong>${esc(x.a.name)}</strong></td>
+        <td class="r num"><strong>${hgt(rc.pr)}</strong><div class="small muted">${rc.pr ? ftIn(rc.pr) : ''}</div></td>
+        <td class="r num">${hgt(rc.sb)}</td>
+        <td style="min-width:120px">${pct ? `<div class="meter" style="margin:0"><i style="width:${Math.min(100, pct)}%"></i></div><div class="small muted">${pct.toFixed(1)}%</div>` : '–'}</td>
+        <td class="r num">${rc.runup ? rc.runup.toFixed(2) + ' m/s' : '–'}</td>
+        <td class="r num">${el ? `<span class="pill ${el >= 98 ? 'good' : el >= 92 ? '' : 'warn'}">${el.toFixed(0)}%</span>` : '–'}</td></tr>`;
+    });
+  });
+  h += `</tbody></table></div><p class="small muted" style="margin:10px 0 0">"vs elite" compares run-up speed to an elite average (${ELITE.M} m/s men, ${ELITE.F} m/s women).</p></div>`;
+
+  // testing leaderboards
+  h += `<div class="bar-row"><h2 style="margin:0">Testing leaderboards</h2><span class="small muted">Latest result for each athlete · colored number is change since first test</span></div><div class="metric-grid">`;
+  MET.forEach(m => {
+    const r = ranked(list, a => latest(a.id, m.k), m.lower);
+    h += `<div class="card"><h3>${m.label} <span>${m.lower ? 'lower is better' : 'higher is better'}</span></h3>${lbRows(r, v => fmtM(m, v), { lower: m.lower, top: 8, delta: a => deltaHtml(m, change(a.id, m)) })}</div>`;
+  });
+  const keep = ranked(list, a => poleKeep(a.id), false);
+  h += `<div class="card"><h3>Speed kept with pole <span>higher is better</span></h3>${lbRows(keep, v => v.toFixed(1) + '%', { top: 8 })}<p class="small muted" style="margin:8px 0 0">Fly 20 m time without the pole divided by time with it.</p></div>`;
+  h += `</div>`;
+  return h;
+}
+
+function teamTakeaways(list) {
+  const out = [], fly = MET.find(m => m.k === 'fly20');
+  const imp = ranked(list, a => change(a.id, fly), true)[0];
+  if (imp && imp.v < 0) out.push(`<strong>${esc(imp.a.name)}</strong> took ${Math.abs(imp.v).toFixed(2)} s off their fly 20 m since ${esc(tests()[0].name)}, the biggest drop on the team.`);
+  const keep = ranked(list, a => poleKeep(a.id), false);
+  if (keep.length > 1) out.push(`<strong>${esc(keep[0].a.name)}</strong> keeps ${keep[0].v.toFixed(1)}% of their sprint speed with the pole, the best on the team. Team average is ${(keep.reduce((s, x) => s + x.v, 0) / keep.length).toFixed(1)}%.`);
+  const sbPR = list.filter(a => { const r = R(a.id); return r.pr && r.sb && r.sb >= r.pr; });
+  if (sbPR.length) out.push(`${sbPR.map(a => `<strong>${esc(a.name)}</strong>`).join(', ')} ${sbPR.length === 1 ? 'has' : 'have'} already matched or beaten ${sbPR.length === 1 ? 'their' : 'their'} PR this season.`);
+  const slowRun = list.filter(a => R(a.id).runup && R(a.id).runup / ELITE[a.g] < 0.95);
+  if (slowRun.length) out.push(`${slowRun.length} ${slowRun.length === 1 ? 'athlete is' : 'athletes are'} more than 5% under elite run-up speed. Sprint work there has the biggest payoff.`);
+  const tst = tests(); const last = tst[tst.length - 1];
+  if (last) { const missing = list.filter(a => !last.rows[a.id] || !Object.values(last.rows[a.id]).some(v => num(v) != null)); if (missing.length) out.push(`${missing.map(a => esc(a.name)).join(', ')} ${missing.length === 1 ? 'has' : 'have'} no results from ${esc(last.name)} yet.`); }
+  return out;
+}
+
+/* ---------------- ATHLETE ---------------- */
+function viewAthlete() {
+  const list = roster();
+  if (!list.length) return '<div class="card muted">No athletes in this group yet.</div>';
+  if (!list.find(a => a.id === S.ui.sel)) S.ui.sel = list[0].id;
+  const a = ath(S.ui.sel), rc = R(a.id), same = S.athletes.filter(x => x.g === a.g), grp = a.g === 'M' ? 'men' : 'women';
+  let h = `<div class="chips">${list.map(x => `<button data-sel="${x.id}" aria-pressed="${x.id === a.id}">${esc(x.name)}</button>`).join('')}</div>`;
+
+  const prRank = rankOf(a.id, x => R(x.id).pr, false, same);
+  const pct = rc.sb && rc.pr ? rc.sb / rc.pr * 100 : null;
+  h += `<div class="card"><div class="hero">
+      <div><div class="small muted" style="text-transform:uppercase;letter-spacing:.05em;font-weight:600">${a.g === 'M' ? 'Men' : 'Women'}${prRank ? ` · #${prRank.rank} of ${prRank.of} by PR` : ''}</div>
+        <h2 style="font-size:28px;margin:4px 0 10px">${esc(a.name)}</h2>
+        <div class="big">${rc.pr ? rc.pr.toFixed(2) : '–'}<small>m PR${rc.pr ? ' · ' + ftIn(rc.pr) : ''}</small></div></div>
+      <div class="tiles" style="flex:1 1 260px;max-width:520px">
+        <div class="tile"><div class="k">Season best</div><div class="v">${rc.sb ? rc.sb.toFixed(2) : '–'}<small> m</small></div><div class="s">${pct ? pct.toFixed(1) + '% of PR' : ''}</div></div>
+        <div class="tile"><div class="k">Grip PR</div><div class="v">${rc.grip ? rc.grip.toFixed(2) : '–'}<small> m</small></div><div class="s">${rc.grip ? ftIn(rc.grip) : ''}</div></div>
+      </div></div></div>`;
+
+  // speed tiles
+  const el = rc.runup ? rc.runup / ELITE[a.g] * 100 : null, keep = poleKeep(a.id);
+  const runRank = rankOf(a.id, x => R(x.id).runup, false, same);
+  h += `<div class="grid two">
+    <div class="card"><h3>Run-up speed</h3>
+      <div class="v" style="font-size:30px;font-weight:800">${rc.runup ? rc.runup.toFixed(2) : '–'} <span class="small muted">m/s${rc.runup ? ' · ' + (rc.runup * 2.23694).toFixed(1) + ' mph' : ''}</span></div>
+      ${el ? `<div class="meter"><i style="width:${Math.min(100, el / 1.1)}%"></i><b style="left:${100 / 1.1}%"></b></div>
+      <div class="meter-lbl"><span>${runRank ? `#${runRank.rank} of ${runRank.of} ${grp}` : ''}</span><span>Elite avg ${ELITE[a.g]} m/s · you're at ${el.toFixed(0)}%</span></div>` : '<p class="muted small">No run-up speed logged.</p>'}
+    </div>
+    <div class="card"><h3>Speed kept with the pole</h3>
+      <div class="v" style="font-size:30px;font-weight:800">${keep ? keep.toFixed(1) + '%' : '–'}</div>
+      ${keep ? `<div class="meter"><i style="width:${keep}%"></i></div><div class="meter-lbl"><span>Fly 20 m: ${latest(a.id, 'fly20').toFixed(2)} s without, ${latest(a.id, 'fly20p').toFixed(2)} s with</span></div>` : '<p class="muted small">Needs a fly 20 m with and without the pole.</p>'}
+    </div></div>`;
+
+  // takeaways
+  const tk = athleteTakeaways(a);
+  if (tk.length) h += `<div class="card"><h2>Takeaways</h2><ul class="takeaways">${tk.map(t => `<li class="${t.focus ? 'focus' : ''}">${t.txt}</li>`).join('')}</ul></div>`;
+
+  // approach chart
+  h += `<div class="card"><h3>PR by approach length</h3><p class="small muted" style="margin:0 0 8px">Best height cleared from each number of lefts. A steady climb means speed is carrying over as the approach gets longer.</p>${approachChart(rc)}</div>`;
+
+  // testing table
+  const ts = tests().filter(t => t.rows[a.id] && Object.values(t.rows[a.id]).some(v => num(v) != null));
+  h += ts.length ? `<div class="card"><h3>Testing results</h3><div class="table-wrap"><table>
+    <thead><tr><th>Test</th>${ts.map(t => `<th class="r">${esc(t.name)}</th>`).join('')}<th class="r">Change</th><th>Trend</th><th class="r">Team rank</th></tr></thead><tbody>` : '';
+  [...MET, BW].forEach(m => {
+    const vals = ts.map(t => num(t.rows[a.id]?.[m.k]));
+    if (vals.every(v => v == null)) return;
+    const d = m === BW ? null : change(a.id, m);
+    const rk = m === BW ? null : rankOf(a.id, x => latest(x.id, m.k), m.lower, same);
+    const s = series(a.id, m.k).map(x => x.v);
+    h += `<tr><td><strong>${m.label}</strong>${m.alt && latest(a.id, m.k) ? `<div class="small muted">${m.alt(latest(a.id, m.k))}</div>` : ''}</td>
+      ${vals.map(v => `<td class="r num">${v == null ? '<span class="muted">–</span>' : v.toFixed(m.dp)}</td>`).join('')}
+      <td class="r num">${d == null ? '' : `<span class="${better(m, d) > 0 ? 'up' : better(m, d) < 0 ? 'down' : ''}">${d > 0 ? '+' : d < 0 ? '−' : ''}${Math.abs(d).toFixed(m.dp)}</span>`}</td>
+      <td>${m === BW ? '' : spark(s, m.lower)}</td>
+      <td class="r num">${rk ? `${rk.rank === 1 ? '<span class="pill good">#1</span>' : '#' + rk.rank} <span class="muted small">of ${rk.of}</span>` : ''}</td></tr>`;
+  });
+  h += ts.length ? `</tbody></table></div><p class="small muted" style="margin:8px 0 0">Units: seconds for sprints, m/s for top speed, cm for jumps, lb for bodyweight. Ranks are within the ${grp}.</p></div>` : '<div class="card muted">No testing results yet.</div>';
+  return h;
+}
+
+function athleteTakeaways(a) {
+  const out = [], same = S.athletes.filter(x => x.g === a.g), rc = R(a.id);
+  const ranks = MET.map(m => ({ m, r: rankOf(a.id, x => latest(x.id, m.k), m.lower, same) })).filter(x => x.r && x.r.of > 1);
+  const best = ranks.filter(x => x.r.rank <= 2).map(x => `${x.m.label.toLowerCase()} (#${x.r.rank})`);
+  if (best.length > 4) out.push({ txt: `Top two on the team in ${best.length} of ${ranks.length} tests, including ${best.slice(0, 3).join(', ')}.` });
+  else if (best.length) out.push({ txt: `Top two on the team in ${best.join(', ')}.` });
+  const imps = MET.map(m => ({ m, d: change(a.id, m), s: series(a.id, m.k) })).filter(x => x.d != null && x.s[0].v)
+    .map(x => ({ ...x, pct: (x.m.lower ? -x.d : x.d) / x.s[0].v * 100 })).sort((x, y) => y.pct - x.pct);
+  if (imps[0] && imps[0].pct > 0.5) out.push({ txt: `Biggest gain: ${imps[0].m.label.toLowerCase()}, ${imps[0].pct.toFixed(1)}% better than ${esc(imps[0].s[0].t.name)}.` });
+  const worse = imps.filter(x => x.pct < -0.5);
+  if (worse.length) out.push({ focus: true, txt: `Slipped since the first test: ${worse.map(x => x.m.label.toLowerCase()).join(', ')}.` });
+  if (rc.runup) {
+    const gap = ELITE[a.g] - rc.runup;
+    if (gap > 0) out.push({ focus: gap > 0.3, txt: `Run-up is ${gap.toFixed(2)} m/s under the elite average. By energy alone, closing that gap is worth roughly ${(((ELITE[a.g] ** 2) - rc.runup ** 2) / (2 * 9.81) * 100).toFixed(0)} cm of height.` });
+    else out.push({ txt: `Run-up speed is at or above the elite average.` });
+  }
+  const keep = poleKeep(a.id);
+  if (keep) out.push({ focus: keep < 93, txt: keep >= 95 ? `Carries the pole well: ${keep.toFixed(1)}% of sprint speed kept.` : `Keeps ${keep.toFixed(1)}% of sprint speed with the pole. Pole-carry runs could free up speed.` });
+  const low = ranks.filter(x => x.r.rank === x.r.of && x.r.of > 2).map(x => x.m.label.toLowerCase());
+  if (low.length) out.push({ focus: true, txt: `Room to grow vs teammates: ${low.join(', ')}.` });
+  return out;
+}
+
+function approachChart(rc) {
+  const pts = LEFTS.map(l => ({ l, v: num(rc.L?.[l]) }));
+  const have = pts.filter(p => p.v != null);
+  if (!have.length) return '<p class="muted small">No approach PRs logged yet.</p>';
+  const W = Math.round(Math.min(1000, Math.max(300, window.innerWidth - 72))), H = 220, P = { l: 40, r: 10, t: 22, b: 30 };
+  const lo = Math.floor((Math.min(...have.map(p => p.v)) - 0.3) * 2) / 2, hi = Math.ceil(Math.max(...have.map(p => p.v), rc.pr || 0) * 2) / 2;
+  const bw = (W - P.l - P.r) / LEFTS.length;
+  const y = v => P.t + (hi - v) / (hi - lo) * (H - P.t - P.b);
+  let g = '';
+  for (let v = lo; v <= hi + 1e-9; v += 0.5) g += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${P.l - 6}" y="${y(v) + 4}" text-anchor="end">${v.toFixed(1)}</text>`;
+  if (rc.pr) g += `<line x1="${P.l}" x2="${W - P.r}" y1="${y(rc.pr)}" y2="${y(rc.pr)}" stroke="var(--accent)" stroke-dasharray="4 4"/><text x="${P.l + 6}" y="${y(rc.pr) - 5}" style="fill:var(--accent);font-weight:600">PR ${rc.pr.toFixed(2)}</text>`;
+  pts.forEach((p, i) => {
+    const x = P.l + i * bw + bw * 0.2, w = bw * 0.6;
+    g += `<text x="${x + w / 2}" y="${H - 10}" text-anchor="middle">${p.l}L</text>`;
+    if (p.v == null) { g += `<text x="${x + w / 2}" y="${H - P.b - 6}" text-anchor="middle">–</text>`; return; }
+    g += `<rect x="${x}" y="${y(p.v)}" width="${w}" height="${H - P.b - y(p.v)}" rx="5" fill="var(--chart-1)" opacity="${p.v === rc.pr ? 1 : .7}"/>`;
+    g += `<text x="${x + w / 2}" y="${y(p.v) - 6}" text-anchor="middle" style="fill:var(--text);font-weight:700">${p.v.toFixed(2)}</text>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Personal record by approach length">${g}</svg>`;
+}
+
+/* ---------------- COMPARE ---------------- */
+function viewCompare() {
+  const list = roster();
+  if (list.length < 2) return '<div class="card muted">Need at least two athletes in this group to compare.</div>';
+  let [x, y] = S.ui.cmp || [];
+  if (!list.find(a => a.id === x)) x = list[0].id;
+  if (!list.find(a => a.id === y) || y === x) y = list.find(a => a.id !== x).id;
+  S.ui.cmp = [x, y];
+  const A = ath(x), B = ath(y), ra = R(x), rb = R(y);
+  const sel = (i, v) => `<select data-cmp="${i}">${list.map(a => `<option value="${a.id}" ${a.id === v ? 'selected' : ''}>${esc(a.name)}</option>`).join('')}</select>`;
+  const rows = [
+    ['PR', ra.pr, rb.pr, false, v => hgt(v)], ['Season best', ra.sb, rb.sb, false, v => hgt(v)], ['Grip PR', ra.grip, rb.grip, false, v => hgt(v)],
+    ['Run-up speed', ra.runup, rb.runup, false, v => v.toFixed(2) + ' m/s'], ['Speed kept with pole', poleKeep(x), poleKeep(y), false, v => v.toFixed(1) + '%'],
+    ...MET.map(m => [m.label, latest(x, m.k), latest(y, m.k), m.lower, v => fmtM(m, v)]),
+    ['Bodyweight', latest(x, 'bw'), latest(y, 'bw'), null, v => v + ' lb'],
+  ];
+  let wa = 0, wb = 0;
+  const body = rows.map(([lab, a, b, lower, f]) => {
+    let ca = '', cb = '';
+    if (a != null && b != null && a !== b && lower !== null) { const aw = lower ? a < b : a > b; if (aw) { ca = 'win'; wa++; } else { cb = 'win'; wb++; } }
+    return `<tr><td>${lab}</td><td class="r num ${ca}">${a == null ? '–' : f(a)}</td><td class="r num ${cb}">${b == null ? '–' : f(b)}</td></tr>`;
+  }).join('');
+  return `<div class="card"><div class="row">
+      <label style="flex:1;min-width:150px">Athlete A ${sel(0, x)}</label><label style="flex:1;min-width:150px">Athlete B ${sel(1, y)}</label></div></div>
+    <div class="tiles"><div class="tile"><div class="k">${esc(A.name)}</div><div class="v">${wa}<small> categories ahead</small></div></div>
+      <div class="tile"><div class="k">${esc(B.name)}</div><div class="v">${wb}<small> categories ahead</small></div></div></div>
+    <div class="card"><div class="table-wrap"><table class="cmp"><thead><tr><th></th><th class="r">${esc(A.name)}</th><th class="r">${esc(B.name)}</th></tr></thead><tbody>${body}</tbody></table></div>
+    <p class="small muted" style="margin:8px 0 0">Green marks whoever is ahead. Testing numbers use each athlete's latest result.</p></div>`;
+}
+
+/* ---------------- DATA ---------------- */
+function viewData() {
+  const ts = tests();
+  if (S.ui.block >= ts.length) S.ui.block = Math.max(0, ts.length - 1);
+  const blk = ts[S.ui.block];
+  const inp = (path, v, w) => `<input data-path="${path}" value="${v ?? ''}" inputmode="decimal" ${w ? `style="width:${w}px"` : ''}>`;
+  let h = `<div class="card"><h2>Athletes</h2>
+    <form id="addAth" class="row" autocomplete="off"><input id="newName" placeholder="Name" style="flex:1;min-width:160px" required>
+      <select id="newG"><option value="M">Men</option><option value="F">Women</option></select><button class="primary" type="submit">Add athlete</button></form>
+    <div class="chips" style="margin-top:12px">${S.athletes.map(a => `<span class="pill">${esc(a.name)} · ${a.g === 'M' ? 'M' : 'W'} <button class="ghost" data-rm="${a.id}" style="border:0;padding:0 0 0 4px;font-size:12px" aria-label="Remove ${esc(a.name)}">✕</button></span>`).join('')}</div></div>`;
+
+  h += `<div class="card"><h2>Vault marks</h2><p class="small muted">Heights in meters, run-up in m/s. Leave blank if you don't have it.</p><div class="table-wrap"><table class="edit">
+    <thead><tr><th>Athlete</th><th>PR</th><th>Season best</th><th>Grip PR</th>${LEFTS.map(l => `<th>${l}L PR</th>`).join('')}<th>Run-up</th></tr></thead><tbody>
+    ${S.athletes.map(a => { const r = R(a.id); return `<tr><td><strong>${esc(a.name)}</strong></td><td>${inp(`rec.${a.id}.pr`, r.pr)}</td><td>${inp(`rec.${a.id}.sb`, r.sb)}</td><td>${inp(`rec.${a.id}.grip`, r.grip)}</td>${LEFTS.map(l => `<td>${inp(`rec.${a.id}.L.${l}`, r.L?.[l], 64)}</td>`).join('')}<td>${inp(`rec.${a.id}.runup`, r.runup)}</td></tr>`; }).join('')}
+    </tbody></table></div></div>`;
+
+  h += `<div class="card"><div class="bar-row"><h2 style="margin:0">Testing</h2>
+      <div class="row"><select id="blockSel">${ts.map((t, i) => `<option value="${i}" ${i === S.ui.block ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select><button id="addBlock">+ New test day</button></div></div>`;
+  if (blk) {
+    h += `<div class="row" style="margin:12px 0"><label>Name <input id="blkName" value="${esc(blk.name)}"></label><label>Date <input id="blkDate" type="date" value="${blk.date || ''}"></label><button class="ghost" id="delBlock">Delete this test day</button></div>
+    <div class="table-wrap"><table class="edit"><thead><tr><th>Athlete</th><th>BW (lb)</th>${MET.map(m => `<th>${m.label} (${m.unit})</th>`).join('')}</tr></thead><tbody>
+    ${S.athletes.map(a => `<tr><td><strong>${esc(a.name)}</strong></td><td>${inp(`test.${blk.id}.${a.id}.bw`, blk.rows[a.id]?.bw)}</td>${MET.map(m => `<td>${inp(`test.${blk.id}.${a.id}.${m.k}`, blk.rows[a.id]?.[m.k])}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>`;
+  } else h += '<p class="muted">No test days yet.</p>';
+  h += `</div>`;
+
+  h += `<div class="card"><h2>Backup</h2><p class="small muted">Everything is saved in this browser. Download a backup to move it to another device. Restoring also accepts a backup from the older Sprint Splits app.</p>
+    <div class="row"><button id="exportBtn" class="primary">Download backup</button><label class="btn" style="cursor:pointer">Restore from file<input type="file" id="importFile" accept=".json,.txt,application/json,text/plain" hidden></label>
+    <button id="sampleBtn" class="ghost">Load sample team</button><button id="clearBtn" class="ghost">Start empty</button></div></div>`;
+  return h;
+}
+
+// Older "Sprint Splits" backups store vault marks and tests as string columns.
+function fromSprintSplits(d) {
+  const p = s => { const m = String(s ?? '').match(/-?\d+(\.\d+)?/); return m ? +m[0] : null; };
+  const dateOf = s => { const m = String(s || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); return m ? `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}` : null; };
+  const athletes = (d.ath || []).map(a => ({ id: a.id, name: a.name, g: a.gender === 'F' ? 'F' : 'M' }));
+  const rec = {};
+  (d.pv?.rec || []).forEach(r => {
+    const id = r.id || athletes.find(a => a.name === r.n)?.id; if (!id) return;
+    const v = r.v || [];
+    rec[id] = { pr: p(v[0]), sb: p(v[1]), grip: p(v[2]), runup: p(v[9]), L: Object.fromEntries(LEFTS.map((l, j) => [l, p(v[3 + j])])) };
+  });
+  const keys = ['bw', 'fly10', 'm40', 'm60', 'top', 'fly20', 'fly20p', 'broad', 'vert'];
+  const tests = (d.pv?.tests || []).map(b => {
+    const rows = {}; let date = null;
+    (b.rows || []).forEach(r => {
+      const id = r.id || athletes.find(a => a.name === r.n)?.id; if (!id) return;
+      date = date || dateOf(r.v?.[0]);
+      const row = {}; keys.forEach((k, j) => { const x = p(r.v?.[j + 1]); if (x != null) row[k] = x; });
+      if (Object.keys(row).length) rows[id] = row;
+    });
+    return { id: uid(), name: b.t || 'Test', date: date || '', rows };
+  });
+  return { v: 1, athletes, rec, tests, ui: { tab: 'team', g: 'all', sel: athletes[0]?.id, cmp: [athletes[0]?.id, athletes[1]?.id], block: 0 } };
+}
+
+/* ---------------- render + events ---------------- */
+function render() {
+  document.querySelectorAll('#tabs [data-tab]').forEach(b => b.setAttribute('aria-pressed', b.dataset.tab === S.ui.tab));
+  document.querySelectorAll('#groupFilter [data-g]').forEach(b => b.setAttribute('aria-pressed', b.dataset.g === S.ui.g));
+  $('groupFilter').style.visibility = S.ui.tab === 'data' ? 'hidden' : '';
+  $('sampleNote').hidden = !S.sample;
+  ['team', 'athlete', 'compare', 'data'].forEach(t => $('view-' + t).hidden = t !== S.ui.tab);
+  const v = $('view-' + S.ui.tab);
+  v.innerHTML = S.ui.tab === 'team' ? viewTeam() : S.ui.tab === 'athlete' ? viewAthlete() : S.ui.tab === 'compare' ? viewCompare() : viewData();
+  save();
+}
+
+$('tabs').addEventListener('click', e => { const b = e.target.closest('[data-tab]'); if (b) { S.ui.tab = b.dataset.tab; render(); } });
+$('groupFilter').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b) { S.ui.g = b.dataset.g; render(); } });
+
+document.querySelector('main').addEventListener('click', e => {
+  const open = e.target.closest('[data-open]'); if (open) { S.ui.sel = open.dataset.open; S.ui.tab = 'athlete'; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  const sel = e.target.closest('[data-sel]'); if (sel) { S.ui.sel = sel.dataset.sel; render(); return; }
+  const rm = e.target.closest('[data-rm]'); if (rm) {
+    const a = ath(rm.dataset.rm); if (!a || !confirm(`Remove ${a.name} and all their data?`)) return;
+    S.athletes = S.athletes.filter(x => x.id !== a.id); delete S.rec[a.id]; S.tests.forEach(t => delete t.rows[a.id]); render(); return;
+  }
+  if (e.target.id === 'addBlock') { S.tests.push({ id: uid(), name: 'New test day', date: new Date().toISOString().slice(0, 10), rows: {} }); S.ui.block = tests().length - 1; render(); }
+  if (e.target.id === 'delBlock') { const b = tests()[S.ui.block]; if (b && confirm(`Delete "${b.name}" and its results?`)) { S.tests = S.tests.filter(t => t.id !== b.id); S.ui.block = 0; render(); } }
+  if (e.target.id === 'exportBtn') {
+    const data = { ...S }; delete data.ui;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ app: 'vault-team-stats', saved: new Date().toISOString(), data }, null, 1)], { type: 'application/json' }));
+    a.download = `vault-team-stats-${new Date().toISOString().slice(0, 10)}.json`; a.click();
+  }
+  if (e.target.id === 'sampleBtn') { if (confirm('Replace everything with the sample team?')) { S = sample(); S.ui.tab = 'data'; render(); } }
+  if (e.target.id === 'clearBtn') { if (confirm('Delete all athletes and results?')) { S = { v: 1, athletes: [], rec: {}, tests: [{ id: uid(), name: 'Test day 1', date: new Date().toISOString().slice(0, 10), rows: {} }], ui: { tab: 'data', g: 'all', sel: null, cmp: [null, null], block: 0 } }; render(); } }
+});
+
+document.querySelector('main').addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset.cmp != null) { S.ui.cmp[+t.dataset.cmp] = t.value; render(); return; }
+  if (t.id === 'blockSel') { S.ui.block = +t.value; render(); return; }
+  if (t.id === 'blkName' || t.id === 'blkDate') { const b = tests()[S.ui.block]; if (b) { if (t.id === 'blkName') b.name = t.value.trim() || b.name; else b.date = t.value; } delete S.sample; render(); return; }
+  if (t.dataset.path) {
+    const [kind, a, b, c] = t.dataset.path.split('.'), v = num(t.value.trim());
+    if (kind === 'rec') { const r = R(a); if (b === 'L') { r.L = r.L || {}; r.L[c] = v; } else r[b] = v; }
+    else { const blk = S.tests.find(x => x.id === a); if (blk) { blk.rows[b] = blk.rows[b] || {}; if (v == null) delete blk.rows[b][c]; else blk.rows[b][c] = v; } }
+    delete S.sample; save(); $('sampleNote').hidden = true; return;
+  }
+  if (t.id === 'importFile' && t.files[0]) {
+    t.files[0].text().then(txt => {
+      try {
+        const j = JSON.parse(txt), d = j.data || j;
+        let next = null;
+        if (j.app === 'vault-team-stats' && Array.isArray(d.athletes)) next = { ...d, ui: { tab: 'team', g: 'all', sel: d.athletes[0]?.id, cmp: [null, null], block: 0 } };
+        else if (Array.isArray(d.ath)) next = fromSprintSplits(d);
+        if (!next) throw new Error('unknown');
+        delete next.sample; S = next; render(); alert(`Loaded ${S.athletes.length} athletes.`);
+      } catch { alert("That file doesn't look like a backup from this app or Sprint Splits."); }
+    });
+  }
+});
+document.querySelector('main').addEventListener('submit', e => {
+  if (e.target.id !== 'addAth') return; e.preventDefault();
+  const n = $('newName').value.trim(); if (!n) return;
+  const id = uid(); S.athletes.push({ id, name: n, g: $('newG').value }); delete S.sample; render();
+});
+
+render();
+})();
+</script>
+</body>
+</html>
