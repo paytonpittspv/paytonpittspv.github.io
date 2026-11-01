@@ -1,5 +1,5 @@
 // GateCamLive offline support: keeps a copy of the app on the device so it opens with no signal.
-const VERSION='gcl-2026-11-01a';
+const VERSION='gcl-2026-11-01b';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(VERSION).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()));

@@ -810,21 +810,6 @@ custom = lsGet('chordseason.custom', []);
 sel = clampSel(todayStr());
 render();
 
-(async () => {
-  try { db = window.claude?.use ? await window.claude.use('db') : null; } catch { db = null; }
-  if (!db) return;
-  store = 'db';
-  db.doc('settings/main').onSnapshot(snap => {
-    if (snap.exists) { cfg = { ...DEFAULTS, ...snap.data() }; }
-    if (!document.activeElement || !document.activeElement.id?.startsWith('c-')) render(true);
-  }, () => {});
-  db.collection('days').limit(1000).onSnapshot(snap => {
-    const next = {};
-    snap.docs.forEach(d => { const x = d.data(); next[x.date || d.id] = x.done || {}; });
-    checks = next;
-    if (!document.activeElement || !document.activeElement.id?.startsWith('c-')) render(true);
-  }, () => { db = null; store = 'local'; render(true); });
-})();
 
 })();
 (function () {
@@ -1099,19 +1084,6 @@ const saved = lsGet('chordcheck.draft', null);
 if (saved && saved.draft && saved.view !== 'home' && saved.view !== 'detail') { state.draft = saved.draft; state.step = saved.step || 0; state.view = saved.view; }
 loadLocal();
 
-(async () => {
-  try {
-    db = window.claude?.use ? await window.claude.use('db') : null;
-  } catch { db = null; }
-  if (!db) return;
-  store = 'db';
-  unsub = db.collection('jumps').orderBy('createdAt', 'desc').limit(500).onSnapshot(snap => {
-    jumps = snap.docs.map(d => d.data());
-    const focus = document.activeElement && document.activeElement.id;
-    if (focus === 'f-notes' || state.view === 'setup') return; // don't wipe typing
-    render();
-  }, () => { db = null; store = 'local'; loadLocal(); });
-})();
 
 })();
 </script>

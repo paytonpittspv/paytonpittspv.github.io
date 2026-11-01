@@ -17,7 +17,6 @@ img{max-width:100%}
 [hidden]{display:none!important}
 </style>
 <title>GateCamLive</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
@@ -1996,7 +1995,7 @@ function renderStageMsg(){
     center=true;
     if(S.src==='camera'){
       h= camErr
-        ? `<b>Camera not available</b><p>The browser blocked the camera. In Claude, the camera is always blocked; open GateCamLive from your own web link to use it. You can upload a video instead.</p><span class="rowi"><button class="dbtn primary" data-act="cam">Try again</button><button class="dbtn" data-act="upload">Upload video</button></span>`
+        ? `<b>Camera not available</b><p>The browser blocked the camera. Check that this site is allowed to use the camera in your browser settings, then try again. You can also upload a video instead.</p><span class="rowi"><button class="dbtn primary" data-act="cam">Try again</button><button class="dbtn" data-act="upload">Upload video</button></span>`
         : `<b>Camera is off</b><p>Point it across the lane so every cone is in the picture, then lock exposure.</p><span class="rowi"><button class="dbtn primary" data-act="cam">Turn on camera</button></span>`;
     }else{
       const who=liveMode==='time'&&S.athlete;
@@ -2974,10 +2973,7 @@ $('btnSettings').onclick=()=>{ renderSettings(); openSheet('setSheet'); };
 $('thSeg').onclick=e=>{ const b=e.target.closest('[data-th]'); if(!b) return; S.theme=b.dataset.th; save(); applyTheme(); };
 $('autoSeg').onclick=e=>{ const b=e.target.closest('[data-auto]'); if(!b) return; S.autoSave=b.dataset.auto==='1'; save(); renderSettings(); };
 $('sndSeg').onclick=e=>{ const b=e.target.closest('[data-snd]'); if(!b) return; S.sound=b.dataset.snd==='1'; save(); renderSettings(); if(S.sound){ audioInit(); beep(988,.08); } };
-let downloads=null;
-(async()=>{ try{ downloads = window.claude?.use ? await window.claude.use('downloads') : null; }catch(e){ downloads=null; } })();
 async function saveFile(name,text,type){
-  if(downloads){ try{ await downloads.save({filename:name,data:new Blob([text],{type})}); return 'ok'; }catch(err){ return err&&err.code==='declined'?'declined':'fail'; } }
   try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); return 'ok'; }catch(e){ return 'fail'; }
 }
 function bkMsg(t,bad){ const m=$('bkMsg'); m.textContent=t; m.classList.toggle('err',!!bad); }
@@ -3252,13 +3248,12 @@ function reportHTML(day){
   </div>`;
 }
 let reportDay=null;
-const inClaude = () => !!window.claude;   // the Claude viewer can't open the print dialog
 function openReport(day){
   reportDay=day||S.res.day;
   const html=reportHTML(reportDay);
   if(!html){ toast('No runs on this day yet'); return; }
   $('reportBody').innerHTML=html;
-  $('rpPrint').hidden=inClaude();
+  $('rpPrint').hidden=false;
   openSheet('reportSheet'); $('reportSheet').querySelector('.sheet-panel').scrollTop=0;
 }
 $('rpPrint').onclick=()=>{ document.body.classList.add('printing'); setTimeout(()=>{ try{ window.print(); }catch(e){} },50); };
@@ -3296,7 +3291,7 @@ requestAnimationFrame(draw);
 </script>
 <script>
 // Save the app on this device so it opens at the track with no signal (only on the real web link).
-if('serviceWorker' in navigator && location.protocol==='https:' && !window.claude){
+if('serviceWorker' in navigator && location.protocol==='https:'){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('sw.js').then(reg=>{
       const first=!navigator.serviceWorker.controller;
