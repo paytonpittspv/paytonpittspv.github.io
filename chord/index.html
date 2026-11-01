@@ -454,7 +454,7 @@ function compexItems(s, k, d, kind, deload) {
   if (k === 'pre' || k === 'post' || kind === 'meet') return [];
   if (kind === 'primer') return [I('c_none', 'No Compex strength today', '', 'Nothing hard within 48 h of a meet. Recovery program only if legs feel heavy.')];
   const rec = (id, where) => I(id, `Compex · Active Recovery (${where})`, '1 session', 'Low intensity, comfortable twitch. Do it the evening of a hard day.');
-  const rehab = I('c_rehab', 'Compex · rehab program', '1 session', 'Use the Rehabilitation category on the muscles your athletic trainer is targeting. Pair with your rehab sheet. Drop this once you are cleared.');
+  const rehab = I('c_rehab', 'Compex · rehab program, right ankle', '1 session', 'Use the Rehabilitation category on the muscles Z is targeting (calf / peroneals / tibialis). Pair with your ATC rehab sheet. Drop this once Z clears the ankle.');
   const abs = I('c_abs', 'Compex · Strength on abs, holding a plank', '1 session', 'Brace against every contraction, same shape as the take-off strut.');
   const strengthOK = !meetWithin(s, 2) && k !== 'tp' && k !== 'br';
   const calves = I('c_calf', 'Compex · Strength on calves + tibialis', '1 session', 'Ankle stiffness for take-off. Raise intensity gradually; stop if the ankle complains.');
