@@ -70,6 +70,8 @@ button{cursor:pointer}
 :focus-visible{outline:3px solid var(--brand-text);outline-offset:2px}
 .num{font-variant-numeric:tabular-nums}
 .wrap{max-width:1280px;margin:0 auto}
+.copyright{padding:8px 16px 32px;text-align:center;color:var(--muted);font-size:12px}
+@media print{.copyright{display:none}}
 .grow{flex:1}
 h1,h2,h3{margin:0;text-wrap:balance}
 
@@ -613,6 +615,7 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
     </div>
   </section>
 </main>
+<footer class="copyright wrap">© 2026 Payton Pitts. All rights reserved.</footer>
 
 <!-- LIVE SESSION -->
 <div class="live align" id="live" hidden>

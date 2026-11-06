@@ -149,6 +149,7 @@ tbody tr:hover { background: var(--surface-2); }
 }
 
 footer.site { border-top: 1px solid var(--line); padding: 20px 0; color: var(--muted); font-size: 13px; }
+footer.site .copy { margin-top: 6px; }
 
 svg text { fill: var(--muted); font: 11px system-ui, sans-serif; }
 
