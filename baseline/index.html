@@ -342,7 +342,7 @@ function ring(pct){
   return '<svg viewBox="0 0 180 112" role="img" aria-label="Pole carryover '+pct.toFixed(0)+' percent">'
    +'<circle cx="90" cy="56" r="40" fill="none" stroke-width="12" class="s-track"/>'
    +'<circle cx="90" cy="56" r="40" fill="none" stroke-width="12" stroke-linecap="round" class="s-purple" stroke-dasharray="'+(C*f).toFixed(1)+' '+C.toFixed(1)+'" transform="rotate(-90 90 56)"/>'
-   +'<text x="90" y="62" text-anchor="middle" font-size="22" class="dsp">'+pct.toFixed(1)+'%</text></svg>';
+   +'<text x="90" y="62" text-anchor="middle" font-size="17" class="dsp">'+pct.toFixed(1)+'%</text></svg>';
 }
 function splitChart(series){
   var lo=Infinity, hi=-Infinity, maxD=-Infinity, minD=Infinity;
@@ -393,8 +393,8 @@ function athleteCard(a){
   var tiles='';
   function tile(big,label,note){ tiles+='<div class="tile"><span>'+label+'</span><b>'+big+'</b>'+(note?'<em>'+note+'</em>':'')+'</div>'; }
   if(bj){ var vb0=Math.sqrt(G*bj.v*0.0254); tile(vb0.toFixed(2)+' m/s','Broad jump launch speed','Lowest takeoff speed that covers it'); }
-  if(f&&fp){ var a1=speedOf(f), a2=speedOf(fp); tile((a2/a1*100).toFixed(1)+'%','Pole carryover','Speed kept while carrying'); tile((a1-a2>=0?'−':'+')+Math.abs(a1-a2).toFixed(2)+' m/s','Speed change with pole',(fp.v-f.v>=0?'+':'−')+Math.abs(fp.v-f.v).toFixed(2)+' s over 10 m'); }
-  var fb=fp||f; if(fb){ var vb=speedOf(fb); tile((vb*3.28084).toFixed(1)+' ft/s',fp?'Runway speed with pole':'Runway speed','One foot every '+(1000/(vb*3.28084)).toFixed(0)+' ms'); }
+  if(f&&fp){ var a1=speedOf(f), a2=speedOf(fp); tile((a2/a1*100).toFixed(1)+'%','Pole carryover','Speed kept while carrying'); tile((Math.abs(a1-a2)<0.005?'':(a1-a2>=0?'−':'+'))+Math.abs(a1-a2).toFixed(2)+' m/s','Speed change with pole',(fp.v-f.v>=0?'+':'−')+Math.abs(fp.v-f.v).toFixed(2)+' s over 10 m'); }
+  var fb=fp||f; if(fb){ var vb=speedOf(fb); tile((vb*MPH).toFixed(1)+' mph',fp?'Runway speed with pole':'Runway speed',vb.toFixed(2)+' m/s · '+(vb*3.6).toFixed(1)+' km/h'); }
   if(tiles) h+='<div><div class="eyebrow" style="margin-bottom:6px">Cool stats</div><div class="tiles">'+tiles+'</div></div>';
 
   var viz='';
