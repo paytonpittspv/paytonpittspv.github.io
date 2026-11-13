@@ -135,7 +135,7 @@ svg .dsp{font-family:var(--display);font-weight:900}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 @media (prefers-reduced-motion:no-preference){ .chip,.btn,.tests button{transition:border-color .12s,background .12s} }
-</style></head><body><div id="app"></div><script id="seed" type="application/json">{"v":1,"updatedAt":0,"date":"2026-11-13","location":"","units":"in","roster":[{"id":"a1","name":"Natalia Biskupska"},{"id":"a2","name":"Reese Wolfe"},{"id":"a3","name":"Nikodem Pochopien"},{"id":"a4","name":"Andrew Nuyen"},{"id":"a5","name":"Payton Pitts"}],"results":{},"cur":{"test":"bj","ath":"a1"}}</script><script id="appjs">
+</style></head><body><div id="app"></div><script id="seed" type="application/json">{"v":1,"updatedAt":0,"date":"2026-11-13","location":"","units":"in","roster":[{"id":"a1","name":"Natalia Biskupska"},{"id":"a2","name":"Reese Wolfe"},{"id":"a3","name":"Nikodem Pochopien"},{"id":"a4","name":"Andrew Nuyen"},{"id":"a5","name":"Payton Pitts"}],"results":{},"cur":{"test":"bj","ath":"a1"},"preload":[{"id":"bj-2026-11-13","test":"bj","rows":[{"id":"a1","name":"Natalia Biskupska","v":[99,91,102,104]},{"id":"a2","name":"Reese Wolfe","v":[88,98,100]},{"id":"a4","name":"Andrew Nuyen","v":[108.2677,110.2362,110.2362]},{"id":"a5","name":"Payton Pitts","v":[124.0157,120.0787,81.1024]},{"id":"a3","name":"Nikodem Pochopien","v":[110.2362,114.1732,110.2362]}]}]}</script><script id="appjs">
 "use strict";
 var HEAD = '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vault Squad Baseline Testing</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">';
 var LS_KEY = 'vault-baseline-v1';
@@ -282,7 +282,27 @@ function load(){
   S=(local&&local.roster&&(local.updatedAt||0)>=SEED_AT)?local:seed;
   if(!S.results) S.results={}; if(!S.cur) S.cur={test:'bj',ath:null};
   if(!TESTS.some(function(t){return t.id===S.cur.test;})) S.cur.test='bj';
+  applyPreloads(seed.preload);
+  delete S.preload;
   if(!athById(S.cur.ath)) S.cur.ath=S.roster.length?S.roster[0].id:null;
+}
+/* results typed in for the user ahead of time: added once, on top of whatever is already on the device */
+function applyPreloads(list){
+  var changed=false;
+  (list||[]).forEach(function(p){
+    if(!S.applied) S.applied=[];
+    if(S.applied.indexOf(p.id)>=0) return;
+    p.rows.forEach(function(r){
+      var a=athById(r.id), i;
+      if(!a) for(i=0;i<S.roster.length;i++) if(normName(S.roster[i].name)===normName(r.name)) a=S.roster[i];
+      if(!a){ a={id:r.id,name:r.name}; S.roster.push(a); }
+      if(!S.results[a.id]) S.results[a.id]={};
+      if(!S.results[a.id][p.test]) S.results[a.id][p.test]=[];
+      r.v.forEach(function(v){ S.results[a.id][p.test].push({v:v,ts:Date.now(),src:'manual'}); });
+    });
+    S.applied.push(p.id); changed=true;
+  });
+  if(changed) persist();
 }
 function buildDoc(){
   var json=JSON.stringify(S).replace(/</g,'\\u003c');
@@ -600,7 +620,7 @@ function onSubmit(e){
 function onChange(e){
   var el=e.target;
   if(el.id==='gcFile'&&el.files&&el.files[0]){ var fr=new FileReader(); fr.onload=function(){ readImport(String(fr.result||'')); }; fr.onerror=function(){ ui.impErr='Could not read that file.'; render(); }; fr.readAsText(el.files[0]); }
-  else if(el.id==='bkFile'&&el.files&&el.files[0]){ var br=new FileReader(); br.onload=function(){ try{ var d=JSON.parse(String(br.result||'')); if(!d||!Array.isArray(d.roster)||typeof d.results!=='object') throw 0; S=d; if(!S.cur) S.cur={test:'vj',ath:null}; if(!athById(S.cur.ath)) S.cur.ath=S.roster.length?S.roster[0].id:null; persist(); setMsg('ok','Backup restored.'); }catch(err){ setMsg('warn','That file is not a baseline backup.'); } render(); }; br.readAsText(el.files[0]); }
+  else if(el.id==='bkFile'&&el.files&&el.files[0]){ var br=new FileReader(); br.onload=function(){ try{ var d=JSON.parse(String(br.result||'')); if(!d||!Array.isArray(d.roster)||typeof d.results!=='object') throw 0; var ap=(S.applied||[]).concat(d.applied||[]); S=d; S.applied=ap; if(!S.cur) S.cur={test:'vj',ath:null}; if(!athById(S.cur.ath)) S.cur.ath=S.roster.length?S.roster[0].id:null; persist(); setMsg('ok','Backup restored.'); }catch(err){ setMsg('warn','That file is not a baseline backup.'); } render(); }; br.readAsText(el.files[0]); }
   else if(el.hasAttribute('data-imp')){ ui.imp.rows[+el.getAttribute('data-imp')].on=el.checked; render(); }
   else if(el.hasAttribute('data-impsel')){ var r=ui.imp.rows[+el.getAttribute('data-impsel')]; r.target=el.value; if(el.value!=='skip') r.on=true; render(); }
   else if(el.id==='fDate'){ if(el.value){ S.date=el.value; persist(); render(); } }
