@@ -148,6 +148,8 @@ var TESTS = [
 var G = 9.81, MPH = 2.23694;
 var S = null, SEED_AT = 0;
 var STANDALONE = (typeof window!=='undefined') && !window.claude;
+var HOMEAPP = (typeof navigator!=='undefined') && navigator.standalone===true;
+var CAN_SHARE = (typeof navigator!=='undefined') && typeof navigator.share==='function' && typeof File==='function';
 var ui = {view:'record', msg:null, warnKey:null, edit:null, imp:null, confirm:null, artifact:null, downloads:null, busy:false, paste:false};
 
 /* ---------- helpers ---------- */
@@ -495,9 +497,9 @@ function importCard(){
 }
 function reportView(){
   var h='<div class="card noprint"><div class="row">'
-    +(STANDALONE?'<button class="btn blue" data-act="print">Print report</button><button class="btn" data-act="dlCsv">Download CSV</button>':(ui.downloads?'<button class="btn blue" data-act="dlReport">Download printable report</button><button class="btn" data-act="dlCsv">Download CSV</button>':''))
+    +(STANDALONE?(HOMEAPP?'':'<button class="btn blue" data-act="print">Print report</button>')+(CAN_SHARE?'<button class="btn'+(HOMEAPP?' blue':'')+'" data-act="shareReport">Share report file</button>':'')+'<button class="btn" data-act="dlCsv">Download CSV</button>':(ui.downloads?'<button class="btn blue" data-act="dlReport">Download printable report</button><button class="btn" data-act="dlCsv">Download CSV</button>':''))
     +'<button class="btn" data-act="copy">Copy results as text</button></div>'
-    +'<div class="hint">'+(STANDALONE?'Prints one athlete per page. On a phone, choose Save to Files or AirPrint in the print sheet.':ui.downloads?'The downloaded report opens in any browser and prints one athlete per page.':'To print, open this page in a browser and use its Print command. Each athlete gets a page.')+'</div>'
+    +'<div class="hint">'+(STANDALONE?(HOMEAPP?'Share report file sends a printable copy. In the share sheet choose Print, or Save to Files and print it from there. One athlete per page.':'Prints one athlete per page. If Print does nothing, use Share report file.'):ui.downloads?'The downloaded report opens in any browser and prints one athlete per page.':'To print, open this page in a browser and use its Print command. Each athlete gets a page.')+'</div>'
     +(ui.msg?'<div class="msg '+ui.msg.kind+'">'+esc(ui.msg.text)+'</div>':'')+'</div>';
   h+='<div class="report">'+reportHTML();
   if(!anyTrials()) h+='<div class="banner noprint">Example only. This is what each athlete sheet looks like once trials are in. It disappears when you record the first result.</div><div class="noprint">'+exampleCard()+'</div>';
@@ -589,9 +591,24 @@ function onClick(e){
   else if(act==='publish'){ doPublish(); }
   else if(act==='copy'){ var txt=resultsText(); try{ navigator.clipboard.writeText(txt).then(function(){ setMsg('ok','Results copied.'); render(); },function(){ setMsg('warn','Copy is blocked in this view.'); render(); }); }catch(err){ setMsg('warn','Copy is blocked in this view.'); render(); } }
   else if(act==='dlReport'){ saveFile('baseline-report-'+S.date+'.html','<!DOCTYPE html>\n<html lang="en" data-theme="light"><head>'+HEAD.replace('Vault Squad Baseline Testing','Baseline Testing Report '+S.date)+'<style>'+document.getElementById('css').textContent+'</style></head><body class="standalone"><main class="report">'+reportHTML()+'</main></body></html>'); }
-  else if(act==='print'){ try{ window.print(); }catch(err){} }
+  else if(act==='print'){
+    if(HOMEAPP){ setMsg('warn','iPhone does not allow printing from the Home Screen app. Tap Share report file, then choose Print, or save it to Files and print from there.'); render(); return; }
+    var fired=false; function bp(){ fired=true; }
+    window.addEventListener('beforeprint',bp,{once:true});
+    try{ window.print(); }catch(err){}
+    setTimeout(function(){ window.removeEventListener('beforeprint',bp); if(!fired&&CAN_SHARE){ setMsg('warn','If the print window did not open, tap Share report file and print it from there.'); render(); } },1200);
+  }
+  else if(act==='shareReport'){
+    try{
+      var file=new File([reportDoc()],'baseline-report-'+S.date+'.html',{type:'text/html'});
+      navigator.share({files:[file],title:'Baseline Testing Report'}).then(function(){},function(err){ if(err&&err.name!=='AbortError'){ setMsg('warn','Sharing did not work on this device. Use Download CSV or Copy results instead.'); render(); } });
+    }catch(err){ setMsg('warn','Sharing did not work on this device. Use Download CSV or Copy results instead.'); render(); }
+  }
   else if(act==='dlBackup'){ saveFile('baseline-backup-'+S.date+'.json',JSON.stringify(S)); }
   else if(act==='dlCsv'){ saveFile('baseline-results-'+S.date+'.csv',resultsCSV()); }
+}
+function reportDoc(){
+  return '<!DOCTYPE html>\n<html lang="en" data-theme="light"><head>'+HEAD.replace('Vault Squad Baseline Testing','Baseline Testing Report '+S.date)+'<style>'+document.getElementById('css').textContent+'</style></head><body class="standalone"><main class="report">'+reportHTML()+'</main></body></html>';
 }
 function saveFile(name,data){
   if(STANDALONE){

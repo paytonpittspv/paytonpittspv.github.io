@@ -1,5 +1,5 @@
 // Baseline Testing offline support: keeps a copy of the app on the device so it opens with no signal.
-const VERSION='baseline-2026-11-13c';
+const VERSION='baseline-2026-11-13d';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-180.png','./icon-512.png'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(VERSION).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()));
