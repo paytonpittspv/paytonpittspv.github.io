@@ -497,7 +497,7 @@ function importCard(){
 }
 function reportView(){
   var h='<div class="card noprint"><div class="row">'
-    +(STANDALONE?(HOMEAPP?'':'<button class="btn blue" data-act="print">Print report</button>')+(CAN_SHARE?'<button class="btn'+(HOMEAPP?' blue':'')+'" data-act="shareReport">Share report file</button>':'')+'<button class="btn" data-act="dlCsv">Download CSV</button>':(ui.downloads?'<button class="btn blue" data-act="dlReport">Download printable report</button><button class="btn" data-act="dlCsv">Download CSV</button>':''))
+    +(STANDALONE?(HOMEAPP?'':'<button class="btn blue" data-act="print">Print report</button>')+(CAN_SHARE?'<button class="btn'+(HOMEAPP?' blue':'')+'" data-act="shareReport">Share report file</button>':'')+'<button class="btn" data-act="dlCsv">'+(HOMEAPP?'Share CSV':'Download CSV')+'</button>':(ui.downloads?'<button class="btn blue" data-act="dlReport">Download printable report</button><button class="btn" data-act="dlCsv">Download CSV</button>':''))
     +'<button class="btn" data-act="copy">Copy results as text</button></div>'
     +'<div class="hint">'+(STANDALONE?(HOMEAPP?'Share report file sends a printable copy. In the share sheet choose Print, or Save to Files and print it from there. One athlete per page.':'Prints one athlete per page. If Print does nothing, use Share report file.'):ui.downloads?'The downloaded report opens in any browser and prints one athlete per page.':'To print, open this page in a browser and use its Print command. Each athlete gets a page.')+'</div>'
     +(ui.msg?'<div class="msg '+ui.msg.kind+'">'+esc(ui.msg.text)+'</div>':'')+'</div>';
@@ -511,7 +511,7 @@ function setupView(){
     return '<div class="r"><input type="text" id="nm_'+a.id+'" data-name="'+a.id+'" value="'+esc(a.name)+'" aria-label="Athlete name"><button class="btn sm" data-act="up" data-id="'+a.id+'" aria-label="Move up"'+(i===0?' disabled':'')+'>↑</button><button class="btn sm" data-act="down" data-id="'+a.id+'" aria-label="Move down"'+(i===S.roster.length-1?' disabled':'')+'>↓</button><button class="btn sm danger" data-act="rm" data-id="'+a.id+'">'+(ui.confirm==='rm'+a.id?'Tap again to remove':'Remove')+'</button></div>';
   }).join('')+'</div><form class="row" id="addForm"><input class="btn" style="flex:1;text-align:left;font-weight:600" id="addName" type="text" placeholder="Add an athlete" autocomplete="off" aria-label="New athlete name"><button class="btn blue" type="submit">Add</button></form></div>';
   if(STANDALONE){
-    h+='<div class="card"><div class="eyebrow">Backup</div><div class="hint">Results save on this device right away and the app works with no wifi. They live only in this browser, so download a backup after practice.</div><div class="row"><button class="btn blue" data-act="dlBackup">Download backup</button><label class="btn" for="bkFile" style="display:inline-flex;align-items:center">Restore a backup</label><input id="bkFile" type="file" accept=".json,application/json" style="position:absolute;opacity:0;width:1px;height:1px">'
+    h+='<div class="card"><div class="eyebrow">Backup</div><div class="hint">Results save on this device right away and the app works with no wifi. They live only in this browser, so '+(HOMEAPP?'share a backup to Files or to yourself':'download a backup')+' after practice.</div><div class="row"><button class="btn blue" data-act="dlBackup">'+(HOMEAPP?'Share backup file':'Download backup')+'</button><label class="btn" for="bkFile" style="display:inline-flex;align-items:center">Restore a backup</label><input id="bkFile" type="file" accept=".json,.txt,application/json,text/plain" style="position:absolute;opacity:0;width:1px;height:1px">'
       +'<button class="btn danger" data-act="reset">'+(ui.confirm==='reset'?'Tap again to erase all results':'Erase all results')+'</button></div>'
       +(ui.msg?'<div class="msg '+ui.msg.kind+'">'+esc(ui.msg.text)+'</div>':'')+'</div>';
     return h;
@@ -598,19 +598,23 @@ function onClick(e){
     try{ window.print(); }catch(err){}
     setTimeout(function(){ window.removeEventListener('beforeprint',bp); if(!fired&&CAN_SHARE){ setMsg('warn','If the print window did not open, tap Share report file and print it from there.'); render(); } },1200);
   }
-  else if(act==='shareReport'){
-    try{
-      var file=new File([reportDoc()],'baseline-report-'+S.date+'.html',{type:'text/html'});
-      navigator.share({files:[file],title:'Baseline Testing Report'}).then(function(){},function(err){ if(err&&err.name!=='AbortError'){ setMsg('warn','Sharing did not work on this device. Use Download CSV or Copy results instead.'); render(); } });
-    }catch(err){ setMsg('warn','Sharing did not work on this device. Use Download CSV or Copy results instead.'); render(); }
-  }
+  else if(act==='shareReport'){ shareFile('baseline-report-'+S.date+'.html',reportDoc(),'text/html'); }
   else if(act==='dlBackup'){ saveFile('baseline-backup-'+S.date+'.json',JSON.stringify(S)); }
   else if(act==='dlCsv'){ saveFile('baseline-results-'+S.date+'.csv',resultsCSV()); }
 }
 function reportDoc(){
   return '<!DOCTYPE html>\n<html lang="en" data-theme="light"><head>'+HEAD.replace('Vault Squad Baseline Testing','Baseline Testing Report '+S.date)+'<style>'+document.getElementById('css').textContent+'</style></head><body class="standalone"><main class="report">'+reportHTML()+'</main></body></html>';
 }
+function shareFile(name,data,type){
+  function fail(){ setMsg('warn','Sharing did not work on this device. Copy results as text still works.'); render(); }
+  try{
+    var file=new File([data],name,{type:type});
+    if(navigator.canShare&&!navigator.canShare({files:[file]})) file=new File([data],name+'.txt',{type:'text/plain'});
+    navigator.share({files:[file],title:name}).then(function(){ setMsg('ok','Shared '+file.name+'.'); render(); },function(err){ if(!err||err.name!=='AbortError') fail(); });
+  }catch(err){ fail(); }
+}
 function saveFile(name,data){
+  if(STANDALONE&&HOMEAPP&&CAN_SHARE){ shareFile(name,data,/\.csv$/.test(name)?'text/csv':'application/json'); return; }
   if(STANDALONE){
     try{ var url=URL.createObjectURL(new Blob([data],{type:/\.csv$/.test(name)?'text/csv':'application/json'})), a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(url); },4000); setMsg('ok','Saved '+name+'.'); }
     catch(err){ setMsg('warn','Could not save the file on this device.'); }
