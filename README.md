@@ -9,7 +9,7 @@ Small, browser-based tools for coaches and athletes. Live at **https://paytonpit
 | [Jump Test Tracker](https://paytonpittspv.github.io/jump/) | Log countermovement jumps for a team and flag drops against each athlete's own baseline. |
 | [Pole Vault Energy Calculator](https://paytonpittspv.github.io/vault/) | Estimate bar height from takeoff speed with energy conservation, or find the speed needed for a target bar. |
 | [Testing Day Sheet](https://paytonpittspv.github.io/testing/) | Fast entry for team testing days, best-of-3 marks, leaderboards, and shareable athlete cards. |
-| [Baseline Testing](https://paytonpittspv.github.io/baseline/) | One-at-a-time entry for vertical jump, broad jump and 20 m flys with and without the pole, GateCamLive import, and a printable athlete report. Works offline. |
+| [Baseline Testing](https://paytonpittspv.github.io/baseline/) | One-at-a-time entry for broad jump and 10 m flys with and without the pole, GateCamLive import, and a printable athlete report. Works offline. |
 | [Chord Season](https://paytonpittspv.github.io/chord/) | A daily pole vault training plan for the whole season, with phase timeline and checklist. Works offline. |
 
 Plain HTML, CSS and JavaScript. No build step, no accounts. Anything you enter stays in your own browser.

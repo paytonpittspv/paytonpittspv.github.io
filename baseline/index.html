@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Baseline Testing</title><meta name="description" content="Record vertical jump, broad jump and 20 m fly baselines for the vault squad, import GateCamLive runs, and print a report."><meta name="theme-color" content="#6a2bd9"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Baseline"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-180.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet"><style id="css">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Baseline Testing</title><meta name="description" content="Record broad jump and 10 m fly baselines for the vault squad, import GateCamLive runs, and print a report."><meta name="theme-color" content="#6a2bd9"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Baseline"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-180.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet"><style id="css">
 /* Layout idea: phone-first single column. Record = one big entry card under a row of athlete chips.
    Report = one sheet per athlete, big numbers first, small charts beside them. */
 :root{
@@ -41,7 +41,7 @@ h1{font-family:var(--display);font-stretch:85%;font-weight:900;font-size:30px;li
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .eyebrow{font-family:var(--display);font-stretch:90%;font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 h2{font-family:var(--display);font-stretch:88%;font-weight:800;font-size:20px;margin:0;text-wrap:balance}
-.tests{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tests{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .tests button{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:700;font-size:13px;line-height:1.15;min-height:58px}
 .tests button small{font-weight:600;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
 .tests button.on{background:var(--purple);border-color:var(--purple);color:var(--on-accent)}
@@ -135,16 +135,15 @@ svg .dsp{font-family:var(--display);font-weight:900}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 @media (prefers-reduced-motion:no-preference){ .chip,.btn,.tests button{transition:border-color .12s,background .12s} }
-</style></head><body><div id="app"></div><script id="seed" type="application/json">{"v":1,"updatedAt":0,"date":"2026-11-13","location":"","units":"in","roster":[{"id":"a1","name":"Natalia Biskupska"},{"id":"a2","name":"Reese Wolfe"},{"id":"a3","name":"Nikodem Pochopien"},{"id":"a4","name":"Andrew Nuyen"},{"id":"a5","name":"Payton Pitts"}],"results":{},"cur":{"test":"vj","ath":"a1"}}</script><script id="appjs">
+</style></head><body><div id="app"></div><script id="seed" type="application/json">{"v":1,"updatedAt":0,"date":"2026-11-13","location":"","units":"in","roster":[{"id":"a1","name":"Natalia Biskupska"},{"id":"a2","name":"Reese Wolfe"},{"id":"a3","name":"Nikodem Pochopien"},{"id":"a4","name":"Andrew Nuyen"},{"id":"a5","name":"Payton Pitts"}],"results":{},"cur":{"test":"bj","ath":"a1"}}</script><script id="appjs">
 "use strict";
 var HEAD = '<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Vault Squad Baseline Testing</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">';
 var LS_KEY = 'vault-baseline-v1';
 var PLANNED = 2;
 var TESTS = [
-  {id:'vj',   name:'Vertical jump',        short:'Vertical',   kind:'jump', color:'pink'},
   {id:'bj',   name:'Standing broad jump',  short:'Broad',      kind:'jump', color:'purple'},
-  {id:'fly',  name:'20 m fly, no pole',    short:'Fly',        kind:'time', color:'blue'},
-  {id:'flyp', name:'20 m fly, with pole',  short:'Fly + pole', kind:'time', color:'pink'}
+  {id:'fly',  name:'10 m fly, no pole',    short:'Fly',        kind:'time', color:'blue'},
+  {id:'flyp', name:'10 m fly, with pole',  short:'Fly + pole', kind:'time', color:'pink'}
 ];
 var G = 9.81, MPH = 2.23694;
 var S = null, SEED_AT = 0;
@@ -157,7 +156,7 @@ function testById(id){ for(var i=0;i<TESTS.length;i++) if(TESTS[i].id===id) retu
 function athById(id){ for(var i=0;i<S.roster.length;i++) if(S.roster[i].id===id) return S.roster[i]; return null; }
 function trials(aid,tid){ var r=S.results[aid]; return (r&&r[tid])||[]; }
 function trim(n,d){ return String(parseFloat(n.toFixed(d))); }
-function segOf(tr){ return tr.seg>0?tr.seg:20; }
+function segOf(tr){ return tr.seg>0?tr.seg:10; }
 function speedOf(tr){ return segOf(tr)/tr.v; }
 function bestTrial(aid,tid){
   var t=trials(aid,tid), k=testById(tid).kind, b=null;
@@ -171,13 +170,12 @@ function ftIn(inches){ var f=Math.floor(inches/12), r=inches-f*12; if(parseFloat
 function fmtVal(tid,v){
   var t=testById(tid);
   if(t.kind==='time') return v.toFixed(2)+' s';
-  if(S.units==='cm') return tid==='bj' ? (v*0.0254).toFixed(2)+' m' : (v*2.54).toFixed(1)+' cm';
-  return tid==='bj' ? ftIn(v) : trim(v,1)+' in';
+  return (v*0.0254).toFixed(2)+' m';
 }
 function rawVal(tid,v){
   var t=testById(tid);
   if(t.kind==='time') return trim(v,3);
-  return S.units==='cm' ? trim(v*2.54,1) : trim(v,2);
+  return trim(v*2.54,1);
 }
 function parseEntry(tid,str){
   var t=testById(tid), s=String(str||'').trim().replace(',','.');
@@ -185,21 +183,22 @@ function parseEntry(tid,str){
   if(t.kind==='time'){
     var x=parseFloat(s.replace(/s$/i,''));
     if(!isFinite(x)||x<=0||!/^\d*\.?\d+\s*s?$/i.test(s)) return {err:'Type the time in seconds, like 2.31.'};
-    return {v:x, odd:(x<1.7||x>5)};
+    return {v:x, odd:(x<0.8||x>3)};
   }
-  var v=null;
-  if(S.units==='cm'){
-    if(!/^\d*\.?\d+$/.test(s)) return {err:'Type centimeters as a number, like 285.'};
-    v=parseFloat(s)/2.54;
-  } else {
-    var m=s.match(/^(\d+)\s*(?:'|ft|-|\s)\s*(\d*\.?\d+)?\s*(?:"|in)?$/i);
-    if(m) v=parseInt(m[1],10)*12+(m[2]?parseFloat(m[2]):0);
-    else if(/^\d*\.?\d+\s*(?:"|in)?$/i.test(s)) v=parseFloat(s);
-    else return {err:"Type inches like 28.5, or feet and inches like 9-2.5."};
+  var v=null, m, BAD='Type centimeters like 285, meters like 2.85, or feet-inches like 9-4.5.';
+  if((m=s.match(/^(\d*\.?\d+)\s*cm$/i))) v=parseFloat(m[1])/2.54;
+  else if((m=s.match(/^(\d*\.?\d+)\s*m$/i))) v=parseFloat(m[1])/0.0254;
+  else if((m=s.match(/^(\d*\.?\d+)\s*(?:"|in)$/i))) v=parseFloat(m[1]);
+  else if((m=s.match(/^(\d+)\s*(?:'|ft|feet|-|\s)\s*(\d*\.?\d+)?\s*(?:"|in)?$/i))) v=parseInt(m[1],10)*12+(m[2]?parseFloat(m[2]):0);
+  else if(/^\d*\.?\d+$/.test(s)){
+    var x2=parseFloat(s);
+    if(x2>=30) v=x2/2.54;            /* plain number: centimeters */
+    else if(x2<4) v=x2/0.0254;       /* small number: meters */
+    else return {err:'For feet type feet-inches like '+Math.floor(x2)+'-0. Centimeters look like 285.'};
   }
-  if(!isFinite(v)||v<=0) return {err:'That does not look like a number.'};
-  var odd = tid==='vj' ? (v<8||v>50) : (v<40||v>150);
-  return {v:v, odd:odd};
+  else return {err:BAD};
+  if(!isFinite(v)||v<=0) return {err:BAD};
+  return {v:v, odd:(v<40||v>150)};
 }
 function countDone(tid){ var n=0; S.roster.forEach(function(a){ n+=Math.min(trials(a.id,tid).length,PLANNED); }); return n; }
 function totalRecorded(){ var n=0; TESTS.forEach(function(t){ n+=countDone(t.id); }); return n; }
@@ -257,8 +256,8 @@ function parseGateCam(text){
   for(var i=1;i<rows.length;i++){
     var r=rows[i], t=parseFloat(r[cR]); if(!isFinite(t)||t<=0) continue;
     var ev=cE>=0?r[cE]:'', pole=cP>=0&&/^\s*(yes|y|true|1)/i.test(r[cP]||'');
-    var seg=20, sm=cS>=0?String(r[cS]||'').match(/\d*\.?\d+/g):null;
-    if(sm&&sm.length>=2) seg=Math.abs(parseFloat(sm[1])-parseFloat(sm[0]))||20; else if(sm&&sm.length===1) seg=parseFloat(sm[0])||20;
+    var seg=10, sm=cS>=0?String(r[cS]||'').match(/\d*\.?\d+/g):null;
+    if(sm&&sm.length>=2) seg=Math.abs(parseFloat(sm[1])-parseFloat(sm[0]))||10; else if(sm&&sm.length===1) seg=parseFloat(sm[0])||10;
     var top=cV>=0?parseFloat(r[cV]):NaN;
     var name=(r[cA]||'').trim();
     var key=[cD>=0?r[cD]:'',cT>=0?r[cT]:'',normName(name),t.toFixed(3),pole?'p':'n'].join('|');
@@ -281,7 +280,8 @@ function load(){
   SEED_AT=seed.updatedAt||0;
   var local=null; try{ local=JSON.parse(localStorage.getItem(LS_KEY)||'null'); }catch(e){}
   S=(local&&local.roster&&(local.updatedAt||0)>=SEED_AT)?local:seed;
-  if(!S.results) S.results={}; if(!S.cur) S.cur={test:'vj',ath:null};
+  if(!S.results) S.results={}; if(!S.cur) S.cur={test:'bj',ath:null};
+  if(!TESTS.some(function(t){return t.id===S.cur.test;})) S.cur.test='bj';
   if(!athById(S.cur.ath)) S.cur.ath=S.roster.length?S.roster[0].id:null;
 }
 function buildDoc(){
@@ -353,28 +353,25 @@ function athleteCard(a){
     h+='<div class="tb c-'+t.color+'"><div class="eyebrow">'+esc(t.name)+'</div>';
     if(!b){ h+='<div class="empty">Not tested yet</div></div>'; return; }
     if(t.kind==='jump'){
-      var main = S.units==='cm' ? (t.id==='bj'?[(b.v*0.0254).toFixed(2),'m']:[(b.v*2.54).toFixed(1),'cm']) : (t.id==='bj'?[ftIn(b.v),'']:[trim(b.v,1),'in']);
-      var alt = S.units==='cm' ? (t.id==='bj'?ftIn(b.v):trim(b.v,1)+' in') : (t.id==='bj'?trim(b.v,1)+' in · '+(b.v*0.0254).toFixed(2)+' m':(b.v*2.54).toFixed(1)+' cm');
-      h+='<div class="bigv">'+esc(main[0])+'<small>'+main[1]+'</small></div><div class="alt">'+esc(alt)+'</div>';
+      h+='<div class="bigv">'+(b.v*0.0254).toFixed(2)+'<small>m</small></div><div class="alt">'+(b.v*2.54).toFixed(1)+' cm · '+esc(ftIn(b.v))+'</div>';
     } else {
       var v=speedOf(b);
-      h+='<div class="bigv">'+b.v.toFixed(2)+'<small>s</small></div><div class="alt">'+v.toFixed(2)+' m/s · '+(v*MPH).toFixed(1)+' mph · '+(v*3.6).toFixed(1)+' km/h'+(segOf(b)!==20?' · timed over '+trim(segOf(b),1)+' m':'')+'</div>';
+      h+='<div class="bigv">'+b.v.toFixed(2)+'<small>s</small></div><div class="alt">'+v.toFixed(2)+' m/s · '+(v*MPH).toFixed(1)+' mph · '+(v*3.6).toFixed(1)+' km/h'+(segOf(b)!==10?' · timed over '+trim(segOf(b),1)+' m':'')+'</div>';
     }
     h+=barChart(tr.map(function(x,i){ return {label:'Trial '+(i+1), value:t.kind==='jump'?x.v:speedOf(x), text:t.kind==='jump'?fmtVal(t.id,x.v):x.v.toFixed(2)+' s', best:x===b}; }),t.color);
     if(tr.length>1){
       var vals=tr.map(function(x){return x.v;}), spread=Math.max.apply(null,vals)-Math.min.apply(null,vals);
-      h+='<div class="alt">Trials within '+(t.kind==='time'?spread.toFixed(2)+' s':(S.units==='cm'?(spread*2.54).toFixed(1)+' cm':trim(spread,1)+' in'))+'</div>';
+      h+='<div class="alt">Trials within '+(t.kind==='time'?spread.toFixed(2)+' s':(spread*2.54).toFixed(1)+' cm')+'</div>';
     }
     h+='</div>';
   });
   h+='</div>';
 
-  var vj=bestTrial(a.id,'vj'), bj=bestTrial(a.id,'bj'), f=bestTrial(a.id,'fly'), fp=bestTrial(a.id,'flyp');
+  var bj=bestTrial(a.id,'bj'), f=bestTrial(a.id,'fly'), fp=bestTrial(a.id,'flyp');
   var tiles='';
   function tile(big,label,note){ tiles+='<div class="tile"><span>'+label+'</span><b>'+big+'</b>'+(note?'<em>'+note+'</em>':'')+'</div>'; }
-  if(vj){ var v0=Math.sqrt(2*G*vj.v*0.0254); tile(v0.toFixed(2)+' m/s','Takeoff speed','From vertical jump height'); tile((2*v0/G).toFixed(2)+' s','Air time','Estimated hang time'); }
-  if(vj&&bj) tile((bj.v/vj.v).toFixed(1)+'×','Broad to vertical','Broad jump ÷ vertical jump');
-  if(f&&fp){ var a1=speedOf(f), a2=speedOf(fp); tile((a2/a1*100).toFixed(1)+'%','Pole carryover','Speed kept while carrying'); tile((a1-a2>=0?'−':'+')+Math.abs(a1-a2).toFixed(2)+' m/s','Speed change with pole',(fp.v-f.v>=0?'+':'−')+Math.abs(fp.v-f.v).toFixed(2)+' s over 20 m'); }
+  if(bj){ var vb0=Math.sqrt(G*bj.v*0.0254); tile(vb0.toFixed(2)+' m/s','Broad jump launch speed','Lowest takeoff speed that covers it'); }
+  if(f&&fp){ var a1=speedOf(f), a2=speedOf(fp); tile((a2/a1*100).toFixed(1)+'%','Pole carryover','Speed kept while carrying'); tile((a1-a2>=0?'−':'+')+Math.abs(a1-a2).toFixed(2)+' m/s','Speed change with pole',(fp.v-f.v>=0?'+':'−')+Math.abs(fp.v-f.v).toFixed(2)+' s over 10 m'); }
   var fb=fp||f; if(fb){ var vb=speedOf(fb); tile((vb*3.28084).toFixed(1)+' ft/s',fp?'Runway speed with pole':'Runway speed','One foot every '+(1000/(vb*3.28084)).toFixed(0)+' ms'); }
   if(tiles) h+='<div><div class="eyebrow" style="margin-bottom:6px">Cool stats</div><div class="tiles">'+tiles+'</div></div>';
 
@@ -397,19 +394,19 @@ function reportHTML(){
   S.roster.forEach(function(a){
     h+='<tr><td><b>'+esc(a.name)+'</b></td>'+TESTS.map(function(t){ var tr=trials(a.id,t.id), b=bestTrial(a.id,t.id); return '<td class="n">'+(tr.length?tr.map(function(x){ var s=esc(fmtVal(t.id,x.v)); return x===b&&tr.length>1?'<b>'+s+'</b>':s; }).join(' / '):'<span class="empty">–</span>')+'</td>'; }).join('')+'</tr>';
   });
-  h+='</tbody></table></div><div class="hint">Best trial in bold. Fly times are for the 20 m timed zone.</div></div>';
+  h+='</tbody></table></div><div class="hint">Best trial in bold. Fly times are for the 10 m timed zone. Broad jumps are in meters.</div></div>';
   S.roster.forEach(function(a){ h+=athleteCard(a); });
   return h;
 }
 function exampleCard(){
-  var keep=S; S={units:keep.units,date:keep.date,location:'',roster:[{id:'ex',name:'Example Athlete'}],results:{ex:{vj:[{v:27.5},{v:28.5}],bj:[{v:108},{v:110.5}],fly:[{v:2.24,gates:'20: 0 | 30: 1.13 | 40: 2.24'},{v:2.21,gates:'20: 0 | 30: 1.11 | 40: 2.21'}],flyp:[{v:2.36,gates:'20: 0 | 30: 1.19 | 40: 2.36'},{v:2.39}]}}};
+  var keep=S; S={units:keep.units,date:keep.date,location:'',roster:[{id:'ex',name:'Example Athlete'}],results:{ex:{bj:[{v:108},{v:110.5}],fly:[{v:1.12,gates:'20: 0 | 25: 0.57 | 30: 1.12'},{v:1.10,gates:'20: 0 | 25: 0.56 | 30: 1.10'}],flyp:[{v:1.18,gates:'20: 0 | 25: 0.60 | 30: 1.18'},{v:1.20}]}}};
   var h=athleteCard(S.roster[0]); S=keep; return h;
 }
 function resultsCSV(){
   function c(v){ var s=String(v==null?'':v); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
   var lines=[['Date','Athlete','Test','Trial','Result','Unit','Speed (m/s)','Source'].join(',')];
   S.roster.forEach(function(a){ TESTS.forEach(function(t){ trials(a.id,t.id).forEach(function(x,i){
-    lines.push([S.date,a.name,t.name,i+1,t.kind==='time'?x.v.toFixed(2):(S.units==='cm'?(x.v*2.54).toFixed(1):trim(x.v,2)),t.kind==='time'?'s':S.units,t.kind==='time'?speedOf(x).toFixed(2):'',x.src||'manual'].map(c).join(','));
+    lines.push([S.date,a.name,t.name,i+1,t.kind==='time'?x.v.toFixed(2):(x.v*2.54).toFixed(1),t.kind==='time'?'s':'cm',t.kind==='time'?speedOf(x).toFixed(2):'',x.src||'manual'].map(c).join(','));
   }); }); });
   return lines.join('\n');
 }
@@ -442,9 +439,9 @@ function recordView(){
     return '<button class="chip'+(x.id===a.id?' on':'')+(x.id===sug&&!allDone?' next':'')+'" data-act="ath" data-id="'+x.id+'"><span class="nm">'+esc(x.name)+(x.id===sug&&!allDone&&x.id!==a.id?'<br><span class="tag">Suggested next</span>':'')+'</span><span class="dots">'+dots+'</span></button>';
   }).join('')+'</div></div>';
   var n=trials(a.id,t.id).length;
-  var unitHint = t.kind==='time' ? 'Seconds for the 20 m zone, like 2.31' : (S.units==='cm' ? 'Centimeters, like '+(t.id==='bj'?'285':'72') : (t.id==='bj'?'Inches like 110.5, or feet and inches like 9-2.5':'Inches, like 28.5'));
+  var unitHint = t.kind==='time' ? 'Seconds for the 10 m zone, like 1.12' : 'Centimeters like 285, meters like 2.85, or feet-inches like 9-4.5. It is saved in meters';
   h+='<form class="card entry" id="entryForm"><div><div class="eyebrow">'+esc(t.name)+' · Trial '+(n+1)+(n>=PLANNED?' (extra)':'')+'</div><div class="who">'+esc(a.name)+'</div></div>';
-  h+='<div class="row"><input class="big" id="entryInput" inputmode="'+(t.kind==='jump'&&S.units==='in'?'text':'decimal')+'" autocomplete="off" placeholder="'+(t.kind==='time'?'0.00 s':(S.units==='cm'?'cm':'in'))+'" aria-label="Result for '+esc(a.name)+'"><button class="btn pri" type="submit">'+(ui.warnKey?'Save anyway':'Save')+'</button></div>';
+  h+='<div class="row"><input class="big" id="entryInput" inputmode="'+(t.kind==='jump'?'text':'decimal')+'" autocomplete="off" placeholder="'+(t.kind==='time'?'0.00 s':'cm or ft-in')+'" aria-label="Result for '+esc(a.name)+'"><button class="btn pri" type="submit">'+(ui.warnKey?'Save anyway':'Save')+'</button></div>';
   h+='<div class="hint">'+unitHint+'. Saving moves to the next athlete.</div>';
   if(ui.msg) h+='<div class="msg '+ui.msg.kind+'">'+esc(ui.msg.text)+(ui.msg.undo?'<button type="button" class="btn sm" data-act="undo">Undo</button>':'')+'</div>';
   if(allDone) h+='<div class="msg ok">Everyone has '+PLANNED+' trials here.'+(TESTS.indexOf(t)<TESTS.length-1?'<button type="button" class="btn sm blue" data-act="test" data-id="'+TESTS[TESTS.indexOf(t)+1].id+'">Go to '+esc(TESTS[TESTS.indexOf(t)+1].short)+'</button>':'')+'</div>';
@@ -487,7 +484,7 @@ function reportView(){
   return h+'</div>';
 }
 function setupView(){
-  var h='<div class="card"><div class="eyebrow">Session</div><div class="row"><label class="field" for="fDate">Date<input id="fDate" type="date" value="'+esc(S.date)+'"></label><label class="field" for="fLoc">Location<input id="fLoc" type="text" value="'+esc(S.location)+'" placeholder="USF track"></label><label class="field" for="fUnits">Jump units<select id="fUnits"><option value="in"'+(S.units==='in'?' selected':'')+'>Inches</option><option value="cm"'+(S.units==='cm'?' selected':'')+'>Centimeters</option></select></label></div></div>';
+  var h='<div class="card"><div class="eyebrow">Session</div><div class="row"><label class="field" for="fDate">Date<input id="fDate" type="date" value="'+esc(S.date)+'"></label><label class="field" for="fLoc">Location<input id="fLoc" type="text" value="'+esc(S.location)+'" placeholder="USF track"></label></div></div>';
   h+='<div class="card"><div class="eyebrow">Roster and order</div><div class="rost">'+S.roster.map(function(a,i){
     return '<div class="r"><input type="text" id="nm_'+a.id+'" data-name="'+a.id+'" value="'+esc(a.name)+'" aria-label="Athlete name"><button class="btn sm" data-act="up" data-id="'+a.id+'" aria-label="Move up"'+(i===0?' disabled':'')+'>↑</button><button class="btn sm" data-act="down" data-id="'+a.id+'" aria-label="Move down"'+(i===S.roster.length-1?' disabled':'')+'>↓</button><button class="btn sm danger" data-act="rm" data-id="'+a.id+'">'+(ui.confirm==='rm'+a.id?'Tap again to remove':'Remove')+'</button></div>';
   }).join('')+'</div><form class="row" id="addForm"><input class="btn" style="flex:1;text-align:left;font-weight:600" id="addName" type="text" placeholder="Add an athlete" autocomplete="off" aria-label="New athlete name"><button class="btn blue" type="submit">Add</button></form></div>';
@@ -506,7 +503,7 @@ function setupView(){
 function modal(){
   if(!ui.edit) return '';
   var a=athById(ui.edit.ath), t=testById(S.cur.test), tr=trials(ui.edit.ath,t.id)[ui.edit.i]; if(!a||!tr) return '';
-  return '<div class="modal" data-act="closeEdit"><form class="card" id="editForm" data-stop="1"><div class="eyebrow">'+esc(t.name)+' · Trial '+(ui.edit.i+1)+'</div><h2>'+esc(a.name)+'</h2><input class="big" id="editInput" inputmode="decimal" value="'+esc(rawVal(t.id,tr.v))+'" aria-label="Corrected result">'
+  return '<div class="modal" data-act="closeEdit"><form class="card" id="editForm" data-stop="1"><div class="eyebrow">'+esc(t.name)+' · Trial '+(ui.edit.i+1)+'</div><h2>'+esc(a.name)+'</h2><input class="big" id="editInput" inputmode="'+(t.kind==='jump'?'text':'decimal')+'" value="'+esc(rawVal(t.id,tr.v))+'" aria-label="Corrected result">'
     +(ui.edit.err?'<div class="msg warn">'+esc(ui.edit.err)+'</div>':'')
     +'<div class="row"><button class="btn pri" type="submit">Save</button><button class="btn danger" type="button" data-act="delTrial">Delete trial</button><button class="btn" type="button" data-act="closeEdit" data-force="1">Cancel</button></div></form></div>';
 }
@@ -608,7 +605,6 @@ function onChange(e){
   else if(el.hasAttribute('data-impsel')){ var r=ui.imp.rows[+el.getAttribute('data-impsel')]; r.target=el.value; if(el.value!=='skip') r.on=true; render(); }
   else if(el.id==='fDate'){ if(el.value){ S.date=el.value; persist(); render(); } }
   else if(el.id==='fLoc'){ S.location=el.value.trim(); persist(); }
-  else if(el.id==='fUnits'){ S.units=el.value; persist(); render(); }
   else if(el.hasAttribute('data-name')){ var a=athById(el.getAttribute('data-name')); if(a&&el.value.trim()){ a.name=el.value.trim(); persist(); } }
 }
 function route(){
