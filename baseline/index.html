@@ -325,16 +325,16 @@ function barChart(items,color){
   return s+'</svg>';
 }
 function gauge(vNo,vPole){
-  var MAXV=12, L1=Math.PI*70, L2=Math.PI*54;
-  function arc(r,cls,frac,w){ var x0=90-r, x1=90+r, L=Math.PI*r; return '<path d="M '+x0+' 92 A '+r+' '+r+' 0 0 1 '+x1+' 92" fill="none" stroke-width="'+w+'" stroke-linecap="round" class="'+cls+'"'+(frac==null?'':' stroke-dasharray="'+(L*Math.min(1,frac)).toFixed(1)+' '+(L+10).toFixed(1)+'"')+'/>'; }
-  var s='<svg viewBox="0 0 180 112" role="img" aria-label="Fly speed gauge, scale 0 to 12 meters per second">';
-  s+=arc(70,'s-track',null,11)+arc(54,'s-track',null,11);
-  if(vNo) s+=arc(70,'s-blue',vNo/MAXV,11);
-  if(vPole) s+=arc(54,'s-pink',vPole/MAXV,11);
-  var top=Math.max(vNo||0,vPole||0);
-  s+='<text x="90" y="84" text-anchor="middle" font-size="26" class="dsp">'+(top?top.toFixed(2):'–')+'</text>';
-  s+='<text x="90" y="98" text-anchor="middle" font-size="10" class="mut">m/s top fly speed</text>';
-  s+='<text x="20" y="109" text-anchor="middle" font-size="10" class="mut">0</text><text x="160" y="109" text-anchor="middle" font-size="10" class="mut">12</text>';
+  /* two straight bars on one shared 0 to 12 m/s scale, so equal speeds are equal lengths */
+  var MAXV=12, X0=62, W=176;
+  var s='<svg viewBox="0 0 300 104" role="img" aria-label="Fly speed with and without the pole, on a scale from 0 to 12 meters per second">';
+  [0,4,8,12].forEach(function(t){ var x=X0+t/MAXV*W; s+='<line x1="'+x+'" y1="8" x2="'+x+'" y2="76" stroke-width="1" class="s-track"/><text x="'+x+'" y="90" font-size="10" text-anchor="middle" class="mut">'+t+'</text>'; });
+  s+='<text x="'+(X0+W+8)+'" y="90" font-size="10" class="mut">m/s</text>';
+  [['No pole',vNo,'blue',14],['With pole',vPole,'pink',46]].forEach(function(r){
+    s+='<text x="0" y="'+(r[3]+16)+'" font-size="12" class="mut">'+r[0]+'</text>';
+    if(r[1]){ var w=Math.min(1,r[1]/MAXV)*W; s+='<rect x="'+X0+'" y="'+r[3]+'" width="'+w.toFixed(1)+'" height="22" rx="5" class="f-'+r[2]+'"/><text x="'+(X0+w+6).toFixed(1)+'" y="'+(r[3]+16)+'" font-size="13" font-weight="800">'+r[1].toFixed(2)+'</text>'; }
+    else s+='<text x="'+(X0+6)+'" y="'+(r[3]+16)+'" font-size="12" class="mut">not tested</text>';
+  });
   return s+'</svg>';
 }
 function ring(pct){
@@ -399,7 +399,7 @@ function athleteCard(a){
 
   var viz='';
   if(f||fp){
-    viz+='<div class="vz"><div class="eyebrow">Fly speed</div>'+gauge(f?speedOf(f):0,fp?speedOf(fp):0)+'<div class="leg"><span><i class="f-blue"></i>No pole'+(f?' '+speedOf(f).toFixed(2):'')+'</span><span><i class="f-pink"></i>With pole'+(fp?' '+speedOf(fp).toFixed(2):'')+'</span></div></div>';
+    viz+='<div class="vz"><div class="eyebrow">Fly speed</div>'+gauge(f?speedOf(f):0,fp?speedOf(fp):0)+'<div class="leg"><span>Average speed through the 10 m zone, best run</span></div></div>';
   }
   if(f&&fp) viz+='<div class="vz"><div class="eyebrow">Pole carryover</div>'+ring(speedOf(fp)/speedOf(f)*100)+'<div class="leg"><span>Share of no-pole speed kept with the pole</span></div></div>';
   var series=[];
