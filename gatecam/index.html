@@ -164,6 +164,10 @@ input[type=range]{accent-color:var(--brand);width:100%;min-height:30px;margin:0}
 .pvsub b{font-weight:800}
 .up{color:var(--good)} .down{color:var(--danger)}
 .tiles.sm .tile{min-height:0;padding:14px}
+.evhow{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
+.evhow ol{margin:6px 0 0;padding-left:20px;display:grid;gap:6px;font-size:14.5px;line-height:1.4;color:var(--ink-2)}
+.evhow .field-h{margin:0}
+#evTiles .tile[data-ev="tj"]:last-child{grid-column:auto}
 .tiles.sm .tile b{font-size:22px}
 @media(max-width:420px){.tiles{grid-template-columns:1fr}}
 .gen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
@@ -207,6 +211,7 @@ select.dbtn{padding:0 10px}
 .scrubwrap{position:relative;flex:1;min-width:140px;display:flex;align-items:center}
 .trimband{position:absolute;top:50%;height:16px;transform:translateY(-50%);border-radius:5px;background:rgba(196,166,255,.28);border:1px solid rgba(196,166,255,.65);pointer-events:none}
 .trimband[hidden]{display:none}
+[hidden]{display:none!important}
 #scrub{flex:1;width:100%;position:relative;accent-color:#C4A6FF;background:transparent}
 .lbody{display:grid;grid-template-columns:minmax(0,1fr) 380px;min-height:0}
 .stage{position:relative;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--stage);touch-action:none}
@@ -569,11 +574,14 @@ details[open].more>summary::before,.chartdet[open]>summary::before{transform:rot
           <button class="tile" data-ev="fly"><svg viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 11h6M11 11h6"/><path d="M21 4v14M31 4v14"/><path d="M23 11h6" stroke-dasharray="2 3"/></svg><b>Fly</b><span>Rolling start. Times the fastest stretch between gates, like a flying 20 m.</span></button>
           <button class="tile" data-ev="sprint"><svg viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 4v14M31 4v14"/><path d="M6 11h22M24 7l4 4-4 4"/></svg><b>Sprint</b><span>Start gate to finish gate, with a split at every gate in between.</span></button>
           <button class="tile" data-ev="pv"><svg viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 17L27 5"/><path d="M27 19h5l-3-4z" fill="currentColor"/></svg><b>Pole vault</b><span>Speed at every gate into the box, ending with the end speed, by lefts.</span></button>
+          <button class="tile" data-ev="lj"><svg viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 18h18"/><path d="M20 15h4v6h-4z" fill="currentColor" stroke="none"/><path d="M22 12q5-10 10 2"/></svg><b>Long jump</b><span>Approach speed into the board, last steps, and whether the takeoff was on the board.</span></button>
+          <button class="tile" data-ev="tj"><svg viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 18h12"/><path d="M12 15h3v6h-3z" fill="currentColor" stroke="none"/><path d="M14 14q3-6 6 2q3-5 5 1q3-7 7 1"/></svg><b>Triple jump</b><span>Approach speed into the board, last steps, and board accuracy before the hop.</span></button>
         </div>
         <div class="field-h" id="poleSegH">Carrying a pole?</div>
         <div class="seg seg-brand fill" id="poleSeg"><button data-pole="0">Without pole</button><button data-pole="1">With pole</button></div>
         <p class="help" id="poleHelp">You can switch this between runs. Pole and no-pole runs are ranked separately, and each athlete's page compares them.</p>
         <p class="help" id="pvHelp" hidden>Vault approaches are always with the pole. Each athlete's approach speed is compared with their best sprint speed, so time a few flys too.</p>
+        <div id="evHow"></div>
       </section>
 
       <section class="card" data-step="2">
@@ -581,7 +589,7 @@ details[open].more>summary::before,.chartdet[open]>summary::before{transform:rot
         <div id="pvGates" class="stack" style="gap:8px" hidden>
           <div class="field-h">Units</div>
           <div class="seg fill" id="unitSeg"><button data-un="ft">Feet</button><button data-un="m">Meters</button></div>
-          <div class="field-h">Gates, from the box</div>
+          <div class="field-h" id="pvGatesH">Gates, from the box</div>
           <div class="chips" id="pvPresets"></div>
           <div class="calin">
             <label class="f">First gate<span class="unit" data-u="ft"><input id="pvFrom" type="number" inputmode="decimal" step="any" min="1"></span></label>
@@ -593,7 +601,7 @@ details[open].more>summary::before,.chartdet[open]>summary::before{transform:rot
           <div class="seg fill" id="stepsSeg"><button data-st="1">Measure steps</button><button data-st="0">Off</button></div>
           <details class="more"><summary>How gates, steps and the perspective work</summary>
           <p class="help">Steps: finds each foot plant on the runway: the last 4 step lengths, contact times, step rate and where the takeoff foot lands. Needs the perspective fix, and the camera has to see the last 4–5 steps and the takeoff, side on.</p>
-          <p class="help">Gates are spaced evenly from the first gate to the last. You get the athlete's speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the box. For the classic last 10 m → 5 m speed, pick the first preset. The perspective is set from the 15 ft and 9 ft takeoff marks painted on the runway, plus one cone at the farthest gate, so the box doesn't need to be in the picture. Saved results are in meters.</p></details>
+          <p class="help" id="pvHow">Gates are spaced evenly from the first gate to the last. You get the athlete's speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the box. For the classic last 10 m → 5 m speed, pick the first preset. The perspective is set from the 15 ft and 9 ft takeoff marks painted on the runway, plus one cone at the farthest gate, so the box doesn't need to be in the picture. Saved results are in meters.</p></details>
         </div>
         <div id="flyViewWrap" class="stack" style="gap:8px">
           <div class="field-h">What the camera sees</div>
@@ -918,6 +926,7 @@ function migrate(o){
   m.v=2;
   if(!['timer','results','athletes'].includes(m.tab)) m.tab='timer';
   m.mode = ['sprint','pv'].includes(m.mode) ? m.mode : 'fly';
+  if(!['pv','lj','tj'].includes(m.jump)) m.jump='pv';
   if(!m.themeV3){ if(!m.theme||m.theme==='system') m.theme='dark'; m.themeV3=true; } // new look is dark first; light is in Settings
   if(!Array.isArray(m.pvFt)) m.pvFt=[20,16,12];
   if(!m.pvRef) m.pvRef={far:12, near:0}; // takeoff marks used for the vault perspective fix, feet from the box
@@ -930,6 +939,7 @@ function migrate(o){
     m.lines=ft.map((f,i)=>({id:uid(), d:-f, x:0.06+0.88*(m.dir==='rtl'?1-i/(n-1||1):i/(n-1||1))})); m.cal=null;
   }
   m.pvFtLines=true;
+  if(!m.jcfg||typeof m.jcfg!=='object') m.jcfg={};
   if(!m.runups||typeof m.runups!=='object') m.runups={};
   if(!m.pvLast||typeof m.pvLast!=='object') m.pvLast={};
   if(!(m.pvL>=3&&m.pvL<=9)) m.pvL=6;
@@ -1056,8 +1066,8 @@ document.addEventListener('click',e=>{
 const demoBanner = () => hasDemo() ? `<div class="emptycard" style="padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;text-align:left"><span class="help" style="margin:0">You're looking at a sample session with made-up athletes.</span><button class="btn" data-demo="remove">Remove sample data</button></div>` : '';
 const runLen = r => r.gates.length>1 ? r1(r.gates[r.gates.length-1].d-r.gates[0].d) : 0;
 const evName = (mode,fly,len) => mode==='sprint' ? `${len} m sprint` : mode==='pv' ? 'Pole vault' : `Flying ${fly||'–'} m`;
-const runEv = r => r.mode==='pv' ? `Pole vault · ${r.lefts||'?'}L` : evName(r.mode, r.fly, runLen(r));
-const runKey = r => r.mode==='pv' ? `pv|${r.lefts||0}|1` : `${r.mode}|${r.mode==='sprint'?runLen(r):r.fly}|${r.pole?1:0}`;
+const runEv = r => r.mode==='pv' ? `${JUMPS[jOf(r)].name} · ${r.lefts||'?'}L` : evName(r.mode, r.fly, runLen(r));
+const runKey = r => r.mode==='pv' ? `${jOf(r)==='pv'?'pv':'pv:'+jOf(r)}|${r.lefts||0}|1` : `${r.mode}|${r.mode==='sprint'?runLen(r):r.fly}|${r.pole?1:0}`;
 function headline(r){
   if(r.mode==='pv'){ const p=pvStats(r), x=p.appr; return {t:x?x.dt:null, v:x?x.v:null, a:p.a, last:p.last, seg:x?segLab(x.a,x.b,true):'–', pv:true}; }
   const a=analyze(r.gates, r.mode==='sprint'?null:r.fly);
@@ -1074,6 +1084,28 @@ const PV_TICKS=[9,15]; // feet: guide ticks drawn on the runway while aligning
 const PV_PRESETS=[{k:'Last 10 m → 5 m (32\' 10" → 16\' 5")',ft:[32.8,16.4]},{k:'20 → 12 ft · 3 gates',ft:[20,16,12]},{k:'24 → 12 ft · 4 gates',ft:[24,20,16,12]},{k:'33 → 16 ft · 2 gates',ft:[33,16]}];
 const pvEven=(from,to,n)=>Array.from({length:n},(_,i)=>Math.round((from+(to-from)*i/(n-1))*100)/100);
 const isPv = () => S.mode==='pv';
+/* ---------- jumps: pole vault runs into the box, long and triple jump into the board.
+   All three time the approach the same way (the 'pv' timing mode); the event decides labels, defaults and how the takeoff is judged. */
+const JUMPS={pv:{name:'Pole vault',short:'Vault',ref:'box'}, lj:{name:'Long jump',short:'Long jump',ref:'board'}, tj:{name:'Triple jump',short:'Triple jump',ref:'board'}};
+const jKey = () => JUMPS[S.jump] ? S.jump : 'pv';
+const jOf = r => JUMPS[r&&r.jump] ? r.jump : 'pv';
+const isBoard = (j=jKey()) => j!=='pv';
+const refW = (j=jKey()) => JUMPS[j].ref;          // 'box' or 'board'
+const BOARD_W=0.20;                                // the takeoff board: 20 cm behind the foul line
+const BOARD_PRESETS=[{k:'11 → 6 → 1 m (last 10 m)',ft:[36.09,19.69,3.28]},{k:'Last 5 m: 6 → 1 m',ft:[19.69,3.28]},{k:'16 → 1 m · 4 gates',ft:[52.49,36.09,19.69,3.28]},{k:'35 → 5 ft · 3 gates',ft:[35,20,5]}];
+const jPresets = () => isBoard() ? BOARD_PRESETS : PV_PRESETS;
+const JUMP_DEF={pv:{pvFt:[32.8,16.4],pvCalFt:[15,9]}, lj:{pvFt:[36.09,19.69,3.28],pvCalFt:[36.09,0]}, tj:{pvFt:[36.09,19.69,3.28],pvCalFt:[36.09,0]}};
+// each jump keeps its own gates and perspective, so switching events and back loses nothing
+function stashJump(){ if(!S.jcfg) S.jcfg={}; S.jcfg[jKey()]={pvFt:S.pvFt.slice(), pvCalFt:S.pvCalFt?S.pvCalFt.slice():null, cal:S.cal&&S.cal.lw>3?S.cal:null}; }
+function loadJump(j){ const d=JUMP_DEF[j], c=(S.jcfg&&S.jcfg[j])||d; S.jump=j; S.pvFt=(c.pvFt||d.pvFt).slice(); S.pvCalFt=(c.pvCalFt||d.pvCalFt).slice(); S.cal=c.cal||null; hCache.key=''; }
+// brief camera setup for each event, shown on the Event step
+const EV_HOW={
+  fly:['Put a cone beside the lane at every gate, measured from the start line (for a flying 20 m: 30 m and 50 m, with a 30 m run-in).','Tripod side-on, 10–20 m back from the lane and level with the middle of the fly zone, at hip height.','Frame from the first cone to the last, in landscape. Use 60 fps or more; slow-mo is better.','On the Timer, fix the perspective on the first and last cone.'],
+  sprint:['Put a cone at the start line and at each split, for example 0, 10, 20 and 30 m.','Tripod side-on, 15–25 m back from the lane, level with the middle of the sprint, so every cone is in the picture.','Landscape, 60 fps or more. Start the recording before the athlete sets.','On the Timer, fix the perspective on the first and last cone.'],
+  pv:['Put a cone beside the runway at your farthest gate, for example 32\' 10" (10 m) from the box.','Tripod side-on, 10–15 m from the runway, level with the 15 ft takeoff mark, framing from the farthest cone to past the takeoff.','Landscape, 120 fps or slow-mo if you want the last steps and takeoff.','On the Timer, fix the perspective on the 15 ft and 9 ft marks, then add the cone as a third point.'],
+  lj:['With a tape, put cones beside the runway at 11 m, 6 m and 1 m from the foul line (the pit edge of the takeoff board).','Tripod side-on, 10–15 m from the runway, level with the 6 m cone, framing from the 11 m cone to just past the board.','Landscape, 120 fps or slow-mo if you want the last steps and board accuracy.','On the Timer, fix the perspective on the 11 m cone and the foul line. The board edge runs across the runway, so it is easy to tap.'],
+  tj:['Measure from the foul line of the board the athlete is using (the 9, 11 or 13 m board). Put cones beside the runway at 11 m, 6 m and 1 m from it.','Tripod side-on, 10–15 m from the runway, level with the 6 m cone, framing from the 11 m cone to just past the board. The hop, step and jump don\'t need to be in the picture.','Landscape, 120 fps or slow-mo if you want the last steps and board accuracy.','On the Timer, fix the perspective on the 11 m cone and the foul line of that board.']};
+const evHowHTML = ev => `<div class="evhow"><div class="field-h">How to set up · ${ev==='fly'?'Fly':ev==='sprint'?'Sprint':JUMPS[ev].name}</div><ol>${EV_HOW[ev].map(t=>`<li>${t}</li>`).join('')}</ol></div>`;
 // vault distances live in feet inside the app; the Feet / Meters switch only changes how they're shown and typed
 const pvM = () => S.pvUnit==='m';
 const uLen = ft => pvM() ? `${(ft*FT).toFixed(2)} m` : `${r1(ft)} ft`;          // a distance from the box, shown
@@ -1124,9 +1156,9 @@ const errNote = e => `${e.assumed?'assuming ':''}${e.fps} fps${e.dd<=0.06?' · p
    Setup page
    ========================================================= */
 function setupLen(){ const ds=S.lines.map(l=>+l.d); return r1(Math.max(...ds)-Math.min(...ds)); }
-const autoTest = () => S.mode==='sprint' ? `${setupLen()} m sprint` : S.mode==='pv' ? 'Pole vault approach' : `Flying ${S.fly} m`;
+const autoTest = () => S.mode==='sprint' ? `${setupLen()} m sprint` : S.mode==='pv' ? `${JUMPS[jKey()].name} approach` : `Flying ${S.fly} m`;
 function autoName(){
-  if(!S.test || /^(Flying \d+(\.\d+)? m|\d+(\.\d+)? m sprint|Pole vault approach)$/.test(S.test)){ S.test=autoTest(); setVal('test',S.test); }
+  if(!S.test || /^(Flying \d+(\.\d+)? m|\d+(\.\d+)? m sprint|(Pole vault|Long jump|Triple jump) approach)$/.test(S.test)){ S.test=autoTest(); setVal('test',S.test); }
 }
 const isZone = () => S.mode==='fly' && S.flyView==='zone';
 const zoneGen = () => ({from:+S.runup||0, to:r1((+S.runup||0)+(+S.fly||20)), every:+S.flyEvery>0?+S.flyEvery:(+S.fly||20)});
@@ -1145,15 +1177,19 @@ function flyPairExists(){ const ds=S.lines.map(l=>+l.d); for(const a of ds) for(
 
 function renderSetup(){
   renderHdr();
-  pressed('#evTiles [data-ev]', b=>b.dataset.ev===S.mode);
+  pressed('#evTiles [data-ev]', b=>b.dataset.ev===(S.mode==='pv'?jKey():S.mode));
+  $('evHow').innerHTML=evHowHTML(S.mode==='pv'?jKey():S.mode);
   pressed('#poleSeg [data-pole]', b=>(b.dataset.pole==='1')===!!S.pole);
   const zone=isZone();
   const pv=isPv();
   $('flyViewWrap').hidden=S.mode!=='fly';
   $('pvGates').hidden=!pv; $('presets').hidden=pv;
   ['poleSegH','poleSeg','poleHelp'].forEach(id=>$(id).hidden=pv); $('pvHelp').hidden=!pv;
+  if(pv){ $('pvHelp').textContent= isBoard() ? `${JUMPS[jKey()].name} approaches are timed into the board, and the takeoff is judged on the board: on it, a foul, or how far behind. Each athlete's approach is compared with their best sprint speed, so time a few flys too.` : 'Vault approaches are always with the pole. Each athlete\'s approach speed is compared with their best sprint speed, so time a few flys too.';
+    $('pvGatesH').textContent=`Gates, from the ${refW()}`;
+    $('pvHow').innerHTML= isBoard() ? 'Gates are spaced evenly from the first gate to the last, in distance from the foul line. You get the speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the board. The standard read is 11 → 6 → 1 m: the last 10 m in two 5 m splits. The perspective is set on a cone at your farthest gate and the foul line, so measure the cones from the foul line with a tape. Saved results are in meters.' : 'Gates are spaced evenly from the first gate to the last. You get the athlete\'s speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the box. For the classic last 10 m → 5 m speed, pick the first preset. The perspective is set from the 15 ft and 9 ft takeoff marks painted on the runway, plus one cone at the farthest gate, so the box doesn\'t need to be in the picture. Saved results are in meters.'; }
   if(pv){
-    $('pvPresets').innerHTML=PV_PRESETS.map((p,i)=>`<button class="chip" data-pvp="${i}" aria-pressed="${JSON.stringify(p.ft)===JSON.stringify(S.pvFt)}">${p.k}</button>`).join('');
+    $('pvPresets').innerHTML=jPresets().map((p,i)=>`<button class="chip" data-pvp="${i}" aria-pressed="${JSON.stringify(p.ft)===JSON.stringify(S.pvFt)}">${p.k}</button>`).join('');
     pressed('#stepsSeg [data-st]', b=>(b.dataset.st==='1')===(S.stepsOn!==false));
     const ft=[...S.pvFt].sort((a,b)=>b-a);
     pressed('#unitSeg [data-un]', b=>b.dataset.un===uTag());
@@ -1161,7 +1197,7 @@ function renderSetup(){
     setVal('pvFrom',uNum(ft[0])); setVal('pvTo',uNum(ft[ft.length-1])); setVal('pvN',String(ft.length));
     $('pvFtHint').textContent= pvM() ? 'Gates at '+ft.map(f=>(f*FT).toFixed(2)).join(' · ')+' m  ('+ft.map(f=>fmtFt(f)).join(' · ')+')' : 'Gates at '+ft.map(f=>`${f} ft`).join(' · ')+`  (${ft.map(f=>(f*FT).toFixed(2)).join(' · ')} m)`;
     $('ruHead').textContent= pvM() ? 'Run-ups by lefts, in meters' : 'Run-ups by lefts, in feet';
-    $('ruHelp').textContent= pvM() ? 'Each athlete\'s run-up from the box in meters, for every lefts count they use. Leave the ones they don\'t use blank.' : 'Each athlete\'s run-up from the box in feet, for every lefts count they use. Type 79.5, 79\'6 or 79 6. Leave the ones they don\'t use blank.';
+    $('ruHelp').textContent= pvM() ? `Each athlete's run-up from the ${refW()} in meters, for every lefts count they use. Leave the ones they don't use blank.` : `Each athlete's run-up from the ${refW()} in feet, for every lefts count they use. Type 79.5, 79'6 or 79 6. Leave the ones they don't use blank.`;
     renderRunups();
   }
   pressed('#flyView [data-fv]', b=>b.dataset.fv===S.flyView);
@@ -1236,9 +1272,9 @@ function pvStripSVG(){
   const ra=Math.min(mir(L-34),mir(L+rw));
   s+=`<rect x="${ra}" y="${y0-12}" width="${rw+34}" height="${y1-y0+24}" fill="#000" opacity=".32"/>`;
   s+=`<text x="${mir(L+rw/2)}" y="${(y0+y1)/2+1}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Run-up</text><text x="${mir(L+rw/2)}" y="${(y0+y1)/2+16}" text-anchor="middle" font-size="10.5" fill="#fff" opacity=".8">set per athlete, by lefts</text>`;
-  // box
+  // box, or the takeoff board
   const bx=X(0), bw=rtl?-22:22;
-  s+=`<path d="M${bx} ${y0+6}L${bx+bw} ${(y0+y1)/2}L${bx} ${y1-6}Z" fill="#1B1F27" stroke="#fff" stroke-width="1.5"/>`;
+  s+= isBoard() ? `<rect x="${Math.min(bx,bx-bw/2)}" y="${y0}" width="11" height="${y1-y0}" fill="#fff" stroke="#1B1F27" stroke-width="1"/>` : `<path d="M${bx} ${y0+6}L${bx+bw} ${(y0+y1)/2}L${bx} ${y1-6}Z" fill="#1B1F27" stroke="#fff" stroke-width="1.5"/>`;
   const A=ds[ds.length-2], B=ds[ds.length-1];
   if(ds.length>1){
     const c0=Math.min(X(A),X(B)), c1=Math.max(X(A),X(B));
@@ -1247,10 +1283,10 @@ function pvStripSVG(){
   ds.forEach(d=>{ const x=X(d);
     s+=`<line x1="${x}" x2="${x}" y1="${y0}" y2="${y1}" stroke="var(--gate)" stroke-width="3.5"/><path d="M${x-6} ${y1+10}L${x} ${y1-1}L${x+6} ${y1+10}Z" fill="#FF8A1F" stroke="#fff" stroke-width="1"/>`;
     s+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${uLen(-d)}</text>`; });
-  s+=`<text x="${X(0)}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">Box</text>`;
+  s+=`<text x="${X(0)}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${isBoard()?'Board':'Box'}</text>`;
   const ay=(y0+y1)/2;
   s+= rtl ? `<path d="M${W-6} ${ay}h-18m6 -6l-6 6 6 6" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>` : `<path d="M6 ${ay}h18m-6 -6l6 6-6 6" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
-  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Vault gates: ${ds.map(d=>r1(-d)+' feet').join(', ')} from the box">${s}</svg>`;
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${JUMPS[jKey()].name} gates: ${ds.map(d=>r1(-d)+' feet').join(', ')} from the ${refW()}">${s}</svg>`;
 }
 function applyGen(){
   if(isPv()){ renderSetup(); return; }
@@ -1264,8 +1300,10 @@ function applyGen(){
   resetDetection(); autoName(); save(); renderSetup();
 }
 $('evTiles').onclick=e=>{
-  const b=e.target.closest('[data-ev]'); if(!b||b.dataset.ev===S.mode) return; S.mode=b.dataset.ev;
-  if(isPv()){ applyPv(); return; }
+  const b=e.target.closest('[data-ev]'); if(!b) return; const ev=b.dataset.ev, cur=S.mode==='pv'?jKey():S.mode; if(ev===cur) return;
+  if(S.mode==='pv') stashJump();
+  if(JUMPS[ev]){ S.mode='pv'; loadJump(ev); applyPv(); return; }
+  S.mode=ev;
   if(S.cal && S.cal.lw>3){ S.cal=null; hCache.key=''; } // a vault perspective fix is in feet
   if(isZone()) S.gen=zoneGen();
   else if(S.mode==='sprint' && +S.gen.from!==0) S.gen={from:0,to:40,every:10};
@@ -1279,7 +1317,7 @@ function applyPv(){
   if(!(S.cal && S.cal.lw>3)) S.cal=null; hCache.key=''; // the vault perspective sits on the takeoff marks, so it survives gate changes
   resetDetection(); autoName(); save(); renderSetup();
 }
-$('pvPresets').onclick=e=>{ const b=e.target.closest('[data-pvp]'); if(!b) return; S.pvFt=PV_PRESETS[+b.dataset.pvp].ft.slice(); applyPv(); };
+$('pvPresets').onclick=e=>{ const b=e.target.closest('[data-pvp]'); if(!b) return; S.pvFt=jPresets()[+b.dataset.pvp].ft.slice(); applyPv(); };
 function pvFromInputs(){
   const a=uIn(Math.abs(parseFloat($('pvFrom').value))), b=uIn(Math.abs(parseFloat($('pvTo').value))), n=+$('pvN').value||2;
   if(!isFinite(a)||!isFinite(b)||Math.abs(a-b)<0.5) return;
@@ -1609,12 +1647,17 @@ function draw(){
     for(const y of [S.band.top/100*H,S.band.bot/100*H]){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
     ctx.setLineDash([]);
   }else if(cal){
-    const h=getH(), a=asp(), c=S.cal, ds=S.lines.map(l=>+l.d).concat([c.a,c.b], isPv()&&editing?[-PV_TICKS[1],-PV_TICKS[0]]:[]), lo=Math.min(...ds), hi=Math.max(...ds);
+    const h=getH(), a=asp(), c=S.cal, ds=S.lines.map(l=>+l.d).concat([c.a,c.b], isPv()&&editing?(isBoard()?[-BOARD_W/FT-0.5,0.5]:[-PV_TICKS[1],-PV_TICKS[0]]):[]), lo=Math.min(...ds), hi=Math.max(...ds);
     const P=(X,Y)=>{ const q=applyH(h,X,Y); return [q[0]*W,q[1]/a*H]; };
     ctx.strokeStyle='rgba(196,166,255,.5)'; ctx.lineWidth=1.5; ctx.setLineDash([8,6]);
     for(const Y of [0,c.lw]){ ctx.beginPath(); for(let i=0;i<=40;i++){ const q=P(lo+(hi-lo)*i/40,Y); i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]); } ctx.stroke(); }
     ctx.setLineDash([]);
-    if(isPv() && editing){ // a small tick every foot from 9 to 15 ft, to check against the takeoff marks
+    if(isPv() && isBoard() && editing){ // the takeoff board, to check against the real one
+      const q=[P(-BOARD_W/FT,-0.3),P(0,-0.3),P(0,c.lw+0.3),P(-BOARD_W/FT,c.lw+0.3)];
+      ctx.save(); ctx.fillStyle='rgba(255,255,255,.28)'; ctx.strokeStyle='#FFE08A'; ctx.lineWidth=2.5; ctx.beginPath(); q.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p)); ctx.closePath(); ctx.fill(); ctx.stroke();
+      const tf=Math.max(11,Math.round(fs*.72)), t=P(-BOARD_W/FT/2,c.lw+1.6); ctx.font=`700 ${tf}px "Figtree",system-ui,sans-serif`; ctx.textAlign='center'; ctx.lineWidth=3; ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.strokeText('Board',t[0],t[1]); ctx.fillStyle='#FFE08A'; ctx.fillText('Board',t[0],t[1]); ctx.restore();
+    }
+    if(isPv() && !isBoard() && editing){ // a small tick every foot from 9 to 15 ft, to check against the takeoff marks
       const tf=Math.max(11,Math.round(fs*.72)); ctx.save(); ctx.font=`700 ${tf}px "Figtree",system-ui,sans-serif`; ctx.textAlign='center';
       for(let f=PV_TICKS[0]; f<=PV_TICKS[1]; f++){
         const big=f%5===0||f===12;
@@ -1747,10 +1790,11 @@ cv.addEventListener('pointerup',endDrag); cv.addEventListener('pointercancel',en
 /* ---------- Align rail: perspective ---------- */
 const CAL_STEPS_RUN=['Near lane line at your first cone','Far lane line at your first cone','Near lane line at your last cone','Far lane line at your last cone'];
 const CAL_STEPS_PV=['Near lane line at the far mark (15 ft)','Far lane line at the far mark (15 ft)','Near lane line at the near mark (9 ft)','Far lane line at the near mark (9 ft)'];
-const calSteps=()=>isPv()?CAL_STEPS_PV:CAL_STEPS_RUN;
+const CAL_STEPS_BOARD=['Near runway edge at the far cone','Far runway edge at the far cone','Near runway edge at the foul line','Far runway edge at the foul line'];
+const calSteps=()=>!isPv()?CAL_STEPS_RUN:isBoard()?CAL_STEPS_BOARD:CAL_STEPS_PV;
 // perspective is marked at the first and last cone (vault: farthest and nearest cone, in feet; the box never has to be seen)
 // vault: the runway's foot marks (15 ft and 9 ft) are on every runway; elsewhere the first and last cone
-function calDefaults(){ if(isPv()) return {a:-(S.pvCalFt?.[0]??15), b:-(S.pvCalFt?.[1]??9), lw:4}; const d=S.lines.map(l=>+l.d); return {a:Math.min(...d), b:Math.max(...d), lw:1.22}; }
+function calDefaults(){ if(isPv()){ const d=JUMP_DEF[jKey()].pvCalFt; return {a:-(S.pvCalFt?.[0]??d[0]), b:-(S.pvCalFt?.[1]??d[1]), lw:4}; } const d=S.lines.map(l=>+l.d); return {a:Math.min(...d), b:Math.max(...d), lw:1.22}; }
 function renderCal(){
   const box=$('calBox'); let h='';
   if(calMode && calMode.mid){
@@ -1762,22 +1806,22 @@ function renderCal(){
   }else if(calMode){
     const c=calMode, n=c.pts.length;
     h=`<div class="calin">
-        <label class="f">${isPv()?'Far mark':'First cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calA" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.a):c.a}"></span></label>
-        <label class="f">${isPv()?'Near mark':'Last cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calB" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.b):c.b}"></span></label>
+        <label class="f">${isPv()?(isBoard()?'Far cone':'Far mark'):'First cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calA" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.a):c.a}"></span></label>
+        <label class="f">${isPv()?(isBoard()?'Foul line (0) or near cone':'Near mark'):'Last cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calB" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.b):c.b}"></span></label>
         <label class="f">Lane width<span class="unit" data-u="${isPv()?uTag():'m'}"><input id="calW" type="number" inputmode="decimal" step="0.01" value="${isPv()?uNum(c.lw):c.lw}"></span></label>
       </div>
-      ${isPv()?'<p class="help">Use the takeoff marks painted on the runway: tap where the 15 ft mark meets each lane line, then the 9 ft mark. Use other marks or cones if you like; just change the numbers. The box never has to be in the picture.</p>':''}
+      ${isPv()&&isBoard()?'<p class="help">Tap where the far cone lines up with each edge of the runway, then where the foul line (the pit edge of the board) meets each edge. Measure the far cone from the foul line with a tape. A near cone works too: type its distance instead of 0.</p>':''}${isPv()&&!isBoard()?'<p class="help">Use the takeoff marks painted on the runway: tap where the 15 ft mark meets each lane line, then the 9 ft mark. Use other marks or cones if you like; just change the numbers. The box never has to be in the picture.</p>':''}
       <ol class="calsteps">${calSteps().map((t,i)=>`<li class="${i<n?'ok':i===n?'now':''}">${t}</li>`).join('')}</ol>
       <p class="help">Pause on a clear frame. Press and hold on the picture, slide until the crosshair in the magnifier sits on the spot, then lift.</p>
       <div class="row"><button class="btn" id="calUndo" ${n?'':'disabled'}>Undo point</button><button class="btn" id="calCancel">Cancel</button></div>`;
   }else if(calOn()){
     h=`<div class="okline">Perspective fixed</div>
-      <p class="help">${isPv()?`${uLen(-S.cal.a)} to ${uLen(-S.cal.b)} from the box`:`${S.cal.a}–${S.cal.b} m`} marked, lane ${isPv()?uLen(S.cal.lw):S.cal.lw+' m'} wide. Gates are placed from their distances. Press and hold a white corner dot to fine-tune it.${isPv()?' The small ticks mark every foot from 9 to 15 ft; when they sit on the runway marks, the gates are in the right place.':''}</p>
+      <p class="help">${isPv()?`${uLen(-S.cal.a)} to ${uLen(-S.cal.b)} from the ${isBoard()?'foul line':'box'}`:`${S.cal.a}–${S.cal.b} m`} marked, lane ${isPv()?uLen(S.cal.lw):S.cal.lw+' m'} wide. Gates are placed from their distances. Press and hold a white corner dot to fine-tune it.${isPv()&&isBoard()?' The white band is the takeoff board; when it sits on the real board, the gates are in the right place.':''}${isPv()&&!isBoard()?' The small ticks mark every foot from 9 to 15 ft; when they sit on the runway marks, the gates are in the right place.':''}</p>
       <div class="row"><button class="btn" id="calRedo">Redo</button><button class="btn btn-danger" id="calOff">${isArmed('calOff')?'Tap again to remove':'Remove'}</button></div>
       ${midOk(S.cal)?`<p class="help"><b>Third cone at ${isPv()?uLen(-S.cal.mid.d):S.cal.mid.d+' m'}</b> is bending the perspective to fit.</p><div class="row"><button class="btn" id="calMidOff">Remove third cone</button></div>`
         :`<p class="help">${isPv()&&Math.min(...S.lines.map(l=>+l.d))<S.cal.a-3?`Your farthest gate (${uLen(-Math.min(...S.lines.map(l=>+l.d)))}) is well past the marks. Put a cone there and add it as a third cone so it lands exactly.`:'Gates look off? Mark a third cone and the perspective bends to fit it.'}</p><div class="row"><button class="btn" id="calMid">Add a third cone</button></div>`}`;
   }else{
-    h=`<p class="help">${isPv()?'Tap the two lane lines at the 15 ft and 9 ft takeoff marks on the runway. For accurate gates far up the runway (like 10 m out), add a third cone at your farthest gate afterwards.':'Mark the two lane lines at your first and last cone so every gate lands at its true distance.'}</p>
+    h=`<p class="help">${isPv()&&isBoard()?'Tap the two runway edges at your far cone, then at the foul line. Add a third cone (like the 6 m one) afterwards for the best accuracy.':isPv()?'Tap the two lane lines at the 15 ft and 9 ft takeoff marks on the runway. For accurate gates far up the runway (like 10 m out), add a third cone at your farthest gate afterwards.':'Mark the two lane lines at your first and last cone so every gate lands at its true distance.'}</p>
       <button class="btn btn-primary" id="calStart">Fix perspective</button>`;
   }
   box.innerHTML=h;
@@ -1825,7 +1869,7 @@ function calTap(fx,fy){
   }
   if(calMode.pts.length===4){
     const c=calMode;
-    if(!(c.b>c.a)){ toast(isPv()?'The farthest cone has to be farther from the box than the nearest cone':'The last cone has to be farther than the first cone'); c.pts.pop(); renderCal(); renderStageMsg(); return; }
+    if(!(c.b>c.a)){ toast(isPv()?`The far cone has to be farther from the ${refW()} than the near one`:'The last cone has to be farther than the first cone'); c.pts.pop(); renderCal(); renderStageMsg(); return; }
     // the first pair (first cone / far takeoff mark) must be on the side the athlete runs in from,
     // so gates always land on the run-up side even if the marks were tapped in the other order
     const ax=(c.pts[0].x+c.pts[1].x)/2, bx=(c.pts[2].x+c.pts[3].x)/2, fromLeft=S.dir!=='rtl';
@@ -1846,7 +1890,7 @@ function renderLines(){
       <span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input class="inp" type="number" inputmode="decimal" step="any" data-d="${l.id}" id="d-${l.id}" value="${isPv()?uNum(-l.d):l.d}" aria-label="Gate ${i+1} distance"></span>
       <button class="x ${isArmed('del'+l.id)?'arm':''}" data-del="${l.id}" aria-label="Remove gate ${i+1}">${isArmed('del'+l.id)?'Remove?':'×'}</button></div>`).join('');
   $('gateCount').textContent=plural(S.lines.length,'gate');
-  $('linesHint').textContent= isPv() ? (calOn()?`Distances are ${pvM()?'meters':'feet'} from the box. Gates sit where the perspective puts them.`:`Distances are ${pvM()?'meters':'feet'} from the box. Drag each line onto its cone, on the takeoff marks.`) : calOn() ? 'Gates sit where the perspective puts them. Change a distance to move one.' : 'Drag each line onto its cone in the picture. Drag its top or bottom dot to tilt it.';
+  $('linesHint').textContent= isPv() ? (calOn()?`Distances are ${pvM()?'meters':'feet'} from the ${refW()}. Gates sit where the perspective puts them.`:`Distances are ${pvM()?'meters':'feet'} from the ${refW()}. Drag each line onto its cone, on the takeoff marks.`) : calOn() ? 'Gates sit where the perspective puts them. Change a distance to move one.' : 'Drag each line onto its cone in the picture. Drag its top or bottom dot to tilt it.';
   $('btnSpread').hidden=calOn();
   pressed('#dirSeg2 [data-dir]', b=>b.dataset.dir===S.dir);
   $('unitSeg2').hidden=!isPv(); pressed('#unitSeg2 [data-un]', b=>b.dataset.un===uTag());
@@ -2222,9 +2266,9 @@ function saveRun(){
   if(!S.athlete){ toast('Pick who ran first'); return; }
   if(!S.roster.includes(S.athlete)) S.roster.push(S.athlete);
   const pv=isPv();
-  const run={id:uid(), sid:S.sid, athlete:S.athlete, test:pv?`Pole vault · ${S.pvL}L`:(S.test||autoTest()), location:S.location||'', mode:S.mode, fly:S.mode==='fly'?S.fly:null, pole:pv?true:!!S.pole,
+  const run={id:uid(), sid:S.sid, athlete:S.athlete, test:pv?`${JUMPS[jKey()].name} · ${S.pvL}L`:(S.test||autoTest()), location:S.location||'', mode:S.mode, fly:S.mode==='fly'?S.fly:null, pole:pv?jKey()==='pv':!!S.pole, jump:pv?jKey():undefined,
     date:sessionDateISO(), gates:gates.map(g=>({d:g.d,t:+g.t.toFixed(3)})), dt:frameIntervalNow(), dd:calOn()?0.05:0.15};
-  if(pv){ const sv=stepsForSave(); if(sv) run.steps=sv; const tf=toTargetFt(S.athlete); if(tf!=null) run.toTarget=m2(tf*FT); }
+  if(pv){ const sv=stepsForSave(); if(sv) run.steps=sv; const tf=toTargetFt(S.athlete); if(tf!=null&&!isBoard()) run.toTarget=m2(tf*FT); }
   if(pv){ const ft=runupOf(S.athlete,S.pvL); run.gates=ftGatesToM(run.gates); run.lefts=S.pvL; run.runupFt=ft; run.runup=ft?m2(ft*FT):null; run.marksFt=S.pvFt.slice(); S.pvLast[S.athlete]=S.pvL; }
   S.runs.unshift(run);
   justSaved={id:run.id, name:run.athlete, txt:resText(run)};
@@ -2264,9 +2308,9 @@ function stepsCardHTML(){
   if(stp && stp.rec) return '<div class="pvsub stepwait">Measuring the last steps…</div>';
   const M=stepMetrics(stepRes,FT);
   if(!M){ const fps=stepRes&&stepRes.fps;
-    return `<div class="pvsub">No foot plants found. Check that:</div><ul class="tips"><li>the perspective cones bracket the last steps and the takeoff, for example ${isPv()?'32 ft and 8 ft':'the first and last cone'}. Gates outside the cones are guessed.</li><li>the feet stay in the picture the whole way to the takeoff.</li>${fps&&fps<50?`<li>the video is at least 60 fps. This one is ${fps} fps, so a foot is down for only 3 frames. Slo-mo works best.</li>`:''}</ul>`; }
-  const tg=S.athlete&&toTargetFt(S.athlete)!=null?toTargetFt(S.athlete)*FT:null;
-  return `<div class="stepbox"><div class="stephead">Last ${plural(M.steps.length,'step')}</div>${stepsTableHTML(M,true,tg,stepRes.c.map(c=>-c.x*(stepRes.units==='ft'?FT:1)))}${S.athlete&&tg==null?`<div class="pvsub muted">Set ${esc(S.athlete.split(' ')[0])}'s takeoff target on the Timer page to see under or out.</div>`:''}</div>`;
+    return `<div class="pvsub">No foot plants found. Check that:</div><ul class="tips"><li>the perspective cones bracket the last steps and the takeoff, for example ${isPv()?(isBoard()?'11 m and the foul line':'32 ft and 8 ft'):'the first and last cone'}. Gates outside the cones are guessed.</li><li>the feet stay in the picture the whole way to the takeoff.</li>${fps&&fps<50?`<li>the video is at least 60 fps. This one is ${fps} fps, so a foot is down for only 3 frames. Slo-mo works best.</li>`:''}</ul>`; }
+  const bd=isBoard(), tg=bd?BOARD_W/2:S.athlete&&toTargetFt(S.athlete)!=null?toTargetFt(S.athlete)*FT:null;
+  return `<div class="stepbox"><div class="stephead">Last ${plural(M.steps.length,'step')}</div>${stepsTableHTML(M,true,tg,stepRes.c.map(c=>-c.x*(stepRes.units==='ft'?FT:1)),bd)}${S.athlete&&tg==null?`<div class="pvsub muted">Set ${esc(S.athlete.split(' ')[0])}'s takeoff target on the Timer page to see under or out.</div>`:''}</div>`;
 }
 function miniSplitsFt(g){
   if(g.length<2) return '';
@@ -2454,7 +2498,7 @@ function stepStart(){
     if(inside){ if(Xlo==null) Xlo=X; Xhi=X; }
   }
   // the takeoff is never right at the box; the pole tip and the box itself stay still there and look like a foot
-  if(isPv() && Xhi!=null){ Xhi=Math.min(Xhi,-4); Xlo=Math.max(Xlo,Math.min(-45,S.cal.a-10)); }  // the last 4-5 steps: about 45 ft to the takeoff
+  if(isPv() && Xhi!=null){ Xhi=Math.min(Xhi,isBoard()?1:-4); Xlo=Math.max(Xlo,Math.min(-45,S.cal.a-10)); }  // the last 4-5 steps: about 45 ft to the takeoff
   else if(Xlo!=null) Xlo=Math.max(Xlo,Math.min(...ds,S.cal.a)-15*upm);
   if(Xlo==null || Xhi-Xlo<2*upm) return;
   // the lane in the picture, as a box to copy each frame
@@ -2625,15 +2669,15 @@ function runSteps(r){
   return {steps, toe:-last.d, toCt:last.ct, n:c.length, fps:r.steps.fps};
 }
 var STEP_NAMES=['Last step','Penultimate','3rd last','4th last'];
-function fmtFtIn(m){ return pvM() ? `${f2(m)} m` : fmtFt(Math.round(m/FT*12)/12); }   // steps and takeoff, in the chosen unit
+function fmtFtIn(m){ if(m<0) return '−'+fmtFtIn(-m); return pvM() ? `${f2(m)} m` : fmtFt(Math.round(m/FT*12)/12); }   // steps and takeoff, in the chosen unit
 // a small table of the last steps; ft = show lengths in feet (live), otherwise meters
 // steps are always shown in feet and inches: that is how vault marks are read on the runway
-function stepsTableHTML(M,ft,targetM,plants){
+function stepsTableHTML(M,ft,targetM,plants,board){
   if(!M) return '';
   const rows=M.steps.slice().reverse().map((s,i)=>`<tr class="${i<2?'key':''}"><td>${STEP_NAMES[i]}</td><td class="r"><b>${fmtFtIn(s.len)}</b></td><td class="r">${fmtFtIn(s.at)}</td><td class="r">${s.ct!=null?Math.round(s.ct*1000):'–'}</td><td class="r">${s.rate?f1(s.rate):'–'}</td></tr>`).join('');
   return `<div class="tbl-x"><table class="steptab num"><thead><tr><th>Step</th><th class="r">Length</th><th class="r">Lands at</th><th class="r">Contact ms</th><th class="r">Steps/s</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <div class="pvsub num">Takeoff foot <b>${fmtFtIn(M.toe)}</b> from the box ${toBadge(toJudge(M.toe,targetM),true)}${targetM!=null?` <span class="muted">target ${fmtFtIn(targetM)}</span>`:''}${M.toCt!=null?` · contact ${Math.round(M.toCt*1000)} ms`:''}</div>
-    ${plants&&plants.length?`<details class="fixsteps"><summary>Fix steps by hand</summary><p class="help">Every foot plant found, from the box. Remove any that aren't a real step; the steps are worked out again.</p><div class="plants">${plants.map((p,i)=>`<span class="plant num">${i===plants.length-1?'TO ':''}${fmtFtIn(p)}<button class="x" data-rmstep="${i}" aria-label="Remove the plant at ${fmtFtIn(p)}">×</button></span>`).join('')}</div></details>`:''}`;
+    <div class="pvsub num">Takeoff foot <b>${fmtFtIn(M.toe)}</b> from the ${board?'foul line':'box'} ${toBadge(toJudge(M.toe,targetM,board),true)}${targetM!=null&&!board?` <span class="muted">target ${fmtFtIn(targetM)}</span>`:''}${M.toCt!=null?` · contact ${Math.round(M.toCt*1000)} ms`:''}</div>
+    ${plants&&plants.length?`<details class="fixsteps"><summary>Fix steps by hand</summary><p class="help">Every foot plant found, from the ${board?'foul line':'box'}. Remove any that aren't a real step; the steps are worked out again.</p><div class="plants">${plants.map((p,i)=>`<span class="plant num">${i===plants.length-1?'TO ':''}${fmtFtIn(p)}<button class="x" data-rmstep="${i}" aria-label="Remove the plant at ${fmtFtIn(p)}">×</button></span>`).join('')}</div></details>`:''}`;
 }
 // draw the foot plants on the video once a jump is done
 function drawSteps(W,H){
@@ -2658,14 +2702,19 @@ function setToTarget(name,ft){ if(!S.toTarget) S.toTarget={}; if(ft>0) S.toTarge
 document.addEventListener('input',e=>{ const n=e.target.dataset&&e.target.dataset.to; if(n==null) return; setToTarget(n,parseLen(e.target.value)); });
 document.addEventListener('change',e=>{ const n=e.target.dataset&&e.target.dataset.to; if(n==null) return; e.target.value=fmtRun(toTargetFt(n)); });
 // under = took off too close to the box, out = too far from it
-function toJudge(toeM,targetM){
+// long and triple jump: the target is the middle of the board, so on = on the board, under = a foul, out = behind the board
+function toJudge(toeM,targetM,board){
+  if(board) targetM=BOARD_W/2;
   if(toeM==null||targetM==null) return null;
-  const d=toeM-targetM; return {d, k: Math.abs(d)<=TO_TOL?'on':d<0?'under':'out'};
+  const d=toeM-targetM; return {d, board:!!board, toe:toeM, k: Math.abs(d)<=TO_TOL?'on':d<0?'under':'out'};
 }
-const toTargetM = r => r && (r.toTarget!=null ? r.toTarget : (toTargetFt(r.athlete)!=null ? toTargetFt(r.athlete)*FT : null));
+const toTargetM = r => r && (r.mode==='pv'&&jOf(r)!=='pv' ? BOARD_W/2 : r.toTarget!=null ? r.toTarget : (toTargetFt(r.athlete)!=null ? toTargetFt(r.athlete)*FT : null));
 function toBadge(J,ft,compact){
   if(!J) return '';
   const amt= !pvM() ? `${Math.round(Math.abs(J.d)/FT*12)}"` : `${Math.round(Math.abs(J.d)*100)} cm`;
+  if(J.board){ const cm=x=>pvM()?`${Math.round(x*100)} cm`:x>=FT?fmtFtIn(x):`${Math.round(x/FT*12)}"`;
+    const t= J.k==='on' ? 'on the board' : J.k==='under' ? (compact?'foul':`foul · ${cm(-J.toe)} over`) : `${cm(J.toe-BOARD_W)} behind`;
+    return `<span class="tob ${J.k}">${t}</span>`; }
   const txt= J.k==='on' ? (compact||Math.abs(J.d)<0.01?'on target':`on target (${amt} ${J.d<0?'under':'out'})`) : `${amt} ${J.k}`;
   return `<span class="tob ${J.k}">${txt}</span>`;
 }
@@ -2673,6 +2722,7 @@ function toBadge(J,ft,compact){
 function takeoffSVG(pts,W=600){
   pts=pts.filter(p=>p.dx!=null&&p.v!=null); if(!pts.length) return '';
   const H=Math.round(Math.max(220,Math.min(300,W*0.42))),L=44,R=16,T=34,B=40;
+  const bd=pts.some(p=>p.board);
   const R0=Math.max(0.3,Math.ceil((Math.max(...pts.map(p=>Math.abs(p.dx)))+0.05)*10)/10);
   const vs=pts.map(p=>p.v), v0=Math.floor((Math.min(...vs)-0.3)*2)/2, v1=Math.ceil((Math.max(...vs)+0.3)*2)/2;
   const X=d=>L+(d+R0)/(2*R0)*(W-L-R), Y=v=>T+(1-(v-v0)/((v1-v0)||1))*(H-T-B);
@@ -2682,28 +2732,29 @@ function takeoffSVG(pts,W=600){
   const st=R0>0.6?0.2:0.1;
   for(let d=-R0; d<=R0+1e-9; d+=st){ const dd=Math.round(d*100); g+=`<line x1="${X(d)}" x2="${X(d)}" y1="${H-B}" y2="${H-B+5}" stroke="var(--line-2)"/><text x="${X(d)}" y="${H-B+18}" text-anchor="middle" font-size="11.5" fill="var(--muted)">${dd>0?'+':''}${dd}</text>`; }
   g+=`<line x1="${X(0)}" x2="${X(0)}" y1="${T}" y2="${H-B}" stroke="var(--ink-2)" stroke-dasharray="5 5" opacity=".7"/>`;
-  g+=`<text x="${L+6}" y="${T-12}" font-size="12" font-weight="700" fill="var(--muted)">← UNDER</text><text x="${W-R-6}" y="${T-12}" text-anchor="end" font-size="12" font-weight="700" fill="var(--muted)">OUT →</text><text x="${X(0)}" y="${T-12}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">target</text>`;
-  g+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--muted)">takeoff vs target, cm</text><text x="${L}" y="${T-26}" font-size="11" fill="var(--muted)">end speed, m/s</text>`;
+  g+=`<text x="${L+6}" y="${T-12}" font-size="12" font-weight="700" fill="var(--muted)">${bd?'← FOUL':'← UNDER'}</text><text x="${W-R-6}" y="${T-12}" text-anchor="end" font-size="12" font-weight="700" fill="var(--muted)">${bd?'BEHIND →':'OUT →'}</text><text x="${X(0)}" y="${T-12}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${bd?'board':'target'}</text>`;
+  g+=`<text x="${(L+W-R)/2}" y="${H-6}" text-anchor="middle" font-size="11" fill="var(--muted)">${bd?'takeoff vs middle of the board, cm':'takeoff vs target, cm'}</text><text x="${L}" y="${T-26}" font-size="11" fill="var(--muted)">end speed, m/s</text>`;
   const id='tg'+Math.random().toString(36).slice(2,7), yF=Y(Math.max(...vs)), yS=Y(Math.min(...vs));
-  const dots=pts.map(p=>`<circle cx="${X(Math.max(-R0,Math.min(R0,p.dx)))}" cy="${Y(p.v)}" r="7" fill="${p.color||`url(#${id})`}" stroke="var(--surface)" stroke-width="2"><title>${esc(p.name||'')} ${f2(p.v)} m/s, ${Math.round(Math.abs(p.dx)*100)} cm ${Math.abs(p.dx)<=TO_TOL?'on target':p.dx<0?'under':'out'}</title></circle>`).join('');
+  const dots=pts.map(p=>`<circle cx="${X(Math.max(-R0,Math.min(R0,p.dx)))}" cy="${Y(p.v)}" r="7" fill="${p.color||`url(#${id})`}" stroke="var(--surface)" stroke-width="2"><title>${esc(p.name||'')} ${f2(p.v)} m/s, ${Math.round(Math.abs(p.dx)*100)} cm ${Math.abs(p.dx)<=TO_TOL?(bd?'on the board':'on target'):p.dx<0?(bd?'foul':'under'):(bd?'behind':'out')}</title></circle>`).join('');
   return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="End speed against takeoff distance compared with the target"><defs>${speedGrad(id,yF,yS)}</defs>${g}${dots}</svg>`;
 }
 // one dot per vault jump that has a measured takeoff and a target
-function takeoffPoints(runs,colorOf){
+function takeoffPoints(runs,colorOf,board=false){
   const out=[];
-  for(const r of runs){ if(r.mode!=='pv') continue; const M=runSteps(r), t=toTargetM(r), H=headline(r); if(!M||t==null||H.v==null) continue;
-    out.push({dx:M.toe-t, v:H.v, name:r.athlete, color:colorOf?colorOf(r.athlete):null, id:r.id}); }
+  for(const r of runs){ if(r.mode!=='pv' || (jOf(r)!=='pv')!==board) continue; const M=runSteps(r), t=toTargetM(r), H=headline(r); if(!M||t==null||H.v==null) continue;
+    out.push({dx:M.toe-t, v:H.v, board, name:r.athlete, color:colorOf?colorOf(r.athlete):null, id:r.id}); }
   return out;
 }
 // a plain-words read of the dots
 function takeoffNote(tp){
   const k={under:[],on:[],out:[]}; tp.forEach(p=>k[Math.abs(p.dx)<=TO_TOL?'on':p.dx<0?'under':'out'].push(p));
-  const parts=[`${k.on.length} on target`,`${k.under.length} under`,`${k.out.length} out`];
+  const bd=tp.some(p=>p.board);
+  const parts= bd ? [`${k.on.length} on the board`,`${plural(k.under.length,'foul')}`,`${k.out.length} behind`] : [`${k.on.length} on target`,`${k.under.length} under`,`${k.out.length} out`];
   let s=`${parts.join(', ')}.`;
   const avg=a=>a.reduce((x,p)=>x+p.v,0)/a.length;
   const grp=['under','on','out'].filter(g=>k[g].length);
-  if(grp.length>1){ const best=grp.slice().sort((a,b)=>avg(k[b])-avg(k[a]))[0]; s+=` Fastest on average when ${best==='on'?'on target':best} (${f2(avg(k[best]))} m/s).`; }
-  return s+' Under: the takeoff foot landed too close to the box. Out: too far from it.';
+  if(grp.length>1){ const best=grp.slice().sort((a,b)=>avg(k[b])-avg(k[a]))[0]; s+=` Fastest on average when ${best==='on'?(bd?'on the board':'on target'):bd?(best==='under'?'fouling':'behind the board'):best} (${f2(avg(k[best]))} m/s).`; }
+  return s+(bd?' Foul: the takeoff toe went past the foul line. Behind: it landed short of the board.':' Under: the takeoff foot landed too close to the box. Out: too far from it.');
 }
 
 /* =========================================================
@@ -2880,7 +2931,7 @@ function renderResults(){
   let fastest=null; if(big){ const rows=Object.values(big.rows).filter(x=>!resHidden.has(big.key+'|'+x.name)).sort((a,b)=>a.best-b.best); if(rows.length) fastest={t:rows[0].best,who:rows[0].name,title:big.title+(big.pole?' · pole':'')}; }
   $('resStats').innerHTML=`
     <div class="stat"><div class="k">Athletes</div><div class="v num">${new Set(runs.map(r=>r.athlete)).size}</div><div class="s">${plural(runs.length,'run')}</div></div>
-    <div class="stat"><div class="k">Events</div><div class="v num">${groups.length+pvg.length}</div><div class="s">${esc([...new Set(groups.map(g=>g.title+(g.pole?' (pole)':'')).concat(pvg.map(g=>`Vault ${g.L}L`)))].join(' · ')||'–')}</div></div>
+    <div class="stat"><div class="k">Events</div><div class="v num">${groups.length+pvg.length}</div><div class="s">${esc([...new Set(groups.map(g=>g.title+(g.pole?' (pole)':'')).concat(pvg.map(g=>`${JUMPS[g.j].short} ${g.L}L`)))].join(' · ')||'–')}</div></div>
     <div class="stat"><div class="k">Fastest ${fastest?esc(fastest.title):''}</div><div class="v num">${fastest?f2(fastest.t):'–'}<small>s</small></div><div class="s">${fastest?esc(fastest.who):''}</div></div>
     <div class="stat"><div class="k">Top speed${anyHidden?' · shown':''}</div><div class="v num">${top?f1(top.v):'–'}<small>m/s</small></div><div class="s">${top?`${esc(top.who)} · ${f1(top.v*MPS2MPH)} mph${top.pole?' · pole':''}`:''}</div></div>`;
   const W=chartW({clientWidth:$('resBody').clientWidth-38});
@@ -2890,22 +2941,22 @@ function renderResults(){
 function pvGroups(runs){
   const gs={};
   for(const r of runs){ if(r.mode!=='pv') continue; const H=headline(r); if(H.v==null) continue;
-    const L=r.lefts||0, g=gs[L]||(gs[L]={L,key:'pv|'+L,rows:{}});
+    const L=r.lefts||0, j=jOf(r), gk=j+L, g=gs[gk]||(gs[gk]={L,j,key:(j==='pv'?'pv':'pv:'+j)+'|'+L,title:`${JUMPS[j].name} · ${L} lefts`,rows:{}});
     const row=g.rows[r.athlete]||(g.rows[r.athlete]={name:r.athlete,best:-1,bestRun:null,last:null,runup:null,runs:[]});
     row.runs.push({id:r.id,v:H.v,last:H.last?H.last.v:null,date:r.date});
     if(H.v>row.best){ row.best=H.v; row.bestRun=r.id; row.last=H.last?H.last.v:null; row.runup=r.runup||null; } }
-  return Object.values(gs).sort((a,b)=>a.L-b.L);
+  const JO={pv:0,lj:1,tj:2}; return Object.values(gs).sort((a,b)=>JO[a.j]-JO[b.j]||a.L-b.L);
 }
 function pvCard(g){
   const rows=Object.values(g.rows).sort((a,b)=>b.best-a.best), lead=rows[0].best;
-  return `<section class="card"><div class="gh"><h2>Pole vault · ${g.L} lefts</h2><span class="muted">${plural(rows.length,'athlete')} · end speed over the last split, best jump each</span></div>
+  return `<section class="card"><div class="gh"><h2>${g.title}</h2><span class="muted">${plural(rows.length,'athlete')} · end speed over the last split, best jump each</span></div>
     <div>${rows.map((x,i)=>{ const k=g.key+'|'+x.name, open=resOpen===k, st=sprintTop(x.name), dv=x.last!=null?x.best-x.last:null;
       return `<button class="lb num ${i===0?'first':''}" data-exp="${esc(k)}" aria-expanded="${open}"><span class="rk">${i+1}</span>
-        <span class="nm"><b>${esc(x.name)}</b><small>${x.runup?`run-up ${f2(x.runup)} m · `:''}${(()=>{ const M=runSteps(S.runs.find(q=>q.id===x.bestRun)); const R=S.runs.find(q=>q.id===x.bestRun); return M?`last step ${fmtFtIn(M.steps[M.steps.length-1].len)} · takeoff ${fmtFtIn(M.toe)} ${toBadge(toJudge(M.toe,toTargetM(R)),false,true)} · `:''; })()}${plural(x.runs.length,'jump')}${st?` · ${Math.round(x.best/st*100)}% of sprint speed`:''}</small></span>
+        <span class="nm"><b>${esc(x.name)}</b><small>${x.runup?`run-up ${f2(x.runup)} m · `:''}${(()=>{ const M=runSteps(S.runs.find(q=>q.id===x.bestRun)); const R=S.runs.find(q=>q.id===x.bestRun); return M?`last step ${fmtFtIn(M.steps[M.steps.length-1].len)} · takeoff ${fmtFtIn(M.toe)} ${toBadge(toJudge(M.toe,toTargetM(R),jOf(R)!=='pv'),false,true)} · `:''; })()}${plural(x.runs.length,'jump')}${st?` · ${Math.round(x.best/st*100)}% of sprint speed`:''}</small></span>
         <span class="bar"><i style="width:${(x.best/lead*100).toFixed(1)}%;background:linear-gradient(90deg,var(--slow),var(--mid),var(--fast));background-size:${(lead/x.best*100).toFixed(1)}% 100%"></i></span>
         <span class="tm">${f2(x.best)} m/s<small>${dv!=null?`${dv>=0?'+':'−'}${f2(Math.abs(dv))} vs first split`:(i===0?'Fastest':'−'+f2(lead-x.best))}</small></span></button>
         ${open?`<div class="lbruns">${x.runs.slice().sort((p,q)=>new Date(p.date)-new Date(q.date)).map((q,k2)=>`<div class="lbrun num"><span>Jump ${k2+1} · ${fmtTime(q.date)}${q.last!=null?` · first split ${f2(q.last)}`:''}</span><b>${f2(q.v)} m/s</b><button class="btn btn-sm" data-open="${q.id}">Open</button><button class="btn btn-sm btn-danger" data-delrun="${q.id}">${isArmed('rd'+q.id)?'Tap again':'Delete'}</button></div>`).join('')}</div>`:''}`; }).join('')}</div>
-    <p class="help">End speed is the speed over the last split before the box. With 3 or more gates, the small number compares it with the first split: a minus means the athlete slowed into the takeoff.</p>
+    <p class="help">End speed is the speed over the last split before the ${refW(g.j)}. With 3 or more gates, the small number compares it with the first split: a minus means the athlete slowed into the takeoff.</p>
   </section>`;
 }
 function groupCard(g,W){
@@ -2942,7 +2993,7 @@ function resultsText(){
   return `GateCamLive results · ${dayLabel(S.res.day).replace(/^(Today|Yesterday) · /,'')}\n\n`+groups.map(g=>{
     const rows=Object.values(g.rows).sort((a,b)=>a.best-b.best);
     return `${g.title}${g.pole?' (with pole)':''}\n`+rows.map((x,i)=>`${i+1}. ${x.name}  ${f2(x.best)} s  · top ${f1(x.topV)} m/s`).join('\n');
-  }).concat(pvGroups(resFiltered()).map(g=>`Pole vault end speed, ${g.L} lefts (last split)\n`+Object.values(g.rows).sort((a,b)=>b.best-a.best).map((x,i)=>`${i+1}. ${x.name}  ${f2(x.best)} m/s${x.last!=null?`  · first split ${f2(x.last)} m/s`:''}`).join('\n'))).join('\n\n');
+  }).concat(pvGroups(resFiltered()).map(g=>`${JUMPS[g.j].name} end speed, ${g.L} lefts (last split)\n`+Object.values(g.rows).sort((a,b)=>b.best-a.best).map((x,i)=>`${i+1}. ${x.name}  ${f2(x.best)} m/s${x.last!=null?`  · first split ${f2(x.last)} m/s`:''}`).join('\n'))).join('\n\n');
 }
 $('resCopy').onclick=()=>{
   const t=resultsText();
@@ -2997,7 +3048,7 @@ function renderProfile(){
       <div class="stat"><div class="k">Best ${mb?esc(runEv(mb.r)):'time'}</div><div class="v num">${mb?f2(mb.t):'–'}<small>s</small></div><div class="s">${mb?`${mb.r.pole?'With pole · ':''}${fmtDate(mb.r.date)}`:''}</div></div>
       <div class="stat"><div class="k">Top speed</div><div class="v num">${tAll?f1(tAll.v):'–'}<small>m/s</small></div><div class="s">${tAll?`${f1(tAll.v*MPS2MPH)} mph · ${fmtDate(tAll.r.date)}`:''}</div></div>
     </div></div>
-    <div class="seg fill apt" id="aPt"><button data-pt="ov" aria-pressed="${pt==='ov'}">Overview</button>${hasPv?`<button data-pt="pv" aria-pressed="${pt==='pv'}">Vault</button>`:''}<button data-pt="runs" aria-pressed="${pt==='runs'}">Runs</button></div>`;
+    <div class="seg fill apt" id="aPt"><button data-pt="ov" aria-pressed="${pt==='ov'}">Overview</button>${hasPv?`<button data-pt="pv" aria-pressed="${pt==='pv'}">${runs.some(r=>r.mode==='pv'&&jOf(r)!=='pv')?'Jumps':'Vault'}</button>`:''}<button data-pt="runs" aria-pressed="${pt==='runs'}">Runs</button></div>`;
   if(t0&&t1){
     const pct=t1.v/t0.v*100;
     const flyKeys=Object.keys(bestBy).filter(k=>k.startsWith('fly|')&&k.endsWith('|0')).filter(k=>bestBy[k.replace(/\|0$/,'|1')]);
@@ -3015,22 +3066,23 @@ function renderProfile(){
   // vault: best approach for each lefts count, and the run-ups
   const pvr=runs.filter(r=>r.mode==='pv'), st=sprintTop(n);
   if(pvr.length){
-    const byL={}; for(const r of pvr){ const H=headline(r); if(H.v==null) continue; const o=byL[r.lefts]||(byL[r.lefts]={L:r.lefts,best:0,last:null,n:0,r:null}); o.n++; if(H.v>o.best){ o.best=H.v; o.last=H.last?H.last.v:null; o.r=r; } }
-    h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Pole vault approach</h2><span class="muted">end speed, last split${st?` · best sprint ${f1(st)} m/s`:''}</span></div>
-      <div class="tbl-x"><table class="rutab" style="min-width:520px"><thead><tr><th>Lefts</th><th>Best end speed</th><th>First split</th><th>% of sprint</th><th>Run-up</th><th>Jumps</th></tr></thead><tbody>
-      ${Object.values(byL).sort((a,b)=>a.L-b.L).map(o=>`<tr><td>${o.L}L</td><td class="num"><b>${f2(o.best)} m/s</b></td><td class="num">${o.last!=null?f2(o.last)+' m/s':'–'}</td><td class="num">${st?Math.round(o.best/st*100)+'%':'–'}</td><td class="num">${o.r.runup?f2(o.r.runup)+' m':'–'}</td><td class="num">${o.n}</td></tr>`).join('')}
+    const byL={}; for(const r of pvr){ const H=headline(r); if(H.v==null) continue; const j=jOf(r), o=byL[j+r.lefts]||(byL[j+r.lefts]={L:r.lefts,j,best:0,last:null,n:0,r:null}); o.n++; if(H.v>o.best){ o.best=H.v; o.last=H.last?H.last.v:null; o.r=r; } }
+    h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">${[...new Set(pvr.map(jOf))].length===1?JUMPS[jOf(pvr[0])].name+' approach':'Jump approaches'}</h2><span class="muted">end speed, last split${st?` · best sprint ${f1(st)} m/s`:''}</span></div>
+      <div class="tbl-x"><table class="rutab" style="min-width:520px"><thead><tr><th>Event</th><th>Best end speed</th><th>First split</th><th>% of sprint</th><th>Run-up</th><th>Jumps</th></tr></thead><tbody>
+      ${Object.values(byL).sort((a,b)=>a.j.localeCompare(b.j)||a.L-b.L).map(o=>`<tr><td>${o.j==='pv'?'':JUMPS[o.j].short+' '}${o.L}L</td><td class="num"><b>${f2(o.best)} m/s</b></td><td class="num">${o.last!=null?f2(o.last)+' m/s':'–'}</td><td class="num">${st?Math.round(o.best/st*100)+'%':'–'}</td><td class="num">${o.r.runup?f2(o.r.runup)+' m':'–'}</td><td class="num">${o.n}</td></tr>`).join('')}
       </tbody></table></div>${st?'':'<p class="help">Time a fly or sprint without the pole to see how much of their sprint speed carries into the vault.</p>'}</div>`;
   }
-  if(onRoster) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Run-ups by lefts</h2><span class="muted">${pvM()?'meters':'feet'} from the box</span></div>
+  if(onRoster) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Run-ups by lefts</h2><span class="muted">${pvM()?'meters':'feet'} from the box or board</span></div>
     <div class="tbl-x"><table class="rutab"><thead><tr>${LEFTS.map(L=>`<th>${L}L</th>`).join('')}<th class="tocol">Takeoff target</th></tr></thead><tbody><tr>${LEFTS.map(L=>`<td><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-ru="${esc(n)}|${L}" value="${fmtRun(runupOf(n,L))}" aria-label="${L} lefts run-up"></td>`).join('')}<td class="tocol"><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-to="${esc(n)}" value="${fmtRun(toTargetFt(n))}" aria-label="Takeoff target from the box"></td></tr></tbody></table></div>
-    <p class="help">Takeoff target: where the takeoff foot should land, from the box. Jumps within 4 in (10 cm) of it count as on target.</p></div>`;
+    <p class="help">Takeoff target (pole vault): where the takeoff foot should land, from the box. Jumps within 4 in (10 cm) of it count as on target. Long and triple jump are always judged against the board.</p></div>`;
+  { const tb=takeoffPoints(runs,null,true); if(tb.length) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Board accuracy and end speed</h2><span class="muted">${plural(tb.length,'jump')} · long and triple jump</span></div><div class="chartbox">${takeoffSVG(tb,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tb)}</p></div>`; }
   { const tp=takeoffPoints(runs); if(tp.length) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Takeoff and end speed</h2><span class="muted">${plural(tp.length,'jump')} · target ${toTargetFt(n)!=null?fmtRun(toTargetFt(n))+' from the box':'as set when jumped'}</span></div><div class="chartbox">${takeoffSVG(tp,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tp)}</p></div>`;
-    else if(runs.some(r=>r.mode==='pv'&&runSteps(r))) h+=`<div class="card" data-sec="pv"><h2 class="card-t">Takeoff and end speed</h2><p class="help">Set a takeoff target above to see each jump as under, on target or out, against its end speed.</p></div>`; }
+    else if(runs.some(r=>r.mode==='pv'&&jOf(r)==='pv'&&runSteps(r))) h+=`<div class="card" data-sec="pv"><h2 class="card-t">Takeoff and end speed</h2><p class="help">Set a takeoff target above to see each jump as under, on target or out, against its end speed.</p></div>`; }
   const prog=progressSVG(runs,chartW({clientWidth:box.clientWidth-38}));
   if(prog) h+=`<div class="card" data-sec="ov"><div class="gh"><h2 class="card-t">Top speed by day</h2><span class="legend2"><span class="lg" style="cursor:default"><i style="background:var(--chart)"></i>No pole</span>${t1?'<span class="lg" style="cursor:default"><i style="background:#E8590C"></i>With pole</span>':''}</span></div><div class="chartbox">${prog}</div></div>`;
   const ev=S.ath.ev, pl=S.ath.pole, list=runs.filter(r=>(ev==='all'||r.mode===ev)&&(pl==='all'||(r.pole?'1':'0')===pl));
   h+=`<div class="card" data-sec="runs"><div class="gh"><h2 class="card-t">All runs</h2>
-      <div class="toolbar"><div class="seg" id="aEv">${[['all','All'],['fly','Fly'],['sprint','Sprint'],['pv','Vault']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${ev===v}">${l}</button>`).join('')}</div>
+      <div class="toolbar"><div class="seg" id="aEv">${[['all','All'],['fly','Fly'],['sprint','Sprint'],['pv','Jumps']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${ev===v}">${l}</button>`).join('')}</div>
       <div class="seg" id="aPole">${[['all','Any'],['0','No pole'],['1','Pole']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${pl===v}">${l}</button>`).join('')}</div></div></div>
     <div>${list.length?list.map(r=>{ const H=headline(r); return `<button class="hrow" data-open="${r.id}"><span class="n"><b>${esc(runEv(r))}</b> ${poleBadge(r.pole)}<span class="m">${fmtDate(r.date,{weekday:'short',month:'short',day:'numeric'})} · ${fmtTime(r.date)}${r.location?' · '+esc(r.location):''}</span></span><span class="v num">top ${f1(H.a.top?.v)} m/s</span><span class="t num">${resText(r,H)}</span></button>`; }).join(''):'<div class="empty">No runs match.</div>'}</div></div>`;
   box.innerHTML=h;
@@ -3088,7 +3140,7 @@ function renderRunSheet(){
     <div class="rtiles">
       ${pvR?`<div class="rtile"><div class="l">End speed · ${H.seg}</div><div class="val num">${f2(H.v)}<span>m/s</span></div><div class="sm num">${f1(H.v*MPS2MPH)} mph · ±${f2(H.t?errSpeed(E,H.v,5,H.t):0)} m/s${pvSt?` · ${Math.round(H.v/pvSt*100)}% of best sprint`:''}</div></div>
       <div class="rtile"><div class="l">First split${H.last?' · '+segLab(H.last.a,H.last.b,true):''}</div><div class="val num">${H.last?f2(H.last.v):'–'}<span>m/s</span></div><div class="sm num">${H.last?`end speed ${H.v-H.last.v>=0?'+':'−'}${f2(Math.abs(H.v-H.last.v))} m/s${H.v-H.last.v<-0.05?' · slowed into the box':''}`:'use 3 or more gates to see this'}</div></div>
-    </div>${runSteps(r)?`<div class="stepbox"><div class="stephead">Last steps${r.steps.fps?` · ${r.steps.fps} fps, contact ±${Math.round(1000/r.steps.fps)} ms`:''}</div>${stepsTableHTML(runSteps(r),false,toTargetM(r),r.steps.c.map(c=>-c.d))}</div>`:''}<div class="rtiles" style="display:none">`:''}
+    </div>${runSteps(r)?`<div class="stepbox"><div class="stephead">Last steps${r.steps.fps?` · ${r.steps.fps} fps, contact ±${Math.round(1000/r.steps.fps)} ms`:''}</div>${stepsTableHTML(runSteps(r),false,toTargetM(r),r.steps.c.map(c=>-c.d),jOf(r)!=='pv')}</div>`:''}<div class="rtiles" style="display:none">`:''}
       <div class="rtile"><div class="l">${isFly?`Flying ${r.fly} m · ${H.seg}`:`${r.mode==='sprint'?'Sprint':'All gates'} · ${H.seg}`}</div><div class="val num">${f2(H.t)}<span>s</span></div><div class="sm num">±${fms(E.dt)} s · ${errNote(E)}</div></div>
       <div class="rtile"><div class="l">Top speed</div><div class="val num">${f1(a.top?.v)}<span>m/s</span></div><div class="sm num">${f1(a.top?a.top.v*MPS2MPH:null)} mph · ±${f1(vErr)} m/s</div></div>
     </div>
@@ -3111,7 +3163,7 @@ function renderRunSheet(){
 function refreshViews(){ if(!$('v-results').hidden) renderResults(); if(!$('v-athletes').hidden) renderAthletes(); if(liveOpen) renderTime(); }
 $('runBody').addEventListener('change',e=>{
   const r=S.runs.find(x=>x.id===sheetRun); if(!r) return;
-  if(e.target.id==='rLefts'){ r.lefts=+e.target.value; { const ft=runupOf(r.athlete,r.lefts); if(ft){ r.runupFt=ft; r.runup=m2(ft*FT); } } r.test=`Pole vault · ${r.lefts}L`; save(); renderRunSheet(); refreshViews(); toast('Lefts changed'); }
+  if(e.target.id==='rLefts'){ r.lefts=+e.target.value; { const ft=runupOf(r.athlete,r.lefts); if(ft){ r.runupFt=ft; r.runup=m2(ft*FT); } } r.test=`${JUMPS[jOf(r)].name} · ${r.lefts}L`; save(); renderRunSheet(); refreshViews(); toast('Lefts changed'); }
   if(e.target.id==='rAth'){ r.athlete=e.target.value; save(); renderRunSheet(); refreshViews(); toast('Athlete changed'); }
   if(e.target.id==='rDate' && e.target.value){ const old=new Date(r.date), d=new Date(`${e.target.value}T${hm(old)}:00`); if(!isNaN(d)){ r.date=d.toISOString(); save(); renderRunSheet(); refreshViews(); toast('Date changed'); } }
 });
@@ -3288,7 +3340,7 @@ function reportHTML(day){
   const groups=resGroups(runs);
   const info=new Map(runs.map(r=>[r.id,{H:headline(r),P:peakOf(r)}]));
   const pvg=pvGroups(runs);
-  const evList=[...new Set(groups.map(g=>g.title+(g.pole?' with pole':'')).concat(pvg.map(g=>`Pole vault ${g.L} lefts`)))];
+  const evList=[...new Set(groups.map(g=>g.title+(g.pole?' with pole':'')).concat(pvg.map(g=>`${JUMPS[g.j].name} ${g.L} lefts`)))];
 
   // ---- top speed per athlete, with and without the pole
   const top={}; // name -> {0:{v,r},1:{v,r}}
@@ -3320,16 +3372,18 @@ function reportHTML(day){
   // vault approach: fastest per lefts, share of sprint speed, and who lost speed into the box
   for(const g of pvg){
     const rows=Object.values(g.rows).sort((a,b)=>b.best-a.best), w=rows[0], st=sprintTop(w.name);
-    key.push(`<b>Pole vault, ${g.L} lefts:</b> ${esc(w.name)} had the fastest end speed, <b class="num">${f2(w.best)} m/s</b> (${f1(w.best*MPS2MPH)} mph) over the last split before the box${st?`, ${Math.round(w.best/st*100)}% of ${esc(w.name.split(' ')[0])}'s best sprint speed`:''}.`);
+    key.push(`<b>${JUMPS[g.j].name}, ${g.L} lefts:</b> ${esc(w.name)} had the fastest end speed, <b class="num">${f2(w.best)} m/s</b> (${f1(w.best*MPS2MPH)} mph) over the last split before the ${refW(g.j)}${st?`, ${Math.round(w.best/st*100)}% of ${esc(w.name.split(' ')[0])}'s best sprint speed`:''}.`);
   }
+  { const tb=takeoffPoints(runs,null,true); if(tb.length){ const by={}; tb.forEach(p=>{ const o=by[p.name]||(by[p.name]={on:0,under:0,out:0}); o[Math.abs(p.dx)<=TO_TOL?'on':p.dx<0?'under':'out']++; });
+      key.push(`<b>Board:</b> ${Object.entries(by).map(([n,o])=>`${esc(n.split(' ')[0])} ${[o.on?o.on+' on the board':'',o.under?plural(o.under,'foul'):'',o.out?o.out+' behind':''].filter(Boolean).join(', ')}`).join(' · ')}.`); } }
   { const tp=takeoffPoints(runs); if(tp.length){ const by={}; tp.forEach(p=>{ const o=by[p.name]||(by[p.name]={on:0,under:0,out:0}); o[Math.abs(p.dx)<=TO_TOL?'on':p.dx<0?'under':'out']++; });
       key.push(`<b>Takeoff:</b> ${Object.entries(by).map(([n,o])=>`${esc(n.split(' ')[0])} ${[o.on?o.on+' on':'',o.under?o.under+' under':'',o.out?o.out+' out':''].filter(Boolean).join(', ')}`).join(' · ')}.`); } }
   if(pvg.length){
     const slowed=[], kept=[];
     for(const g of pvg) for(const x of Object.values(g.rows)) if(x.last!=null) (x.best-x.last<-0.05?slowed:kept).push(x.name);
     const sl=[...new Set(slowed)], ke=[...new Set(kept)].filter(n=>!sl.includes(n));
-    if(sl.length) key.push(`<span class="warn"><b>Slowed down into the box</b> (end speed below the first split): ${esc(joinNames(sl))}. Speed should hold or rise into the takeoff.</span>`);
-    else if(ke.length) key.push(`<b>Into the box:</b> everyone held or gained speed closer to the box.`);
+    if(sl.length) key.push(`<span class="warn"><b>Slowed down into the takeoff</b> (end speed below the first split): ${esc(joinNames(sl))}. Speed should hold or rise into the takeoff.</span>`);
+    else if(ke.length) key.push(`<b>Into the takeoff:</b> everyone held or gained speed over the last split.`);
   }
   for(const p of [1,0]) if(still[p].size) key.push(`<span class="warn"><b>Still speeding up at the last gate${p?' with the pole':''}:</b> ${esc(joinNames([...still[p]]))}. Their real peak is past the last gate, so add a gate farther out next time.</span>`);
 
@@ -3350,16 +3404,19 @@ function reportHTML(day){
   }).join('');
 
   // ---- pole vault: end speed per lefts
-  const pvHTML= pvg.length ? `<section>${sec('Pole vault approach','end speed over the last split before the box')}
+  const pvHTML= pvg.length ? `<section>${sec(pvg.every(g=>g.j==='pv')?'Pole vault approach':pvg.every(g=>g.j===pvg[0].j)?JUMPS[pvg[0].j].name+' approach':'Jump approaches','end speed over the last split before the takeoff')}
     ${pvg.map(g=>{ const rows=Object.values(g.rows).sort((a,b)=>b.best-a.best);
-      return `<div class="ev"><h3>${g.L} lefts<small>${plural(rows.length,'athlete')}</small></h3>
+      return `<div class="ev"><h3>${g.j==='pv'&&pvg.every(x=>x.j==='pv')?g.L+' lefts':g.title}<small>${plural(rows.length,'athlete')}</small></h3>
       <div class="tbl"><table><thead><tr><th>#</th><th>Athlete</th><th class="r">Run-up</th><th class="r">End speed</th><th class="r">First split</th><th class="r">Penult. step</th><th class="r">Last step</th><th class="r">Takeoff</th><th class="r">% of sprint</th><th class="r">Jumps</th></tr></thead><tbody>
-      ${rows.map((x,i)=>{ const st=sprintTop(x.name), dv=x.last!=null?x.best-x.last:null, M=runSteps(runs.find(q=>q.id===x.bestRun)), ls=M&&M.steps[M.steps.length-1], ps=M&&M.steps.length>1?M.steps[M.steps.length-2]:null; return `<tr class="${i===0?'top':''}"><td class="rk num">${i+1}</td><td>${esc(x.name)}</td><td class="r num">${x.runup?f2(x.runup)+' m':'–'}</td><td class="r big num">${f2(x.best)} m/s<small>${f1(x.best*MPS2MPH)} mph</small></td><td class="r num">${x.last!=null?f2(x.last)+' m/s':'–'}${dv!=null?`<small class="${dv<-0.05?'warn':''}">end ${dv>=0?'+':'−'}${f2(Math.abs(dv))}${dv<-0.05?' slowed':''}</small>`:''}</td><td class="r num">${ps?fmtFtIn(ps.len):'–'}${ps?`<small>at ${fmtFtIn(ps.at)}</small>`:''}</td><td class="r num">${ls?fmtFtIn(ls.len):'–'}${ls&&ls.ct!=null?`<small>${Math.round(ls.ct*1000)} ms</small>`:''}</td><td class="r num">${M?fmtFtIn(M.toe):'–'}${M?`<br>${toBadge(toJudge(M.toe,toTargetM(runs.find(q=>q.id===x.bestRun))),false,true)}`:''}</td><td class="r num">${st?Math.round(x.best/st*100)+'%':'–'}</td><td class="r num">${x.runs.length}</td></tr>`; }).join('')}
+      ${rows.map((x,i)=>{ const st=sprintTop(x.name), dv=x.last!=null?x.best-x.last:null, M=runSteps(runs.find(q=>q.id===x.bestRun)), ls=M&&M.steps[M.steps.length-1], ps=M&&M.steps.length>1?M.steps[M.steps.length-2]:null; return `<tr class="${i===0?'top':''}"><td class="rk num">${i+1}</td><td>${esc(x.name)}</td><td class="r num">${x.runup?f2(x.runup)+' m':'–'}</td><td class="r big num">${f2(x.best)} m/s<small>${f1(x.best*MPS2MPH)} mph</small></td><td class="r num">${x.last!=null?f2(x.last)+' m/s':'–'}${dv!=null?`<small class="${dv<-0.05?'warn':''}">end ${dv>=0?'+':'−'}${f2(Math.abs(dv))}${dv<-0.05?' slowed':''}</small>`:''}</td><td class="r num">${ps?fmtFtIn(ps.len):'–'}${ps?`<small>at ${fmtFtIn(ps.at)}</small>`:''}</td><td class="r num">${ls?fmtFtIn(ls.len):'–'}${ls&&ls.ct!=null?`<small>${Math.round(ls.ct*1000)} ms</small>`:''}</td><td class="r num">${M?fmtFtIn(M.toe):'–'}${M?`<br>${toBadge(toJudge(M.toe,toTargetM(runs.find(q=>q.id===x.bestRun)),g.j!=='pv'),false,true)}`:''}</td><td class="r num">${st?Math.round(x.best/st*100)+'%':'–'}</td><td class="r num">${x.runs.length}</td></tr>`; }).join('')}
       </tbody></table></div></div>`; }).join('')}
+    ${(()=>{ const names=[...new Set(runs.filter(r=>r.mode==='pv').map(r=>r.athlete))], col=n=>SERIES[names.indexOf(n)%SERIES.length], tb=takeoffPoints(runs,col,true); if(!tb.length) return '';
+      const who=[...new Set(tb.map(p=>p.name))];
+      return `<div class="ev"><h3>Board accuracy and end speed<small>long and triple jump</small></h3><div class="chart">${takeoffSVG(tb,760)}</div><div class="lgd">${who.map(n=>`<span><i style="background:${col(n)}"></i>${esc(n)}</span>`).join('')}</div><p class="rp-n">${takeoffNote(tb)}</p></div>`; })()}
     ${(()=>{ const names=[...new Set(runs.filter(r=>r.mode==='pv').map(r=>r.athlete))], col=n=>SERIES[names.indexOf(n)%SERIES.length], tp=takeoffPoints(runs,col); if(!tp.length) return '';
       const who=[...new Set(tp.map(p=>p.name))];
       return `<div class="ev"><h3>Takeoff and end speed<small>every jump with a takeoff target</small></h3><div class="chart">${takeoffSVG(tp,760)}</div><div class="lgd">${who.map(n=>`<span><i style="background:${col(n)}"></i>${esc(n)}</span>`).join('')}</div><p class="rp-n">${takeoffNote(tp)}</p></div>`; })()}
-    <p class="rp-n">End speed is the average over the last split before the box; under the first split is how end speed compares with it. Steps and takeoff are in ${pvM()?'meters':'feet and inches'}: steps are toe to toe from the video (penultimate and last step into the takeoff), "at" is where that foot landed, and takeoff is where the takeoff toe landed, all measured from the box. "% of sprint" compares end speed with the athlete's best no-pole fly or sprint on record.</p></section>` : '';
+    <p class="rp-n">End speed is the average over the last split before the box or board; under the first split is how end speed compares with it. Steps and takeoff are in ${pvM()?'meters':'feet and inches'}: steps are toe to toe from the video (penultimate and last step into the takeoff), "at" is where that foot landed, and takeoff is where the takeoff toe landed, all measured from the box (vault) or the foul line (long and triple jump). "% of sprint" compares end speed with the athlete's best no-pole fly or sprint on record.</p></section>` : '';
 
   // ---- pole vs no pole, per athlete
   const peakAvg=(n,p)=>{ const xs=runs.filter(r=>r.athlete===n&&!!r.pole===!!p).map(r=>info.get(r.id).P).filter(Boolean); if(!xs.length) return '–'; if(xs.every(x=>x.still)) return `<span class="warn">after ${xs[0].end} m</span>`; return `≈ ${Math.round(mean(xs.filter(x=>!x.still).map(x=>x.x)))} m`; };
@@ -3385,7 +3442,7 @@ function reportHTML(day){
   const g0=groups.find(g=>!g.pole)||groups[0];
   if(g0){ const w=Object.values(g0.rows).sort((a,b)=>a.best-b.best)[0]; stats.push({l:`Fastest ${g0.title}${g0.pole?' (pole)':''}`, v:f2(w.best), u:'s', s:esc(w.name)}); }
   if(dayTop) stats.push({l:'Top speed', v:f1(dayTop.v), u:'m/s', s:`${esc(dayTop.n)} · ${f1(dayTop.v*MPS2MPH)} mph${dayTop.p?' · pole':''}`});
-  if(pvg.length){ let b=null; for(const g of pvg) for(const x of Object.values(g.rows)) if(!b||x.best>b.x.best) b={x,L:g.L}; stats.push({l:'Best vault end speed', v:f2(b.x.best), u:'m/s', s:`${esc(b.x.name)} · ${b.L} lefts`}); }
+  if(pvg.length){ let b=null; for(const g of pvg) for(const x of Object.values(g.rows)) if(!b||x.best>b.x.best) b={x,L:g.L,g}; stats.push({l:pvg.every(g=>g.j==='pv')?'Best vault end speed':'Best end speed', v:f2(b.x.best), u:'m/s', s:`${esc(b.x.name)} · ${b.g.j==='pv'?'':JUMPS[b.g.j].short+' '}${b.L} lefts`}); }
   if(both.length){ const k=mean(both.map(n=>top[n][1].v/top[n][0].v)); stats.push({l:'Speed kept with pole', v:Math.round(k*100), u:'%', s:`average of ${plural(both.length,'athlete')}`}); }
   if(stats.length<4) stats.push({l:'Runs timed', v:runs.length, u:'', s:plural(athletes.length,'athlete')});
   if(stats.length<4) stats.push({l:'Events', v:evList.length, u:'', s:esc(evList.slice(0,2).join(', '))});
@@ -3409,7 +3466,7 @@ function reportHTML(day){
       <dt>Top speed</dt><dd>Fastest stretch between two gates, in meters per second (× 2.24 = mph).</dd>
       <dt>Speed peaked</dt><dd>Where on the track the athlete was fastest. "After 50 m" means still speeding up at the last gate.</dd>
       <dt>Splits</dt><dd>Seconds between gates; 30–40 0.98 means 0.98 s from the 30 m gate to the 40 m gate.</dd>
-      <dt>End speed</dt><dd>Vault: average speed over the last split before the box.</dd>
+      <dt>End speed</dt><dd>Vault, long and triple jump: average speed over the last split before the box or board.</dd>
       <dt>Speed kept</dt><dd>Top speed with the pole compared with top speed without it.</dd>
     </dl>
     <p class="rp-n">Times come from video and are good to about ±${fms(worst.dt)} s (${worst.fps} frames per second${worst.assumed?', assumed':''}). Differences of a few hundredths may not be real.</p></section>
@@ -3485,9 +3542,9 @@ function renderHome(){
   const today=ymd(new Date()), runs=S.runs.filter(r=>!r.example && ymd(new Date(r.date))===today);
   if(runs.length){
     let top=null; for(const r of runs){ const a=headline(r).a; if(a.top&&(!top||a.top.v>top.v)) top={v:a.top.v,who:r.athlete}; }
-    let pv=null; for(const r of runs) if(r.mode==='pv'){ const H=headline(r); if(H.v!=null&&(!pv||H.v>pv.v)) pv={v:H.v,who:r.athlete}; }
+    let pv=null; for(const r of runs) if(r.mode==='pv'){ const H=headline(r); if(H.v!=null&&(!pv||H.v>pv.v)) pv={v:H.v,who:r.athlete,j:jOf(r)}; }
     $('homeToday').innerHTML=`<button class="card hrowcard" data-go="results"><div class="hc-k">Today</div>
-      <div class="hc-stats num"><div><b>${runs.length}</b><span>${runs.length===1?'run':'runs'}</span></div>${top?`<div><b>${f1(top.v)}<small>m/s</small></b><span>top · ${esc(top.who.split(' ')[0])}</span></div>`:''}${pv?`<div><b>${f2(pv.v)}<small>m/s</small></b><span>vault end · ${esc(pv.who.split(' ')[0])}</span></div>`:''}</div>
+      <div class="hc-stats num"><div><b>${runs.length}</b><span>${runs.length===1?'run':'runs'}</span></div>${top?`<div><b>${f1(top.v)}<small>m/s</small></b><span>top · ${esc(top.who.split(' ')[0])}</span></div>`:''}${pv?`<div><b>${f2(pv.v)}<small>m/s</small></b><span>${pv.j==='pv'?'vault':JUMPS[pv.j].short.toLowerCase()} end · ${esc(pv.who.split(' ')[0])}</span></div>`:''}</div>
       <span class="hc-go">See results ›</span></button>`;
   } else $('homeToday').innerHTML='';
   $('homeRoster').innerHTML= S.roster.length ? '' : `<div class="card"><div class="hc-k">Start here</div><p class="help">Add the athletes you'll be timing. Their names become big buttons on the timing screen.</p><div class="row"><button class="btn btn-lg" data-go="athletes">Add an athlete</button><button class="btn btn-lg" data-demo="load">See a sample session</button></div></div>`;
