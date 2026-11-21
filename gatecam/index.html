@@ -164,6 +164,29 @@ input[type=range]{accent-color:var(--brand);width:100%;min-height:30px;margin:0}
 .pvsub b{font-weight:800}
 .up{color:var(--good)} .down{color:var(--danger)}
 .tiles.sm .tile{min-height:0;padding:14px}
+.protag{display:inline-flex;align-items:center;margin-left:8px;padding:2px 7px;border-radius:999px;font:800 10.5px/1.3 var(--f-body,inherit);letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--grad);vertical-align:middle}
+.prolock{display:grid;gap:8px;justify-items:start}
+.prolock .pl-k{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--brand-text)}
+.planline{display:flex;align-items:center;gap:6px;font-size:17px}
+.sheet-panel.pro-panel{width:min(560px,100%)}
+.pro-hero h2{font:800 clamp(30px,7vw,40px)/1.05 var(--f-disp);text-transform:uppercase;letter-spacing:.01em;margin:6px 0 8px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pro-why{margin:0 0 6px;font-size:16px;color:var(--ink)}
+.pro-state{display:inline-block;margin-top:4px;padding:4px 10px;border-radius:999px;background:var(--brand-soft);color:var(--brand-text);font-weight:700;font-size:13.5px}
+.pro-feats{list-style:none;margin:18px 0 6px;padding:0;display:grid;gap:14px}
+.pro-feats li{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:start}
+.pro-feats svg{color:#F59A5B;margin-top:1px}
+.pro-feats b{display:block;font-size:16px}.pro-feats span{display:block;color:var(--muted);font-size:14.5px;line-height:1.4}
+.pro-free{margin:10px 0 16px}
+.pro-plans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.pro-plan{display:grid;gap:3px;align-content:start;text-align:left;padding:14px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface-2);color:var(--ink)}
+.pro-plan b{font-size:15px}.pro-plan span{font-size:17px;font-weight:700}.pro-plan small{color:var(--muted);font-size:12.5px}
+.pro-plan[aria-checked="true"]{border-color:var(--brand);background:var(--brand-soft);box-shadow:inset 0 0 0 1px var(--brand)}
+.pro-cta{width:100%;min-height:56px;font-size:17px}
+.pro-fine{font-size:12.5px;line-height:1.45;color:var(--muted);margin:10px 0 0}
+.pro-code{display:flex;gap:8px;margin-top:16px}.pro-code .inp{flex:1;min-width:0}
+.pro-msg{margin:12px 0 0;font-weight:600}
+.pro-links{display:flex;flex-wrap:wrap;gap:6px 16px;margin:18px 0 8px}
+.btn-link{background:none;border:0;padding:4px 0;color:var(--brand-text);font:inherit;font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .evhow{margin-top:14px;padding:14px 16px;border-radius:14px;background:var(--surface-2);border:1px solid var(--line)}
 .evhow ol{margin:6px 0 0;padding-left:20px;display:grid;gap:6px;font-size:14.5px;line-height:1.4;color:var(--ink-2)}
 .evhow .field-h{margin:0}
@@ -678,7 +701,7 @@ details[open].more>summary::before,.chartdet[open]>summary::before{transform:rot
     <div class="resacts"><button class="btn btn-primary" id="resReport">Practice report</button>
       <details class="menu"><summary class="btn" aria-label="More">More</summary><div class="menu-p"><button class="btn" id="resCopy">Copy results</button><button class="btn" id="resCsv">Export CSV</button></div></details></div>
     <div class="hscroll" id="resFilters">
-      <div class="seg" id="resEv"><button data-v="all">All</button><button data-v="fly">Fly</button><button data-v="sprint">Sprint</button><button data-v="pv">Vault</button></div>
+      <div class="seg" id="resEv"><button data-v="all">All</button><button data-v="fly">Fly</button><button data-v="sprint">Sprint</button><button data-v="pv">Jumps</button></div>
       <div class="seg" id="resPole"><button data-v="all">Any</button><button data-v="0">No pole</button><button data-v="1">Pole</button></div>
     </div>
     <div class="stats" id="resStats"></div>
@@ -714,6 +737,7 @@ details[open].more>summary::before,.chartdet[open]>summary::before{transform:rot
   <section class="view" id="v-settings" hidden>
     <h1 class="h1 pt">Settings</h1>
     <div class="stack setstack">
+    <section class="card" id="planCard"></section>
     <section class="card">
       <h2 class="card-t">Appearance</h2>
       <div class="seg fill" id="thSeg"><button data-th="system">System</button><button data-th="light">Light</button><button data-th="dark">Dark</button></div>
@@ -849,6 +873,9 @@ details[open].more>summary::before,.chartdet[open]>summary::before{transform:rot
 </div>
 
 <!-- PRACTICE REPORT -->
+<div class="sheet" id="proSheet" hidden>
+  <div class="sheet-panel pro-panel" role="dialog" aria-modal="true" aria-label="GateCamLive Pro"><div id="proBody"></div></div>
+</div>
 <div class="sheet" id="reportSheet" hidden>
   <div class="sheet-panel wide" role="dialog" aria-modal="true" aria-labelledby="rpT">
     <div class="sheet-head"><span class="eyebrow" id="rpT">Practice report</span>
@@ -1190,7 +1217,8 @@ function renderSetup(){
     $('pvHow').innerHTML= isBoard() ? 'Gates are spaced evenly from the first gate to the last, in distance from the foul line. You get the speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the board. The standard read is 11 → 6 → 1 m: the last 10 m in two 5 m splits. The perspective is set on a cone at your farthest gate and the foul line, so measure the cones from the foul line with a tape. Saved results are in meters.' : 'Gates are spaced evenly from the first gate to the last. You get the athlete\'s speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the box. For the classic last 10 m → 5 m speed, pick the first preset. The perspective is set from the 15 ft and 9 ft takeoff marks painted on the runway, plus one cone at the farthest gate, so the box doesn\'t need to be in the picture. Saved results are in meters.'; }
   if(pv){
     $('pvPresets').innerHTML=jPresets().map((p,i)=>`<button class="chip" data-pvp="${i}" aria-pressed="${JSON.stringify(p.ft)===JSON.stringify(S.pvFt)}">${p.k}</button>`).join('');
-    pressed('#stepsSeg [data-st]', b=>(b.dataset.st==='1')===(S.stepsOn!==false));
+    pressed('#stepsSeg [data-st]', b=>(b.dataset.st==='1')===(S.stepsOn!==false&&isPro()));
+    { const sb=$('stepsSeg').querySelector('[data-st="1"]'); sb.innerHTML='Measure steps'+proTag(); if(isPro()) delete sb.dataset.pro; else sb.dataset.pro='steps'; }
     const ft=[...S.pvFt].sort((a,b)=>b-a);
     pressed('#unitSeg [data-un]', b=>b.dataset.un===uTag());
     $('pvFrom').parentElement.dataset.u=uTag(); $('pvTo').parentElement.dataset.u=uTag();
@@ -2303,6 +2331,7 @@ function miniSplits(a){
 }
 // vault splits while timing: labels in feet, speeds in m/s
 function stepsCardHTML(){
+  if(isPv() && S.stepsOn!==false && !isPro()) return `<div class="stepbox"><div class="stephead">Last steps${proTag()}</div><div class="pvsub">See the last 4 steps, contact times and ${isBoard()?'board accuracy':'takeoff'} for every jump.</div><button class="btn btn-sm" data-pro="steps" style="margin-top:8px">Try Pro free</button></div>`;
   if(!stepsWanted()) return '';
   if(!calOn()) return '<div class="pvsub">Fix the perspective to measure the last steps.</div>';
   if(stp && stp.rec) return '<div class="pvsub stepwait">Measuring the last steps…</div>';
@@ -2468,7 +2497,7 @@ var stp=null;            // the steps being measured for the current run
 var stepRes=null;
 var stepAutoSave=false;
 var BALL=0.06;   // meters from the toe back to the ball of the foot, where plants are measured   // auto-save waits for the takeoff step        // result for the run on screen: {c:[{x,on,off,ok}], units:'ft'|'m', fps}
-function stepsWanted(){ return isPv() && S.stepsOn!==false; }
+function stepsWanted(){ return isPv() && S.stepsOn!==false && isPro(); }
 function stepsOn(){ return stepsWanted() && calOn(); }
 
 function invH1(h){
@@ -2920,10 +2949,12 @@ function renderResults(){
   $('resDay').innerHTML=days.map(k=>`<option value="${k}" ${k===S.res.day?'selected':''}>${dayLabel(k)}</option>`).join('');
   const i=days.indexOf(S.res.day); $('dayPrev').disabled=i>=days.length-1; $('dayNext').disabled=i<=0;
   pressed('#resEv [data-v]', b=>b.dataset.v===S.res.ev); pressed('#resPole [data-v]', b=>b.dataset.v===S.res.pole);
+  $('resReport').innerHTML='Practice report'+proTag();
   const dr=dayRuns(S.res.day), runs=resFiltered(), d=new Date(S.res.day+'T12:00:00');
   $('resTitle').textContent= ymd(new Date())===S.res.day ? 'Today' : d.toLocaleDateString(undefined,{weekday:'long'});
   const locs=[...new Set(dr.map(r=>r.location).filter(Boolean))];
   $('resSub').textContent=`${d.toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})}${locs.length?' · '+locs.join(', '):''} · ${plural(new Set(dr.map(r=>r.athlete)).size,'athlete')} · ${plural(dr.length,'run')}`;
+  if(!isPro() && !dayRecent(S.res.day)){ $('resStats').hidden=true; $('resBody').innerHTML=proLockCard('history','This session is in your history',`Free shows the last ${PRO_CFG.freeDays} days. This day's ${plural(dr.length,'run')} are saved and come back the moment Pro is on. Export CSV still works.`); return; }
   const groups=resGroups(runs), pvg=pvGroups(runs);
   const shown=r=>r.mode==='pv'||!resHidden.has(`${r.mode}|${r.mode==='sprint'?runLen(r):r.fly}|${r.pole?1:0}|${r.athlete}`), anyHidden=runs.some(r=>!shown(r));
   let top=null; for(const r of runs){ if(!shown(r)) continue; const a=headline(r).a; if(a.top&&(!top||a.top.v>top.v)) top={v:a.top.v,who:r.athlete,pole:r.pole}; }
@@ -3032,7 +3063,7 @@ function renderProfile(){
   const n=S.ath.sel, box=$('aprof');
   if(n==='__ex'){ const ex=S.runs.find(r=>r.example); box.innerHTML=`<div class="card"><div class="eyebrow">Reference</div><h2 class="h1" style="font-size:clamp(32px,4vw,44px)">Pro Example</h2><p class="help">An elite flying 20 m for comparison. It stays out of your rankings and results.</p><div class="row"><button class="btn btn-primary" data-open="${ex.id}">Open the run report</button></div></div>`; return; }
   if(!n){ box.innerHTML=`<div class="emptycard"><b>Build your roster</b><p class="help">Add each athlete once. On the timing screen their names become big buttons, so you can tap whoever runs next.</p></div>`; return; }
-  const runs=runsOf(n), onRoster=S.roster.includes(n);
+  const allRuns=runsOf(n), runs=isPro()?allRuns:allRuns.filter(proRecent), hiddenRuns=allRuns.length-runs.length, onRoster=S.roster.includes(n);
   const bestBy={}; for(const r of runs){ if(r.mode==='pv') continue; const H=headline(r); if(H.t==null) continue; const k=runKey(r); if(!bestBy[k]||H.t<bestBy[k].t) bestBy[k]={t:H.t,r}; }
   const cnt={}; runs.forEach(r=>{ if(r.mode==='pv') return; const k=runKey(r); cnt[k]=(cnt[k]||0)+1; });
   const mainK=Object.keys(cnt).sort((a,b)=>(cnt[b]-cnt[a])||(+a.endsWith('|1'))-(+b.endsWith('|1')))[0], mb=mainK&&bestBy[mainK];
@@ -3075,12 +3106,14 @@ function renderProfile(){
   if(onRoster) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Run-ups by lefts</h2><span class="muted">${pvM()?'meters':'feet'} from the box or board</span></div>
     <div class="tbl-x"><table class="rutab"><thead><tr>${LEFTS.map(L=>`<th>${L}L</th>`).join('')}<th class="tocol">Takeoff target</th></tr></thead><tbody><tr>${LEFTS.map(L=>`<td><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-ru="${esc(n)}|${L}" value="${fmtRun(runupOf(n,L))}" aria-label="${L} lefts run-up"></td>`).join('')}<td class="tocol"><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-to="${esc(n)}" value="${fmtRun(toTargetFt(n))}" aria-label="Takeoff target from the box"></td></tr></tbody></table></div>
     <p class="help">Takeoff target (pole vault): where the takeoff foot should land, from the box. Jumps within 4 in (10 cm) of it count as on target. Long and triple jump are always judged against the board.</p></div>`;
-  { const tb=takeoffPoints(runs,null,true); if(tb.length) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Board accuracy and end speed</h2><span class="muted">${plural(tb.length,'jump')} · long and triple jump</span></div><div class="chartbox">${takeoffSVG(tb,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tb)}</p></div>`; }
-  { const tp=takeoffPoints(runs); if(tp.length) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Takeoff and end speed</h2><span class="muted">${plural(tp.length,'jump')} · target ${toTargetFt(n)!=null?fmtRun(toTargetFt(n))+' from the box':'as set when jumped'}</span></div><div class="chartbox">${takeoffSVG(tp,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tp)}</p></div>`;
+  if(isPro()){ const tb=takeoffPoints(runs,null,true); if(tb.length) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Board accuracy and end speed</h2><span class="muted">${plural(tb.length,'jump')} · long and triple jump</span></div><div class="chartbox">${takeoffSVG(tb,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tb)}</p></div>`; }
+  if(isPro()){ const tp=takeoffPoints(runs); if(tp.length) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Takeoff and end speed</h2><span class="muted">${plural(tp.length,'jump')} · target ${toTargetFt(n)!=null?fmtRun(toTargetFt(n))+' from the box':'as set when jumped'}</span></div><div class="chartbox">${takeoffSVG(tp,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tp)}</p></div>`;
     else if(runs.some(r=>r.mode==='pv'&&jOf(r)==='pv'&&runSteps(r))) h+=`<div class="card" data-sec="pv"><h2 class="card-t">Takeoff and end speed</h2><p class="help">Set a takeoff target above to see each jump as under, on target or out, against its end speed.</p></div>`; }
-  const prog=progressSVG(runs,chartW({clientWidth:box.clientWidth-38}));
+  if(!isPro() && new Set(allRuns.map(r=>ymd(new Date(r.date)))).size>1) h+=proLockCard('trends','Progress by day',`See ${esc(n.split(' ')[0])}'s top speed and end speed session by session${hiddenRuns?`, plus ${plural(hiddenRuns,'older run')}`:''}.`,'ov');
+  const prog=isPro()?progressSVG(runs,chartW({clientWidth:box.clientWidth-38})):'';
   if(prog) h+=`<div class="card" data-sec="ov"><div class="gh"><h2 class="card-t">Top speed by day</h2><span class="legend2"><span class="lg" style="cursor:default"><i style="background:var(--chart)"></i>No pole</span>${t1?'<span class="lg" style="cursor:default"><i style="background:#E8590C"></i>With pole</span>':''}</span></div><div class="chartbox">${prog}</div></div>`;
   const ev=S.ath.ev, pl=S.ath.pole, list=runs.filter(r=>(ev==='all'||r.mode===ev)&&(pl==='all'||(r.pole?'1':'0')===pl));
+  if(hiddenRuns) h+=proLockCard('history',`${plural(hiddenRuns,'older run')} saved`,`Free shows the last ${PRO_CFG.freeDays} days. Older runs are kept and come back with Pro.`,'runs');
   h+=`<div class="card" data-sec="runs"><div class="gh"><h2 class="card-t">All runs</h2>
       <div class="toolbar"><div class="seg" id="aEv">${[['all','All'],['fly','Fly'],['sprint','Sprint'],['pv','Jumps']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${ev===v}">${l}</button>`).join('')}</div>
       <div class="seg" id="aPole">${[['all','Any'],['0','No pole'],['1','Pole']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${pl===v}">${l}</button>`).join('')}</div></div></div>
@@ -3183,6 +3216,7 @@ $('runBody').addEventListener('click',e=>{
    Settings, backup, files
    ========================================================= */
 function renderSettings(){
+  renderPlan();
   pressed('#thSeg [data-th]', b=>b.dataset.th===(S.theme||'system'));
   pressed('#autoSeg [data-auto]', b=>(b.dataset.auto==='1')===!!S.autoSave);
   pressed('#sndSeg [data-snd]', b=>(b.dataset.snd==='1')===!!S.sound);
@@ -3491,8 +3525,174 @@ $('rpSave').onclick=async()=>{
   const res=await saveFile(`gatecamlive-report-${reportDay}.html`,doc,'text/html');
   toast(res==='ok'?'Report saved. Open the file and print it from your browser.':res==='declined'?'Save cancelled':"Saving files isn't available here",4200);
 };
-$('resReport').onclick=()=>openReport(S.res.day);
-$('resDoneOpen').onclick=()=>{ $('resDone').hidden=true; openReport(S.res.day); };
+$('resReport').onclick=()=>isPro()?openReport(S.res.day):openPaywall('report');
+$('resDoneOpen').onclick=()=>{ $('resDone').hidden=true; isPro()?openReport(S.res.day):openPaywall('report'); };
+
+/* =========================================================
+   GateCamLive Pro: free timing, Pro for steps, reports and history
+   - In the iPhone / Android app, purchases go through the App Store / Google Play via RevenueCat
+     (@revenuecat/purchases-capacitor). The 7-day free trial is the store's introductory offer.
+   - On the web there is no payment: a one-time 7-day trial on this device, then a team code.
+   - Pro status lives in its own storage key, never in S, so backups can't carry it.
+   ========================================================= */
+const PRO_CFG={
+  trialDays:7,
+  freeDays:7,                       // free plan: results from the last 7 days
+  entitlement:'pro',                // RevenueCat entitlement id
+  rcKeys:{ios:'', android:''},      // RevenueCat public SDK keys, filled in for the store build
+  plans:[                           // store product ids; prices on the web are display only
+    {id:'annual', pkg:'$rc_annual', product:'gcl_pro_annual', label:'Yearly', price:'$39.99', per:'year', note:'Best value · about $3.33 a month'},
+    {id:'monthly', pkg:'$rc_monthly', product:'gcl_pro_monthly', label:'Monthly', price:'$4.99', per:'month', note:''}],
+  terms:'terms.html', privacy:'privacy.html',
+  // web-only team codes (Apple doesn't allow codes in the store app). Stored as hashes.
+  codes:['h8helov']   // BULLSVAULT26
+};
+const PRO_KEY='gatecam.pro';
+let PRO=(()=>{ try{ return JSON.parse(localStorage.getItem(PRO_KEY))||{}; }catch(e){ return {}; } })();
+const proSave=()=>{ try{ localStorage.setItem(PRO_KEY,JSON.stringify(PRO)); }catch(e){} };
+const DAY=864e5;
+function proState(now=Date.now()){
+  if(PRO.until && new Date(PRO.until).getTime()+(PRO.src==='store'?3*DAY:0)>now) return {on:true, kind:PRO.src==='store'?(PRO.period==='TRIAL'?'trial':'sub'):'code', until:PRO.until};
+  if(PRO.trial && !Store.native()){ const end=new Date(PRO.trial).getTime()+PRO_CFG.trialDays*DAY;
+    if(now<end) return {on:true, kind:'trial', left:Math.max(1,Math.ceil((end-now)/DAY)), until:new Date(end).toISOString()};
+    return {on:false, kind:'expired'}; }
+  return {on:false, kind:'free'};
+}
+const isPro = () => proState().on;
+const proRecent = r => Date.now()-new Date(r.date).getTime() < PRO_CFG.freeDays*DAY;
+const dayRecent = day => Date.now()-new Date(day+'T23:59:59').getTime() < PRO_CFG.freeDays*DAY;
+
+/* ---------- store adapter ---------- */
+const Store={
+  P:()=>window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Purchases,
+  native(){ try{ return !!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()&&this.P()); }catch(e){ return false; } },
+  platform(){ try{ return window.Capacitor.getPlatform(); }catch(e){ return 'web'; } },
+  pkgs:null, ready:false,
+  async init(){
+    if(!this.native()) return;
+    try{
+      const key=PRO_CFG.rcKeys[this.platform()]; if(!key) return;
+      await this.P().configure({apiKey:key}); this.ready=true;
+      await this.refresh();
+      const o=await this.P().getOfferings(); const cur=o&&(o.current||(o.all&&Object.values(o.all)[0]));
+      this.pkgs=cur?cur.availablePackages:null;
+      try{ this.P().addCustomerInfoUpdateListener(ci=>{ this.apply(ci); proChanged(); }); }catch(e){}
+      proChanged();
+    }catch(e){ console.warn('store init',e); }
+  },
+  pkgFor(planId){ const p=PRO_CFG.plans.find(x=>x.id===planId); return this.pkgs&&this.pkgs.find(k=>k.identifier===p.pkg||(k.product&&k.product.identifier===p.product)); },
+  priceOf(planId){ const k=this.pkgFor(planId); return k&&k.product&&k.product.priceString; },
+  introOf(planId){ const k=this.pkgFor(planId); return k&&k.product&&k.product.introPrice; },
+  apply(ci){
+    const e=ci&&ci.entitlements&&ci.entitlements.active&&ci.entitlements.active[PRO_CFG.entitlement];
+    if(e){ PRO.until=e.expirationDate||'2999-12-31T00:00:00Z'; PRO.src='store'; PRO.period=e.periodType||''; PRO.plan=e.productIdentifier||''; PRO.will=e.willRenew!==false; }
+    else if(PRO.src==='store'){ delete PRO.until; delete PRO.src; delete PRO.period; }
+    proSave();
+  },
+  async refresh(){ if(!this.ready) return; const r=await this.P().getCustomerInfo(); this.apply(r.customerInfo||r); },
+  async buy(planId){
+    const k=this.pkgFor(planId); if(!k) throw new Error('That plan is not available right now. Check your connection and try again.');
+    const r=await this.P().purchasePackage({aPackage:k}); this.apply(r.customerInfo);
+  },
+  async restore(){ const r=await this.P().restorePurchases(); this.apply(r.customerInfo||r); },
+  manageURL(){ return this.platform()==='android' ? 'https://play.google.com/store/account/subscriptions' : 'https://apps.apple.com/account/subscriptions'; }
+};
+
+/* ---------- paywall ---------- */
+const PRO_WHY={
+  steps:'Last steps and takeoff are part of Pro.',
+  report:'Practice reports are part of Pro.',
+  history:`Results older than ${PRO_CFG.freeDays} days are part of Pro. They're saved; nothing is deleted.`,
+  trends:'Athlete trends over time are part of Pro.',
+  settings:''
+};
+const PRO_FEATS=[
+  ['Last 4 steps','Step length, where each foot lands, contact time and step rate into the takeoff.'],
+  ['Takeoff and board accuracy','Under or out on the vault target; on the board, foul or behind in long and triple jump.'],
+  ['Practice reports','Printable rankings, speed curves and takeoff charts for the whole squad.'],
+  ['Full history and trends','Every session you have ever timed, and each athlete\'s progress by day.']];
+let proPlan='annual', proWhy='settings', proBusy=false, proMsg='';
+function openPaywall(why){ proWhy=why||'settings'; proMsg=''; renderPaywall(); openSheet('proSheet'); }
+function renderPaywall(){
+  const st=proState(), nat=Store.native(), pl=PRO_CFG.plans;
+  const price=id=>Store.priceOf(id)||pl.find(p=>p.id===id).price;
+  const plan=pl.find(p=>p.id===proPlan);
+  const intro=nat?Store.introOf(proPlan):null, trialOk= nat ? !!intro : !PRO.trial;
+  let cta, fine;
+  if(st.on && st.kind!=='trial'){ cta=''; fine=''; }
+  else if(nat){
+    cta= trialOk ? `Start ${PRO_CFG.trialDays}-day free trial` : `Subscribe · ${price(proPlan)} a ${plan.per}`;
+    fine=`${trialOk?`${PRO_CFG.trialDays} days free, then `:''}${price(proPlan)} a ${plan.per}. Payment is charged to your ${Store.platform()==='android'?'Google Play account':'Apple ID'}${trialOk?' when the trial ends':' when you confirm'}. The subscription renews automatically unless you cancel at least 24 hours before the end of the current period. Manage or cancel any time in your account settings.`;
+  } else {
+    cta= st.kind==='trial' ? '' : trialOk ? `Start ${PRO_CFG.trialDays}-day free trial` : '';
+    fine= trialOk&&st.kind!=='trial' ? `No card needed. To keep Pro after the trial, subscribe in the GateCamLive app for iPhone or Android.` : `Subscribe in the GateCamLive app for iPhone or Android. Coaching a team that has a code? Enter it below.`;
+  }
+  const head= st.on ? (st.kind==='trial' ? `<div class="pro-state">Pro trial · ${st.left!=null?plural(st.left,'day')+' left':'active'}</div>` : `<div class="pro-state">You have Pro${st.kind==='sub'&&PRO.until&&!String(PRO.until).startsWith('2999')?` · ${PRO.will===false?'ends':'renews'} ${fmtDate(PRO.until,{month:'short',day:'numeric',year:'numeric'})}`:''}</div>`) : '';
+  $('proBody').innerHTML=`
+    <div class="sheet-head"><span class="eyebrow">GateCamLive Pro</span><button class="btn" data-close>Close</button></div>
+    <div class="pro-hero"><h2>Win the last ten meters.</h2>${PRO_WHY[proWhy]?`<p class="pro-why">${PRO_WHY[proWhy]}</p>`:''}${head}</div>
+    <ul class="pro-feats">${PRO_FEATS.map(([t,d])=>`<li><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><div><b>${t}</b><span>${d}</span></div></li>`).join('')}</ul>
+    <p class="help pro-free">Timing every event, the perspective fix, end speed and the last ${PRO_CFG.freeDays} days of results stay free. Export and backup are always free.</p>
+    ${st.on&&st.kind!=='trial'?'':`<div class="pro-plans" role="radiogroup" aria-label="Plan">${pl.map(p=>`<button class="pro-plan" role="radio" data-plan="${p.id}" aria-checked="${p.id===proPlan}"><b>${p.label}</b><span class="num">${price(p.id)} / ${p.per}</span>${p.note?`<small>${p.note}</small>`:''}</button>`).join('')}</div>`}
+    ${cta?`<button class="btn-grad pro-cta" id="proBuy" ${proBusy?'disabled':''}>${proBusy?'One moment…':cta}</button>`:''}
+    ${fine?`<p class="pro-fine">${fine}</p>`:''}
+    ${!nat&&!(st.on&&st.kind==='code')?`<form class="pro-code" id="proCodeF"><input class="inp" id="proCode" placeholder="Team code" autocomplete="off" autocapitalize="characters" aria-label="Team code"><button class="btn">Use code</button></form>`:''}
+    ${proMsg?`<p class="pro-msg" role="status">${proMsg}</p>`:''}
+    <div class="pro-links"><button class="btn-link" id="proRestore">Restore purchases</button>${nat&&st.kind==='sub'?`<a class="btn-link" href="${Store.manageURL()}" target="_blank" rel="noopener">Manage subscription</a>`:''}<a class="btn-link" href="${PRO_CFG.terms}" target="_blank" rel="noopener">Terms of Use</a><a class="btn-link" href="${PRO_CFG.privacy}" target="_blank" rel="noopener">Privacy Policy</a></div>`;
+}
+function proHash(s){ s=String(s).trim().toUpperCase().replace(/\s+/g,''); let h=0x811c9dc5; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return 'h'+h.toString(36); }
+function proChanged(){
+  if(!$('proSheet').hidden) renderPaywall();
+  renderPlan();
+  if(typeof renderSetup==='function' && !$('v-timer').hidden) renderSetup();
+  if(!$('v-results').hidden) renderResults();
+  if(!$('v-athletes').hidden) renderAthletes();
+}
+$('proSheet').addEventListener('click',async e=>{
+  const pb=e.target.closest('[data-plan]'); if(pb){ proPlan=pb.dataset.plan; renderPaywall(); return; }
+  if(e.target.closest('#proBuy')){
+    if(proBusy) return;
+    if(!Store.native()){ PRO.trial=new Date().toISOString(); proSave(); proMsg=`Pro is on for ${PRO_CFG.trialDays} days. Enjoy.`; proChanged(); toast('Pro trial started'); return; }
+    proBusy=true; proMsg=''; renderPaywall();
+    try{ await Store.buy(proPlan); proMsg= isPro() ? 'Welcome to Pro.' : 'The purchase is pending. It turns on as soon as the store confirms it.'; }
+    catch(err){ proMsg= err&&(err.userCancelled||err.code==='1'||/cancel/i.test(err.message||'')) ? '' : (err&&err.message)||'The purchase didn\'t go through. Nothing was charged.'; }
+    proBusy=false; proChanged(); return;
+  }
+  if(e.target.closest('#proRestore')){
+    if(!Store.native()){ proMsg='Subscriptions are bought and restored in the GateCamLive app for iPhone or Android. Sign in there with the same Apple ID or Google account you subscribed with.'; renderPaywall(); return; }
+    proBusy=true; renderPaywall();
+    try{ await Store.restore(); proMsg= isPro() ? 'Pro restored.' : 'No active subscription was found for this account.'; }
+    catch(err){ proMsg='Restore didn\'t work. Check your connection and try again.'; }
+    proBusy=false; proChanged();
+  }
+});
+$('proSheet').addEventListener('submit',e=>{
+  if(e.target.id!=='proCodeF') return; e.preventDefault();
+  const v=$('proCode').value; if(!v.trim()) return;
+  if(PRO_CFG.codes.includes(proHash(v))){ PRO.until='2999-12-31T00:00:00Z'; PRO.src='code'; proSave(); proMsg='Team code accepted. Pro is on.'; proChanged(); toast('Pro is on'); }
+  else { proMsg='That code didn\'t work. Check it with your coach.'; renderPaywall(); }
+});
+// anything with data-pro="<reason>" opens the paywall
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-pro]'); if(!b) return; e.preventDefault(); e.stopPropagation(); openPaywall(b.dataset.pro); },true);
+const proTag = () => isPro() ? '' : '<span class="protag">Pro</span>';
+const proLockCard = (why,title,text,sec) => `<div class="card prolock"${sec?` data-sec="${sec}"`:''}><div class="pl-k"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Pro</div><b>${title}</b><p class="help">${text}</p><button class="btn btn-primary" data-pro="${why}">${proState().kind==='free'?`Try Pro free for ${PRO_CFG.trialDays} days`:'See Pro'}</button></div>`;
+
+/* ---------- Settings: your plan ---------- */
+function renderPlan(){
+  const el=$('planCard'); if(!el) return; const st=proState();
+  const line= st.on ? (st.kind==='trial' ? `Pro trial${st.left!=null?` · ${plural(st.left,'day')} left`:''}` : st.kind==='code' ? 'Pro · team code' : `Pro${PRO.until&&!String(PRO.until).startsWith('2999')?` · ${PRO.will===false?'ends':'renews'} ${fmtDate(PRO.until,{month:'short',day:'numeric',year:'numeric'})}`:''}`) : st.kind==='expired' ? 'Free · trial ended' : 'Free';
+  el.innerHTML=`<h2 class="card-t">Your plan</h2><div class="planline"><b>${line}</b>${st.on?'<span class="protag on">Pro</span>':''}</div>
+    <p class="help">${st.on?'Last steps, takeoff, reports and full history are on.':`Timing and the last ${PRO_CFG.freeDays} days of results are free. Pro adds last steps, takeoff and board accuracy, reports and full history.`}</p>
+    <div class="row"><button class="btn ${st.on?'':'btn-primary'}" data-pro="settings">${st.on?'Plan details':'See Pro'}</button>${Store.native()?`<button class="btn" id="planRestore">Restore purchases</button>`:''}</div>`;
+}
+document.addEventListener('click',async e=>{
+  if(!e.target.closest('#planRestore')) return;
+  try{ await Store.restore(); toast(isPro()?'Pro restored':'No active subscription found for this account'); }catch(err){ toast('Restore didn\'t work. Check your connection.'); }
+  proChanged();
+});
+Store.init();
+// the trial and store renewals can end while the app is open
+setInterval(()=>{ const on=isPro(); if(on!==proChanged.last){ proChanged.last=on; proChanged(); } },60000); proChanged.last=isPro();
 /* =========================================================
    Tabs and start-up
    ========================================================= */
