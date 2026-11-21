@@ -3552,7 +3552,7 @@ let PRO=(()=>{ try{ return JSON.parse(localStorage.getItem(PRO_KEY))||{}; }catch
 const proSave=()=>{ try{ localStorage.setItem(PRO_KEY,JSON.stringify(PRO)); }catch(e){} };
 const DAY=864e5;
 function proState(now=Date.now()){
-  if(PRO.until && new Date(PRO.until).getTime()+(PRO.src==='store'?3*DAY:0)>now) return {on:true, kind:PRO.src==='store'?(PRO.period==='TRIAL'?'trial':'sub'):'code', until:PRO.until};
+  if(PRO.until && new Date(PRO.until).getTime()+(PRO.src==='store'?3*DAY:0)>now) return {on:true, kind:PRO.src==='store'?(PRO.period==='TRIAL'?'trial':'sub'):'code', until:PRO.until, left:Math.max(1,Math.ceil((new Date(PRO.until).getTime()-now)/DAY))};
   if(PRO.trial && !Store.native()){ const end=new Date(PRO.trial).getTime()+PRO_CFG.trialDays*DAY;
     if(now<end) return {on:true, kind:'trial', left:Math.max(1,Math.ceil((end-now)/DAY)), until:new Date(end).toISOString()};
     return {on:false, kind:'expired'}; }
