@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<style id="nozoom">html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+@supports (-webkit-touch-callout:none){input,select,textarea{font-size:16px!important}}</style>
+<script>/* no zooming anywhere: pinch, double-tap or text boxes */
+(function(){var s=function(e){e.preventDefault()};['gesturestart','gesturechange','gestureend'].forEach(function(t){document.addEventListener(t,s,{passive:false})});
+document.addEventListener('touchmove',function(e){if(e.scale!==undefined&&e.scale!==1)e.preventDefault()},{passive:false});
+document.addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},{passive:false});})();</script>
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="GateCamLive">
@@ -3521,7 +3528,7 @@ $('rpPrint').onclick=()=>{ document.body.classList.add('printing'); setTimeout((
 window.addEventListener('afterprint',()=>document.body.classList.remove('printing'));
 $('rpSave').onclick=async()=>{
   const html=reportHTML(reportDay); if(!html) return;
-  const doc=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GateCamLive report · ${reportDay}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap"><style>body{margin:0;background:#fff;padding:16px}${REPORT_CSS}</style></head><body>${html}</body></html>`;
+  const doc=`<!doctype html><html lang="en"><head><meta charset="utf-8"><title>GateCamLive report · ${reportDay}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap"><style>body{margin:0;background:#fff;padding:16px}${REPORT_CSS}</style></head><body>${html}</body></html>`;
   const res=await saveFile(`gatecamlive-report-${reportDay}.html`,doc,'text/html');
   toast(res==='ok'?'Report saved. Open the file and print it from your browser.':res==='declined'?'Save cancelled':"Saving files isn't available here",4200);
 };
