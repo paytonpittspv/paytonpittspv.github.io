@@ -17,6 +17,7 @@ img{max-width:100%}
 [hidden]{display:none!important}
 </style>
 <title>GateCamLive</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
@@ -441,7 +442,86 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
 :root[data-theme="dark"] .tob.under{color:#C4A6FF} :root[data-theme="dark"] .tob.out{color:#F59A5B}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tob.under{color:#C4A6FF} :root:not([data-theme="light"]) .tob.out{color:#F59A5B}}
 .rutab th.tocol,.rutab td.tocol{border-left:2px solid var(--line-2);padding-left:10px}
-@media print{
+
+/* ===== App frame like the sensor app: slim header, one thing per screen, tab bar at the bottom ===== */
+body{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+body.live-on{padding-bottom:0}
+.app-head{justify-content:space-between;border-bottom:1px solid var(--line);margin-bottom:6px}
+.hpill{display:inline-flex;align-items:center;gap:8px;max-width:58%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:999px;padding:9px 14px;font:700 13px/1 var(--f-body);letter-spacing:.06em;text-transform:uppercase}
+.hpill i{width:8px;height:8px;border-radius:50%;background:var(--grad);flex:none}
+.hpill span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:grid;grid-template-columns:repeat(5,1fr);align-items:end;background:var(--surface);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar button{border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font:600 12px/1 var(--f-body);min-height:52px;justify-content:center}
+.tabbar button[aria-current="true"]{color:var(--ink)}
+.tabbar button[aria-current="true"] svg{stroke:var(--brand-text)}
+.tabbar .tb-new{align-self:center}
+.tabbar .tb-new b{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--grad);color:#fff;margin-top:-26px;box-shadow:0 0 0 5px var(--bg),0 6px 18px rgba(0,0,0,.35)}
+.tabbar .tb-new b svg{width:28px;height:28px;stroke-width:2.6}
+.tabbar .tb-new.on b{box-shadow:0 0 0 5px var(--bg),0 0 0 7px var(--brand-text)}
+body.live-on .tabbar{display:none}
+.view{padding-bottom:12px}
+.h1.pt{margin:10px 0 14px}
+/* home */
+.hero{font:800 clamp(38px,9vw,56px)/1.02 var(--f-disp);letter-spacing:-.01em;margin:18px 0 6px}
+.hero span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.herosub{color:var(--muted);font-size:17px;margin:0 0 18px}
+#v-home .card{margin-bottom:14px}
+.hc-k{font:700 13px/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.hc-sum{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
+.hc-sum b{font:800 24px/1.1 var(--f-disp);text-transform:uppercase;letter-spacing:.02em}
+.hc-sum span{color:var(--muted);font-size:15px}
+.btn-grad{display:block;width:100%;border:0;border-radius:18px;padding:20px 18px;background:var(--grad);color:#fff;font:800 22px/1 var(--f-disp);letter-spacing:.08em;text-transform:uppercase;text-shadow:0 1px 2px rgba(0,0,0,.25);box-shadow:0 8px 22px rgba(180,139,242,.25)}
+.btn-grad:active{transform:translateY(1px)}
+.btn-block{display:block;width:100%;margin-top:10px}
+.hrowcard{display:block;width:100%;text-align:left;color:var(--ink);font:inherit}
+.hc-stats{display:flex;gap:22px;flex-wrap:wrap}
+.hc-stats div{display:flex;flex-direction:column;gap:2px}
+.hc-stats b{font:800 30px/1 var(--f-disp)}
+.hc-stats b small{font:600 13px var(--f-body);color:var(--muted);margin-left:3px}
+.hc-stats span{color:var(--muted);font-size:13px}
+.hc-go{display:block;margin-top:14px;color:var(--brand-text);font-weight:700}
+/* setup steps */
+#v-timer .setup{display:block}
+#v-timer .setup > .card{max-width:760px}
+#v-timer .setup > .card > .card-t{display:none}
+.wiz-top{display:flex;flex-direction:column;align-items:flex-end;gap:8px;margin:10px 0 4px}
+.wiz-n{color:var(--muted);font-size:14px}
+.wiz-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
+.wiz-bar i{height:5px;border-radius:3px;background:var(--line-2)}
+.wiz-bar i.on{background:var(--grad)}
+.wiz-t{margin:12px 0 2px}
+.wiz-sum{color:var(--muted);font-size:14px;margin-bottom:12px}
+.wiz-nav{position:sticky;bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:5;display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:14px;padding:10px 0 0;background:linear-gradient(transparent,var(--bg) 30%);max-width:760px}
+.wiz-nav .btn-grad{padding:16px;font-size:19px}
+details.more{margin-top:4px}
+details.more>summary,.chartdet>summary{cursor:pointer;color:var(--brand-text);font-weight:600;font-size:14px;padding:8px 0;list-style:none}
+details.more>summary::before,.chartdet>summary::before{content:'›';display:inline-block;margin-right:8px;transition:transform .15s}
+details[open].more>summary::before,.chartdet[open]>summary::before{transform:rotate(90deg)}
+/* results */
+.resacts{display:flex;gap:10px;align-items:center;margin:0 0 10px;flex-wrap:wrap}
+.menu{position:relative}
+.menu>summary{list-style:none}
+.menu>summary::-webkit-details-marker{display:none}
+.menu-p{position:absolute;right:0;top:calc(100% + 6px);z-index:15;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--surface);border:1px solid var(--line-2);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.35);min-width:190px}
+.menu-p .btn{width:100%;justify-content:flex-start}
+.hscroll{display:flex;gap:8px;overflow-x:auto;margin:0 -16px 14px;padding:0 16px 2px;scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+.hscroll .seg{flex:none}
+.chartdet{margin:4px 0 6px}
+/* athletes */
+.athsw{margin:0 0 14px;max-width:520px}
+.backbtn{display:none;margin-bottom:10px;align-self:flex-start;width:auto}
+.apt{margin:14px 0}
+@media(min-width:880px){ #v-home,#v-settings{max-width:760px} }
+@media(max-width:879px){
+  #v-athletes.detail #athRoster>div:first-child{display:none}
+  #v-athletes:not(.detail) #aprof{display:none}
+  #v-athletes.detail .athsw, #v-athletes.detail .pagehead{display:none}
+  .backbtn{display:inline-flex}
+}
+.setstack{max-width:760px}
+@media(max-width:600px){.hpill{max-width:52%;font-size:12px;padding:8px 12px}.wiz-nav{grid-template-columns:1fr 1.6fr}}
+@media print{ .tabbar,.app-head{display:none!important}
   body{background:#fff!important;padding:0!important}
   body::before{display:none!important}
   :root,:root[data-theme]{color-scheme:light!important}
@@ -458,27 +538,32 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
 
 <header class="app-head">
   <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A5B"/><stop offset=".5" stop-color="#D58FB3"/><stop offset="1" stop-color="#B48BF2"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><path d="M12 9v22M20 9v22M28 9v22" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="20" cy="20" r="4.8" fill="var(--gate)"/></svg><span>GateCam<em>Live</em></span></div>
-  <nav class="nav" role="tablist" aria-label="Sections">
-    <button role="tab" id="tab-timer" data-tab="timer">Timer</button>
-    <button role="tab" id="tab-results" data-tab="results">Results</button>
-    <button role="tab" id="tab-athletes" data-tab="athletes">Athletes</button>
-  </nav>
-  <button class="iconbtn" id="btnSettings" aria-label="Settings"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></button>
+  <button class="hpill" id="hdrPill" aria-label="Change the session setup"><i></i><span id="hdrPillT">Set up</span></button>
+  <button class="iconbtn" id="btnSettings" aria-label="Settings" hidden><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></svg></button>
 </header>
 
 <main class="wrap">
-  <!-- TIMER SETUP -->
-  <section class="view" id="v-timer">
-    <div class="pagehead">
-      <div style="min-width:0">
-        <div class="eyebrow">Timer</div>
-        <h1 class="h1">Set up a session</h1>
-        <div class="sum" id="setupSum"></div>
-      </div>
-      <button class="btn btn-primary btn-lg" id="btnStart">Start session <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  <!-- HOME -->
+  <section class="view" id="v-home" hidden>
+    <h1 class="hero"><span>Every hundredth</span> counts.</h1>
+    <p class="herosub">Set the gates, tap an athlete, run.</p>
+    <div class="card hcard">
+      <div class="hc-k" id="homeSetupK">Ready to time</div>
+      <div class="hc-sum" id="homeSetup"></div>
+      <button class="btn-grad" id="homeNew">New session</button>
+      <button class="btn btn-lg btn-block" id="homeAgain">Start with this setup</button>
     </div>
+    <div id="homeToday"></div>
+    <div id="homeRoster"></div>
+  </section>
+
+  <!-- TIMER SETUP: one step per screen -->
+  <section class="view" id="v-timer">
+    <div class="wiz-top"><div class="wiz-n" id="wizN">Step 1 of 4</div><div class="wiz-bar" id="wizBar"><i></i><i></i><i></i><i></i></div></div>
+    <h1 class="h1 wiz-t" id="wizTitle">Choose event</h1>
+    <div class="sum wiz-sum" id="setupSum"></div>
     <div class="setup">
-      <section class="card">
+      <section class="card" data-step="1">
         <h2 class="card-t"><span class="n">1</span>Event</h2>
         <div class="tiles" id="evTiles">
           <button class="tile" data-ev="fly"><svg viewBox="0 0 34 22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M2 11h6M11 11h6"/><path d="M21 4v14M31 4v14"/><path d="M23 11h6" stroke-dasharray="2 3"/></svg><b>Fly</b><span>Rolling start. Times the fastest stretch between gates, like a flying 20 m.</span></button>
@@ -491,10 +576,12 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
         <p class="help" id="pvHelp" hidden>Vault approaches are always with the pole. Each athlete's approach speed is compared with their best sprint speed, so time a few flys too.</p>
       </section>
 
-      <section class="card">
+      <section class="card" data-step="2">
         <h2 class="card-t"><span class="n">2</span>Gates</h2>
         <div id="pvGates" class="stack" style="gap:8px" hidden>
-          <div class="field-h">Gates, in feet from the box</div>
+          <div class="field-h">Units</div>
+          <div class="seg fill" id="unitSeg"><button data-un="ft">Feet</button><button data-un="m">Meters</button></div>
+          <div class="field-h">Gates, from the box</div>
           <div class="chips" id="pvPresets"></div>
           <div class="calin">
             <label class="f">First gate<span class="unit" data-u="ft"><input id="pvFrom" type="number" inputmode="decimal" step="any" min="1"></span></label>
@@ -504,8 +591,9 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
           <p class="help num" id="pvFtHint"></p>
           <div class="field-h">Last steps</div>
           <div class="seg fill" id="stepsSeg"><button data-st="1">Measure steps</button><button data-st="0">Off</button></div>
-          <p class="help">Finds each foot plant on the runway: the last 4 step lengths, contact times, step rate and where the takeoff foot lands. Needs the perspective fix, and the camera has to see the last 4–5 steps and the takeoff, side on.</p>
-          <p class="help">Gates are spaced evenly from the first gate to the last. Put a cone at each one. You get the athlete's speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the box. The perspective fix is marked at your farthest and nearest cone, so the box doesn't need to be in the picture. Everything here is in feet; saved results are in meters.</p>
+          <details class="more"><summary>How gates, steps and the perspective work</summary>
+          <p class="help">Steps: finds each foot plant on the runway: the last 4 step lengths, contact times, step rate and where the takeoff foot lands. Needs the perspective fix, and the camera has to see the last 4–5 steps and the takeoff, side on.</p>
+          <p class="help">Gates are spaced evenly from the first gate to the last. You get the athlete's speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the box. For the classic last 10 m → 5 m speed, pick the first preset. The perspective is set from the 15 ft and 9 ft takeoff marks painted on the runway, plus one cone at the farthest gate, so the box doesn't need to be in the picture. Saved results are in meters.</p></details>
         </div>
         <div id="flyViewWrap" class="stack" style="gap:8px">
           <div class="field-h">What the camera sees</div>
@@ -530,12 +618,8 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
         <div class="seg fill" id="dirSeg"><button data-dir="ltr">Left → right</button><button data-dir="rtl">Right → left</button></div>
       </section>
 
-      <section class="card" id="ruCard" hidden style="grid-column:1/-1">
-        <h2 class="card-t"><span class="n">★</span>Run-ups by lefts, in feet</h2>
-        <p class="help">Each athlete's run-up from the box in feet, for every lefts count they use. Type 79.5, 79'6 or 79 6. Leave the ones they don't use blank. You pick the lefts for each jump on the timing screen.</p>
-        <div class="tbl-x" id="ruTable"></div>
-      </section>
-      <section class="card">
+
+      <section class="card" data-step="3">
         <h2 class="card-t"><span class="n">3</span>Camera</h2>
         <div class="tiles sm" id="srcTiles">
           <button class="tile" data-src="camera"><b>Live camera</b><span>iPad or phone on a tripod, timing as athletes run.</span></button>
@@ -552,16 +636,17 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
         <div class="note" id="calNote" hidden></div>
       </section>
 
-      <section class="card">
+      <section class="card" data-step="4">
         <h2 class="card-t"><span class="n">4</span>Details</h2>
         <div class="gen2">
           <label class="f">Test name<input id="test" placeholder="Flying 20 m"></label>
           <label class="f">Location<input id="loc" placeholder="USF track"></label>
           <label class="f"><span>Session date · <span id="sdSrc" style="font-weight:500">today</span></span><input id="sDate" type="date"></label>
         </div>
-        <p class="help">Uploaded videos fill in the date they were recorded.</p>
+        <p class="help">Uploaded videos fill in the date they were recorded. All optional.</p>
       </section>
     </div>
+    <div class="wiz-nav"><button class="btn btn-lg" id="wizBack">Back</button><button class="btn btn-primary btn-lg" id="wizNext">Next</button><button class="btn-grad" id="btnStart" hidden>Start session</button></div>
   </section>
 
   <!-- RESULTS -->
@@ -582,13 +667,11 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
       <div><b>Practice finished.</b> The full report has rankings, pole vs no pole, and where each athlete's speed peaked.</div>
       <button class="btn btn-primary btn-lg" id="resDoneOpen">Open practice report</button>
     </div>
-    <div class="toolbar" id="resFilters" style="margin-bottom:14px">
-      <div class="seg" id="resEv"><button data-v="all">All events</button><button data-v="fly">Fly</button><button data-v="sprint">Sprint</button><button data-v="pv">Pole vault</button></div>
-      <div class="seg" id="resPole"><button data-v="all">Pole and no pole</button><button data-v="0">No pole</button><button data-v="1">With pole</button></div>
-      <span class="grow"></span>
-      <button class="btn btn-primary" id="resReport">Practice report</button>
-      <button class="btn" id="resCopy">Copy results</button>
-      <button class="btn" id="resCsv">Export CSV</button>
+    <div class="resacts"><button class="btn btn-primary" id="resReport">Practice report</button>
+      <details class="menu"><summary class="btn" aria-label="More">More</summary><div class="menu-p"><button class="btn" id="resCopy">Copy results</button><button class="btn" id="resCsv">Export CSV</button></div></details></div>
+    <div class="hscroll" id="resFilters">
+      <div class="seg" id="resEv"><button data-v="all">All</button><button data-v="fly">Fly</button><button data-v="sprint">Sprint</button><button data-v="pv">Vault</button></div>
+      <div class="seg" id="resPole"><button data-v="all">Any</button><button data-v="0">No pole</button><button data-v="1">Pole</button></div>
     </div>
     <div class="stats" id="resStats"></div>
     <div class="stack" id="resBody" style="margin-top:16px"></div>
@@ -602,9 +685,15 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
         <h1 class="h1">Roster</h1>
         <div class="sum" id="athSub"></div>
       </div>
-      <button class="btn" id="btnPaste">Paste a list of names</button>
+      <button class="btn" id="btnPaste">Paste names</button>
     </div>
-    <div class="alay">
+    <div class="seg fill athsw" id="athSw"><button data-as="roster">Roster</button><button data-as="ru">Vault run-ups</button></div>
+    <div id="athRu" hidden>      <section class="card" id="ruCard">
+        <h2 class="card-t"><span class="n">★</span><span id="ruHead">Run-ups by lefts, in feet</span></h2>
+        <p class="help"><span id="ruHelp">Each athlete's run-up from the box in feet, for every lefts count they use. Type 79.5, 79'6 or 79 6.</span> Leave the ones they don't use blank. You pick the lefts for each jump on the timing screen.</p>
+        <div class="tbl-x" id="ruTable"></div>
+      </section></div>
+    <div class="alay" id="athRoster">
       <div>
         <form class="addath" id="athAddForm"><input id="athAddName" placeholder="Add an athlete" autocomplete="off" aria-label="Athlete name"><button class="btn btn-primary">Add</button></form>
         <div class="alist" id="alist"></div>
@@ -612,7 +701,51 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
       <div class="stack" id="aprof"></div>
     </div>
   </section>
+
+  <!-- SETTINGS -->
+  <section class="view" id="v-settings" hidden>
+    <h1 class="h1 pt">Settings</h1>
+    <div class="stack setstack">
+    <section class="card">
+      <h2 class="card-t">Appearance</h2>
+      <div class="seg fill" id="thSeg"><button data-th="system">System</button><button data-th="light">Light</button><button data-th="dark">Dark</button></div>
+      <p class="help">Light is easiest to read in bright sun. The timing screen keeps a dark frame around the video either way.</p>
+    </section>
+    <section class="card">
+      <h2 class="card-t">After each run</h2>
+      <div class="seg fill" id="autoSeg"><button data-auto="0">Ask me to save</button><button data-auto="1">Save automatically</button></div>
+      <p class="help">Automatic saving still gives you a few seconds to undo.</p>
+      <div class="field-h">Sounds</div>
+      <div class="seg fill" id="sndSeg"><button data-snd="1">Beep at gates</button><button data-snd="0">Silent</button></div>
+    </section>
+    <section class="card">
+      <h2 class="card-t">Backup and restore</h2>
+      <div class="row">
+        <button class="btn btn-primary" id="bkSave">Save backup file</button>
+        <button class="btn" id="bkLoad">Load backup file</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="bkCopy">Copy backup text</button>
+        <button class="btn" id="bkRestore">Restore pasted text</button>
+      </div>
+      <textarea class="inp" id="bkText" rows="3" placeholder="Paste a backup here, then tap Restore pasted text."></textarea>
+      <p class="help" id="bkMsg">A backup holds your roster, saved runs, gates and camera alignment. Videos are not included. Restoring replaces what's in the app now.</p>
+    </section>
+    <section class="card">
+      <h2 class="card-t">How accurate is it?</h2>
+      <p class="help">Each gate time is pinned to a video frame, so times are good to about one frame: ±0.017 s at 60 fps, ±0.004 s in 240 fps slow-mo. Speeds also depend on how precisely the gates sit on the cones, about ±5 cm per gate with the perspective fix and ±15 cm without. Every result shows its own ± so you can judge it. Check it against laser gates once to know the real difference on your setup.</p>
+    </section>
+    </div>
+  </section>
 </main>
+
+<nav class="tabbar" aria-label="Sections">
+  <button data-tab="home" id="tab-home"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+  <button data-tab="results" id="tab-results"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Results</span></button>
+  <button class="tb-new" id="tabNew" aria-label="New session"><b><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></b></button>
+  <button data-tab="athletes" id="tab-athletes"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c1.9.6 3.1 2.4 3.5 5.2"/></svg><span>Athletes</span></button>
+  <button data-tab="settings" id="tab-settings"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span></button>
+</nav>
 
 <!-- LIVE SESSION -->
 <div class="live align" id="live" hidden>
@@ -662,6 +795,7 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
         </section>
         <section class="rsec">
           <div class="rsec-h"><h3>2 · Gates</h3><span class="muted" id="gateCount"></span></div>
+          <div class="seg fill" id="unitSeg2" hidden><button data-un="ft">Feet</button><button data-un="m">Meters</button></div>
           <div class="seg fill" id="dirSeg2"><button data-dir="ltr">Left → right</button><button data-dir="rtl">Right → left</button></div>
           <p class="help" id="linesHint"></p>
           <div class="stack" style="gap:8px" id="lines"></div>
@@ -703,42 +837,6 @@ body.live-on .toast{top:calc(env(safe-area-inset-top,0px) + 132px)}
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="runSheetT">
     <div class="sheet-head"><span class="eyebrow" id="runSheetT">Run report</span><button class="btn" data-close>Done</button></div>
     <div class="report" id="runBody"></div>
-  </div>
-</div>
-
-<!-- SETTINGS -->
-<div class="sheet" id="setSheet" hidden>
-  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="setT">
-    <div class="sheet-head"><h2 class="h2" id="setT">Settings</h2><button class="btn" data-close>Done</button></div>
-    <section class="card">
-      <h3 class="card-t">Appearance</h3>
-      <div class="seg fill" id="thSeg"><button data-th="system">System</button><button data-th="light">Light</button><button data-th="dark">Dark</button></div>
-      <p class="help">Light is easiest to read in bright sun. The timing screen keeps a dark frame around the video either way.</p>
-    </section>
-    <section class="card">
-      <h3 class="card-t">After each run</h3>
-      <div class="seg fill" id="autoSeg"><button data-auto="0">Ask me to save</button><button data-auto="1">Save automatically</button></div>
-      <p class="help">Automatic saving still gives you a few seconds to undo.</p>
-      <div class="field-h">Sounds</div>
-      <div class="seg fill" id="sndSeg"><button data-snd="1">Beep at gates</button><button data-snd="0">Silent</button></div>
-    </section>
-    <section class="card">
-      <h3 class="card-t">Backup and restore</h3>
-      <div class="row">
-        <button class="btn btn-primary" id="bkSave">Save backup file</button>
-        <button class="btn" id="bkLoad">Load backup file</button>
-      </div>
-      <div class="row">
-        <button class="btn" id="bkCopy">Copy backup text</button>
-        <button class="btn" id="bkRestore">Restore pasted text</button>
-      </div>
-      <textarea class="inp" id="bkText" rows="3" placeholder="Paste a backup here, then tap Restore pasted text."></textarea>
-      <p class="help" id="bkMsg">A backup holds your roster, saved runs, gates and camera alignment. Videos are not included. Restoring replaces what's in the app now.</p>
-    </section>
-    <section class="card">
-      <h3 class="card-t">How accurate is it?</h3>
-      <p class="help">Each gate time is pinned to a video frame, so times are good to about one frame: ±0.017 s at 60 fps, ±0.004 s in 240 fps slow-mo. Speeds also depend on how precisely the gates sit on the cones, about ±5 cm per gate with the perspective fix and ±15 cm without. Every result shows its own ± so you can judge it. Check it against laser gates once to know the real difference on your setup.</p>
-    </section>
   </div>
 </div>
 
@@ -912,7 +1010,6 @@ function analyze(gates,fly){
   return {splits,total,top,flyBest};
 }
 const realRuns = () => S.runs.filter(r=>!r.example);
-
 /* ---------- sample session (so a first-time visitor can see Results and Athletes without filming) ---------- */
 const DEMO_ATHLETES=[['Jordan Reyes',9.62],['Maya Chen',8.71],['Tyler Brooks',9.81],['Aaliyah Grant',8.44],['Ben Kowalski',9.25],['Sofia Alvarez',8.30]];
 function demoRuns(){
@@ -974,12 +1071,20 @@ const LEFTS=[3,4,5,6,7,8,9];
 // During setup and timing, vault gates are feet before the box (negative numbers). Saved runs are converted to meters.
 const FT=0.3048;
 const PV_TICKS=[9,15]; // feet: guide ticks drawn on the runway while aligning
-const PV_PRESETS=[{k:'20 → 12 ft · 3 gates',ft:[20,16,12]},{k:'24 → 12 ft · 4 gates',ft:[24,20,16,12]},{k:'33 → 16 ft · 2 gates',ft:[33,16]}];
-const pvEven=(from,to,n)=>Array.from({length:n},(_,i)=>r1(from+(to-from)*i/(n-1)));
+const PV_PRESETS=[{k:'Last 10 m → 5 m (32\' 10" → 16\' 5")',ft:[32.8,16.4]},{k:'20 → 12 ft · 3 gates',ft:[20,16,12]},{k:'24 → 12 ft · 4 gates',ft:[24,20,16,12]},{k:'33 → 16 ft · 2 gates',ft:[33,16]}];
+const pvEven=(from,to,n)=>Array.from({length:n},(_,i)=>Math.round((from+(to-from)*i/(n-1))*100)/100);
 const isPv = () => S.mode==='pv';
-const gLab = (d,pv=isPv()) => pv ? `${r1(-d)} ft` : `${d} m`;          // live screens
+// vault distances live in feet inside the app; the Feet / Meters switch only changes how they're shown and typed
+const pvM = () => S.pvUnit==='m';
+const uLen = ft => pvM() ? `${(ft*FT).toFixed(2)} m` : `${r1(ft)} ft`;          // a distance from the box, shown
+const uNum = ft => pvM() ? +(ft*FT).toFixed(2) : r1(ft);                        // the same, for an input box
+const uIn  = v  => pvM() ? v/FT : v;                                            // an input box back to feet
+const uTag = () => pvM() ? 'm' : 'ft';
+function fmtRun(ft){ return ft==null ? '' : pvM() ? `${(ft*FT).toFixed(2)} m` : fmtFt(ft); }   // run-ups and targets
+function parseLen(s){ if(!pvM()) return parseFeet(s); const v=parseFloat(String(s??'').replace(',','.')); return isFinite(v)?v/FT:null; }
+const gLab = (d,pv=isPv()) => pv ? uLen(-d) : `${d} m`;          // live screens
 const segLab = (a,b,pv) => pv ? `${r1(-a)}–${r1(-b)} m out` : `${a}–${b} m`;   // saved runs
-const segLabFt = (a,b) => `${r1(-a)}–${r1(-b)} ft out`;
+const segLabFt = (a,b) => pvM() ? `${(-a*FT).toFixed(1)}–${(-b*FT).toFixed(1)} m out` : `${r1(-a)}–${r1(-b)} ft out`;
 const m2 = x => Math.round(x*100)/100;
 function parseFeet(s){
   s=String(s??'').trim().replace(/[’′]/g,"'").replace(/[”″]/g,'"'); if(!s) return null;
@@ -1027,7 +1132,7 @@ const isZone = () => S.mode==='fly' && S.flyView==='zone';
 const zoneGen = () => ({from:+S.runup||0, to:r1((+S.runup||0)+(+S.fly||20)), every:+S.flyEvery>0?+S.flyEvery:(+S.fly||20)});
 function evSummary(){
   const ds=S.lines.map(l=>+l.d).sort((a,b)=>a-b);
-  if(isPv()){ const ls=ds.map(d=>`${r1(-d)} ft`); return {main:S.test||autoTest(), sub:`Gates at ${ls.length>1?ls.slice(0,-1).join(', ')+' and '+ls[ls.length-1]:ls[0]}${S.slow>1?` · slow-mo ${S.slow}×`:''}`}; }
+  if(isPv()){ const ls=ds.map(d=>uLen(-d)); return {main:S.test||autoTest(), sub:`Gates at ${ls.length>1?ls.slice(0,-1).join(', ')+' and '+ls[ls.length-1]:ls[0]}${S.slow>1?` · slow-mo ${S.slow}×`:''}`}; }
   return {main:`${S.test||autoTest()}${S.pole?' · Pole':''}`, sub:`${S.lines.length} gates · ${ds[0]}–${ds[ds.length-1]} m${isZone()?` · ${S.runup} m run-up`:''}${S.slow>1?` · slow-mo ${S.slow}×`:''}`};
 }
 function syncGenFromLines(){
@@ -1039,19 +1144,24 @@ function syncGenFromLines(){
 function flyPairExists(){ const ds=S.lines.map(l=>+l.d); for(const a of ds) for(const b of ds) if(Math.abs(b-a-S.fly)<1e-6) return true; return false; }
 
 function renderSetup(){
+  renderHdr();
   pressed('#evTiles [data-ev]', b=>b.dataset.ev===S.mode);
   pressed('#poleSeg [data-pole]', b=>(b.dataset.pole==='1')===!!S.pole);
   const zone=isZone();
   const pv=isPv();
   $('flyViewWrap').hidden=S.mode!=='fly';
-  $('pvGates').hidden=!pv; $('ruCard').hidden=!pv; $('presets').hidden=pv;
+  $('pvGates').hidden=!pv; $('presets').hidden=pv;
   ['poleSegH','poleSeg','poleHelp'].forEach(id=>$(id).hidden=pv); $('pvHelp').hidden=!pv;
   if(pv){
     $('pvPresets').innerHTML=PV_PRESETS.map((p,i)=>`<button class="chip" data-pvp="${i}" aria-pressed="${JSON.stringify(p.ft)===JSON.stringify(S.pvFt)}">${p.k}</button>`).join('');
     pressed('#stepsSeg [data-st]', b=>(b.dataset.st==='1')===(S.stepsOn!==false));
     const ft=[...S.pvFt].sort((a,b)=>b-a);
-    setVal('pvFrom',ft[0]); setVal('pvTo',ft[ft.length-1]); setVal('pvN',String(ft.length));
-    $('pvFtHint').textContent='Gates at '+ft.map(f=>`${f} ft`).join(' · ')+`  (${ft.map(f=>(f*FT).toFixed(2)).join(' · ')} m)`;
+    pressed('#unitSeg [data-un]', b=>b.dataset.un===uTag());
+    $('pvFrom').parentElement.dataset.u=uTag(); $('pvTo').parentElement.dataset.u=uTag();
+    setVal('pvFrom',uNum(ft[0])); setVal('pvTo',uNum(ft[ft.length-1])); setVal('pvN',String(ft.length));
+    $('pvFtHint').textContent= pvM() ? 'Gates at '+ft.map(f=>(f*FT).toFixed(2)).join(' · ')+' m  ('+ft.map(f=>fmtFt(f)).join(' · ')+')' : 'Gates at '+ft.map(f=>`${f} ft`).join(' · ')+`  (${ft.map(f=>(f*FT).toFixed(2)).join(' · ')} m)`;
+    $('ruHead').textContent= pvM() ? 'Run-ups by lefts, in meters' : 'Run-ups by lefts, in feet';
+    $('ruHelp').textContent= pvM() ? 'Each athlete\'s run-up from the box in meters, for every lefts count they use. Leave the ones they don\'t use blank.' : 'Each athlete\'s run-up from the box in feet, for every lefts count they use. Type 79.5, 79\'6 or 79 6. Leave the ones they don\'t use blank.';
     renderRunups();
   }
   pressed('#flyView [data-fv]', b=>b.dataset.fv===S.flyView);
@@ -1136,7 +1246,7 @@ function pvStripSVG(){
   }
   ds.forEach(d=>{ const x=X(d);
     s+=`<line x1="${x}" x2="${x}" y1="${y0}" y2="${y1}" stroke="var(--gate)" stroke-width="3.5"/><path d="M${x-6} ${y1+10}L${x} ${y1-1}L${x+6} ${y1+10}Z" fill="#FF8A1F" stroke="#fff" stroke-width="1"/>`;
-    s+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${r1(-d)} ft</text>`; });
+    s+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${uLen(-d)}</text>`; });
   s+=`<text x="${X(0)}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">Box</text>`;
   const ay=(y0+y1)/2;
   s+= rtl ? `<path d="M${W-6} ${ay}h-18m6 -6l-6 6 6 6" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>` : `<path d="M6 ${ay}h18m-6 -6l6 6-6 6" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
@@ -1171,21 +1281,24 @@ function applyPv(){
 }
 $('pvPresets').onclick=e=>{ const b=e.target.closest('[data-pvp]'); if(!b) return; S.pvFt=PV_PRESETS[+b.dataset.pvp].ft.slice(); applyPv(); };
 function pvFromInputs(){
-  const a=Math.abs(parseFloat($('pvFrom').value)), b=Math.abs(parseFloat($('pvTo').value)), n=+$('pvN').value||2;
+  const a=uIn(Math.abs(parseFloat($('pvFrom').value))), b=uIn(Math.abs(parseFloat($('pvTo').value))), n=+$('pvN').value||2;
   if(!isFinite(a)||!isFinite(b)||Math.abs(a-b)<0.5) return;
   S.pvFt=pvEven(Math.max(a,b),Math.min(a,b),n); applyPv();
 }
+function setPvUnit(u){ if(S.pvUnit===u) return; S.pvUnit=u; save(); renderSetup(); if(liveOpen){ renderAlign(); renderTime(); renderLiveHead(); } }
+$('unitSeg').onclick=e=>{ const b=e.target.closest('[data-un]'); if(b) setPvUnit(b.dataset.un); };
+$('unitSeg2').onclick=e=>{ const b=e.target.closest('[data-un]'); if(b) setPvUnit(b.dataset.un); };
 $('stepsSeg').onclick=e=>{ const b=e.target.closest('[data-st]'); if(!b) return; S.stepsOn=b.dataset.st==='1'; save(); renderSetup(); };
 $('pvFrom').addEventListener('change',pvFromInputs); $('pvTo').addEventListener('change',pvFromInputs); $('pvN').addEventListener('change',pvFromInputs);
 function renderRunups(){
   const names=S.roster;
   $('ruTable').innerHTML = names.length ? `<table class="rutab"><thead><tr><th>Athlete</th>${LEFTS.map(L=>`<th>${L}L</th>`).join('')}<th class="tocol">Takeoff target</th></tr></thead><tbody>
-    ${names.map(n=>`<tr><td>${esc(n)}</td>${LEFTS.map(L=>`<td><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-ru="${esc(n)}|${L}" value="${fmtFt(runupOf(n,L))}" aria-label="${esc(n)} ${L} lefts run-up in feet"></td>`).join('')}<td class="tocol"><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-to="${esc(n)}" value="${fmtFt(toTargetFt(n))}" aria-label="${esc(n)} takeoff target in feet from the box"></td></tr>`).join('')}
+    ${names.map(n=>`<tr><td>${esc(n)}</td>${LEFTS.map(L=>`<td><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-ru="${esc(n)}|${L}" value="${fmtRun(runupOf(n,L))}" aria-label="${esc(n)} ${L} lefts run-up"></td>`).join('')}<td class="tocol"><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-to="${esc(n)}" value="${fmtRun(toTargetFt(n))}" aria-label="${esc(n)} takeoff target in feet from the box"></td></tr>`).join('')}
     </tbody></table>` : '<div class="empty">Add athletes on the Athletes page first. Their run-ups go here.</div>';
 }
 function setRunup(name,L,ft){ if(!S.runups[name]) S.runups[name]={}; if(ft>0) S.runups[name][L]=Math.round(ft*12)/12; else delete S.runups[name][L]; save(); }
-document.addEventListener('input',e=>{ const k=e.target.dataset?.ru; if(!k) return; const i=k.lastIndexOf('|'); setRunup(k.slice(0,i),+k.slice(i+1),parseFeet(e.target.value)); });
-document.addEventListener('change',e=>{ const k=e.target.dataset?.ru; if(!k) return; const i=k.lastIndexOf('|'); e.target.value=fmtFt(runupOf(k.slice(0,i),+k.slice(i+1))); });
+document.addEventListener('input',e=>{ const k=e.target.dataset?.ru; if(!k) return; const i=k.lastIndexOf('|'); setRunup(k.slice(0,i),+k.slice(i+1),parseLen(e.target.value)); });
+document.addEventListener('change',e=>{ const k=e.target.dataset?.ru; if(!k) return; const i=k.lastIndexOf('|'); e.target.value=fmtRun(runupOf(k.slice(0,i),+k.slice(i+1))); });
 $('flyView').onclick=e=>{
   const b=e.target.closest('[data-fv]'); if(!b||b.dataset.fv===S.flyView) return; S.flyView=b.dataset.fv;
   S.gen = S.flyView==='zone' ? zoneGen() : {from:0,to:r1((+S.runup||0)+(+S.fly||20)),every:10};
@@ -1274,7 +1387,8 @@ let liveOpen=false, liveMode='align';
 let armed=false, timingOn=false, justSaved=null, savedT=null, fixOpen=false;
 let det={}, crossings={}, lastMedia=-1;
 
-function resetDetection(){ stp=null; stepRes=null; det={}; crossings={}; for(const l of S.lines) det[l.id]={bg:null,warm:0,active:false,samples:[],below:0,done:false,level:0}; }
+let lastGateAt=null;
+function resetDetection(){ lastGateAt=null; stp=null; stepRes=null; det={}; crossings={}; for(const l of S.lines) det[l.id]={bg:null,warm:0,active:false,samples:[],below:0,done:false,level:0}; }
 function resetBg(){ for(const k in det) det[k].bg=null; }
 resetDetection();
 const pixThresh = () => 70 - S.sens*0.6;
@@ -1290,6 +1404,14 @@ function processFrame(mediaTime){
   if(pc.width!==PW||pc.height!==PH){ pc.width=PW; pc.height=PH; }
   pctx.drawImage(vid,0,0,PW,PH);
   const img=pctx.getImageData(0,0,PW,PH).data, thr=pixThresh();
+  // gates open in running order: a gate can't fire until the one before it has, so someone walking
+  // past in the background can't set off a later gate. If the next gate doesn't fire within 3 s of
+  // the last one, that start was a false alarm and the run waits for the first gate again.
+  const order=[...S.lines].sort((a,b)=>a.d-b.d), started=order.some(l=>det[l.id]&&(det[l.id].active||det[l.id].done));
+  if(started && lastGateAt!=null && mediaTime-lastGateAt>3*(S.slow||1) && Object.keys(crossings).length<S.lines.length){
+    for(const l of order){ const st=det[l.id]; if(st){ st.active=false; st.done=false; st.samples=[]; } }
+    crossings={}; lastGateAt=null; setStatus(); renderRunCard();
+  }
   for(const l of S.lines){
     const st=det[l.id]||(det[l.id]={bg:null,warm:0,active:false,samples:[],below:0,done:false,level:0});
     const sg=gateSeg(l);
@@ -1319,8 +1441,10 @@ function processFrame(mediaTime){
     const blend=a=>{ for(let i=0;i<n;i++) st.bg[i]+=(lum[i]-st.bg[i])*a; };
     if(st.warm<8){ blend(0.3); st.warm++; continue; }
     if(st.done){ blend(0.05); continue; }
+    const gi=order.indexOf(l), prev=gi>0?det[order[gi-1].id]:null, open= gi===0 || (prev && (prev.active||prev.done));
+    if(!st.active && !open){ blend(0.05); st.prev=[mediaTime,frac]; continue; }
     if(!st.active){
-      if(frac>TRIG){ st.active=true; st.samples= st.prev ? [st.prev,[mediaTime,frac]] : [[mediaTime,frac]]; st.below=0; }
+      if(frac>TRIG){ st.active=true; lastGateAt=mediaTime; st.samples= st.prev ? [st.prev,[mediaTime,frac]] : [[mediaTime,frac]]; st.below=0; }
       else blend(0.05);
     }else{
       st.samples.push([mediaTime,frac]);
@@ -1393,7 +1517,8 @@ function solveH(src,dst){
 const applyH1 = (h,X,Y) => { const w=h[6]*X+h[7]*Y+h[8]; return [(h[0]*X+h[1]*Y+h[2])/w,(h[3]*X+h[4]*Y+h[5])/w]; };
 // with a middle cone the track is split in two, each half with its own perspective, so the picture bends to fit all three cones
 const applyH = (h,X,Y) => h.pw ? applyH1(X<h.m?h.h1:h.h2,X,Y) : applyH1(h,X,Y);
-const midOk = c => !!(c && c.mid && c.mid.pts && c.mid.pts.length===2 && c.mid.d>c.a && c.mid.d<c.b);
+// a third cone can be anywhere along the runway: between the other two, or beyond them (for example at the far gate)
+const midOk = c => !!(c && c.mid && c.mid.pts && c.mid.pts.length===2 && Math.abs(c.mid.d-c.a)>0.3 && Math.abs(c.mid.d-c.b)>0.3);
 function getH(){
   if(!S.cal || !S.cal.pts || S.cal.pts.length!==4) return null;
   const a=asp(), key=JSON.stringify(S.cal)+a;
@@ -1401,15 +1526,39 @@ function getH(){
   const c=S.cal, P=c.pts.map(p=>[p.x,p.y*a]);
   let h=solveH([[c.a,0],[c.a,c.lw],[c.b,0],[c.b,c.lw]], P);
   if(h && midOk(c)){
-    const M=c.mid.pts.map(p=>[p.x,p.y*a]), m=c.mid.d;
-    const h1=solveH([[c.a,0],[c.a,c.lw],[m,0],[m,c.lw]],[P[0],P[1],M[0],M[1]]), h2=solveH([[m,0],[m,c.lw],[c.b,0],[c.b,c.lw]],[M[0],M[1],P[2],P[3]]);
-    if(h1&&h2) h={pw:true,m,h1,h2};
+    const M=c.mid.pts.map(p=>[p.x,p.y*a]);
+    const cones=[{d:c.a,p:[P[0],P[1]]},{d:c.b,p:[P[2],P[3]]},{d:c.mid.d,p:M}].sort((x,y)=>x.d-y.d), [A,B,C]=cones, lw=c.lw;
+    const h1=solveH([[A.d,0],[A.d,lw],[B.d,0],[B.d,lw]],[...A.p,...B.p]), h2=solveH([[B.d,0],[B.d,lw],[C.d,0],[C.d,lw]],[...B.p,...C.p]);
+    if(h1&&h2) h={pw:true,m:B.d,h1,h2};
   }
   hCache={key,h}; return h;
 }
 const calPts = () => S.cal ? S.cal.pts.concat(midOk(S.cal)?S.cal.mid.pts:[]) : [];
 const calOn = () => !!(S.cal && S.cal.pts && S.cal.pts.length===4 && getH());
 const dist2 = (p,q) => Math.hypot(p[0]-q[0],p[1]-q[1]);
+// Upright direction in the picture. From the ground perspective alone we can recover the camera's zoom and tilt
+// (assuming the picture's centre is the lens centre), which tells us how a post standing on the runway would look.
+// Seen from an angle, uprights lean in the picture; a gate's watch zone has to lean with them or it times the
+// torso at the wrong moment.
+function camUp(h1,a){
+  const c1=[h1[0],h1[3],h1[6]], c2=[h1[1],h1[4],h1[7]], T=c=>[c[0]-0.5*c[2], c[1]-0.5*a*c[2], c[2]];
+  const p1=T(c1), p2=T(c2), den=p1[2]*p2[2]; if(Math.abs(den)<1e-12) return null;
+  const f2=-(p1[0]*p2[0]+p1[1]*p2[1])/den; if(!(f2>0)) return null;
+  const f=Math.sqrt(f2); if(f<0.2||f>6) return null;
+  const k1=[p1[0]/f,p1[1]/f,p1[2]], k2=[p2[0]/f,p2[1]/f,p2[2]], n1=Math.hypot(...k1), n2=Math.hypot(...k2), lam=(n1+n2)/2;
+  const r1=k1.map(v=>v/n1), r2=k2.map(v=>v/n2), r3=[r1[1]*r2[2]-r1[2]*r2[1], r1[2]*r2[0]-r1[0]*r2[2], r1[0]*r2[1]-r1[1]*r2[0]];
+  let q=[lam*f*r3[0], lam*f*r3[1], lam*r3[2]]; q=[q[0]+0.5*q[2], q[1]+0.5*a*q[2], q[2]];
+  return q;
+}
+function liftH(h,X,Y,Z){
+  const hh=h.pw ? (X<h.m?h.h1:h.h2) : h, key=hh===h.h1?'u1':hh===h.h2?'u2':'u';
+  if(h[key]===undefined) h[key]=camUp(hh,asp());
+  const q=h[key], w0=hh[6]*X+hh[7]*Y+hh[8], x0=hh[0]*X+hh[1]*Y+hh[2], y0=hh[3]*X+hh[4]*Y+hh[5];
+  if(!q) return null;
+  let s=1; { const w1=w0+q[2], y1=(y0+q[1])/w1; if(y1>y0/w0) s=-1; }     // up has to go up in the picture
+  const w=w0+s*q[2]*Z; if(w<=0) return null;
+  return [(x0+s*q[0]*Z)/w,(y0+s*q[1]*Z)/w];
+}
 function gateSeg(l){
   const h=calOn()?getH():null;
   if(h){
@@ -1418,7 +1567,9 @@ function gateSeg(l){
     const upm=isPv()?1/FT:1; // track units per meter: feet in vault, meters otherwise
     const n0=applyH(h,d,0), n1=applyH(h,d,lw), EXT=2*upm; // floor line reaches 2 m past each lane line, out to where the cones sit
     const x0=applyH(h,d,-EXT), x1=applyH(h,d,lw+EXT);
-    return {cal:true, xa:g[0], ya:(g[1]-S.hz.top*upm*s)/a, xb:g[0], yb:(g[1]-S.hz.bot*upm*s)/a, gx:g[0], gy:g[1]/a,
+    const ta=liftH(h,d,lw/2,S.hz.top*upm), tb=liftH(h,d,lw/2,S.hz.bot*upm);
+    const za= ta&&tb ? {xa:ta[0], ya:ta[1]/a, xb:tb[0], yb:tb[1]/a} : {xa:g[0], ya:(g[1]-S.hz.top*upm*s)/a, xb:g[0], yb:(g[1]-S.hz.bot*upm*s)/a};
+    return {cal:true, ...za, gx:g[0], gy:g[1]/a,
       g0:[n0[0],n0[1]/a], g1:[n1[0],n1[1]/a], f0:[x0[0],x0[1]/a], f1:[x1[0],x1[1]/a]};
   }
   const xt=l.xt??l.x, top=S.band.top/100, bot=S.band.bot/100, xAt=y=>xt+(l.x-xt)*y;
@@ -1510,7 +1661,8 @@ function draw(){
   }
   if(calMode){
     ctx.fillStyle='rgba(0,0,0,.22)'; ctx.fillRect(0,0,W,H);
-    if(calPlace){ ctx.strokeStyle='#FFC933'; ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(calPlace.x*W,calPlace.y*H,10,0,Math.PI*2); ctx.stroke(); }
+    if(calPlace){ const px=calPlace.x*W, py=calPlace.y*H, r=22; ctx.beginPath(); ctx.moveTo(px-r,py); ctx.lineTo(px+r,py); ctx.moveTo(px,py-r); ctx.lineTo(px,py+r);
+      ctx.strokeStyle='rgba(0,0,0,.7)'; ctx.lineWidth=4; ctx.stroke(); ctx.strokeStyle='#FFC933'; ctx.lineWidth=2; ctx.stroke(); }
     calMode.pts.forEach((p,i)=>{ ctx.fillStyle='#FFC933'; ctx.beginPath(); ctx.arc(p.x*W,p.y*H,10,0,Math.PI*2); ctx.fill(); ctx.fillStyle='#1E1600'; ctx.fillText(String(i+1),p.x*W,p.y*H+fs*.36); });
   }
   if(!editing && !armed) drawSteps(W,H);
@@ -1542,23 +1694,26 @@ function drawLoupe(W){
     if(g.cal){ seg(g.f0,g.f1); seg([g.xa,g.ya],[g.xb,g.yb]); } else seg([g.xt,0],[g.x,1]);
     ctx.stroke();
   }
-  ctx.strokeStyle='#FFC933'; ctx.lineWidth=Math.max(1.5,k*1.5); const gp=R*0.18;
-  ctx.beginPath(); ctx.moveTo(lx-R,ly); ctx.lineTo(lx-gp,ly); ctx.moveTo(lx+gp,ly); ctx.lineTo(lx+R,ly); ctx.moveTo(lx,ly-R); ctx.lineTo(lx,ly-gp); ctx.moveTo(lx,ly+gp); ctx.lineTo(lx,ly+R); ctx.stroke();
+  ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(lx-R,ly); ctx.lineTo(lx+R,ly); ctx.moveTo(lx,ly-R); ctx.lineTo(lx,ly+R);
+  ctx.strokeStyle='rgba(0,0,0,.65)'; ctx.lineWidth=Math.max(3,k*3); ctx.stroke();
+  ctx.strokeStyle='#FFC933'; ctx.lineWidth=Math.max(1.2,k*1.2); ctx.stroke();
   ctx.restore();
   ctx.strokeStyle='#fff'; ctx.lineWidth=Math.max(2,k*3); ctx.beginPath(); ctx.arc(lx,ly,R,0,Math.PI*2); ctx.stroke();
 }
 
 /* ---------- touch: perspective points, gate lines (Align only) ---------- */
-let loupe=null, calPlace=null, dragId=null, dragMode=null, dragCal=-1;
+let loupe=null, calPlace=null, dragId=null, dragMode=null, dragCal=-1, anchor=null;
+// perspective points move slower than the finger (about a third), so a big slide makes a small, exact adjustment
+const FINE=0.33;
 const evPos = e => { const r=cv.getBoundingClientRect(); return {fx:(e.clientX-r.left)/r.width, fy:(e.clientY-r.top)/r.height, r}; };
 const clamp01 = v => Math.min(.995,Math.max(.005,v));
 cv.addEventListener('pointerdown',e=>{
   if(liveMode!=='align') return;
   const {fx,fy,r}=evPos(e);
-  if(calMode){ calPlace={x:fx,y:fy}; loupe={x:fx,y:fy}; cv.setPointerCapture(e.pointerId); return; }
+  if(calMode){ calPlace={x:fx,y:fy}; anchor={fx,fy,x:fx,y:fy}; loupe={x:fx,y:fy}; cv.setPointerCapture(e.pointerId); return; }
   if(calOn()){
     const cp=calPts(); let bi=-1,bd=Infinity; cp.forEach((p,i)=>{ const d=Math.hypot((p.x-fx)*r.width,(p.y-fy)*r.height); if(d<bd){bd=d;bi=i;} });
-    if(bd<34){ dragCal=bi; loupe={x:cp[bi].x,y:cp[bi].y}; cv.setPointerCapture(e.pointerId); }
+    if(bd<34){ dragCal=bi; anchor={fx,fy,x:cp[bi].x,y:cp[bi].y}; loupe={x:cp[bi].x,y:cp[bi].y}; cv.setPointerCapture(e.pointerId); }
     return;
   }
   const H=r.height, k=r.height/cv.height, ph=(Math.max(14,Math.round(cv.width/58))+12)*k;
@@ -1572,8 +1727,8 @@ cv.addEventListener('pointerdown',e=>{
 });
 cv.addEventListener('pointermove',e=>{
   const {fx,fy}=evPos(e);
-  if(calPlace){ calPlace={x:clamp01(fx),y:clamp01(fy)}; loupe={...calPlace}; return; }
-  if(dragCal>=0){ const p={x:clamp01(fx),y:clamp01(fy)}; if(dragCal<4) S.cal.pts[dragCal]=p; else S.cal.mid.pts[dragCal-4]=p; loupe={...p}; resetBg(); return; }
+  if(calPlace){ calPlace={x:clamp01(anchor.x+(fx-anchor.fx)*FINE),y:clamp01(anchor.y+(fy-anchor.fy)*FINE)}; loupe={...calPlace}; return; }
+  if(dragCal>=0){ const p={x:clamp01(anchor.x+(fx-anchor.fx)*FINE),y:clamp01(anchor.y+(fy-anchor.fy)*FINE)}; if(dragCal<4) S.cal.pts[dragCal]=p; else S.cal.mid.pts[dragCal-4]=p; loupe={...p}; resetBg(); return; }
   if(!dragId) return;
   loupe={x:clamp01(fx),y:clamp01(fy)};
   const l=S.lines.find(x=>x.id===dragId); if(!l) return; const xt=l.xt??l.x;
@@ -1591,54 +1746,55 @@ cv.addEventListener('pointerup',endDrag); cv.addEventListener('pointercancel',en
 
 /* ---------- Align rail: perspective ---------- */
 const CAL_STEPS_RUN=['Near lane line at your first cone','Far lane line at your first cone','Near lane line at your last cone','Far lane line at your last cone'];
-const CAL_STEPS_PV=['Near lane line at your farthest cone','Far lane line at your farthest cone','Near lane line at your nearest cone','Far lane line at your nearest cone'];
+const CAL_STEPS_PV=['Near lane line at the far mark (15 ft)','Far lane line at the far mark (15 ft)','Near lane line at the near mark (9 ft)','Far lane line at the near mark (9 ft)'];
 const calSteps=()=>isPv()?CAL_STEPS_PV:CAL_STEPS_RUN;
 // perspective is marked at the first and last cone (vault: farthest and nearest cone, in feet; the box never has to be seen)
-function calDefaults(){ const d=S.lines.map(l=>+l.d); return {a:Math.min(...d), b:Math.max(...d), lw:isPv()?4:1.22}; }
+// vault: the runway's foot marks (15 ft and 9 ft) are on every runway; elsewhere the first and last cone
+function calDefaults(){ if(isPv()) return {a:-(S.pvCalFt?.[0]??15), b:-(S.pvCalFt?.[1]??9), lw:4}; const d=S.lines.map(l=>+l.d); return {a:Math.min(...d), b:Math.max(...d), lw:1.22}; }
 function renderCal(){
   const box=$('calBox'); let h='';
   if(calMode && calMode.mid){
     const c=calMode, n=c.pts.length, u=isPv()?'ft out':'m';
-    h=`<div class="calin"><label class="f">Middle cone<span class="unit" data-u="${u}"><input id="calM" type="number" inputmode="decimal" step="any" value="${isPv()?r1(-c.d):c.d}"></span></label></div>
-      <p class="help">Any cone between ${isPv()?`${r1(-S.cal.a)} ft and ${r1(-S.cal.b)} ft`:`${S.cal.a} m and ${S.cal.b} m`}. The perspective bends so all three cones land exactly.</p>
+    h=`<div class="calin"><label class="f">Third cone<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calM" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.d):c.d}"></span></label></div>
+      <p class="help">Any cone you can see on the runway, ideally at your farthest gate. The perspective bends so all three land exactly, which keeps gates far from the marks accurate.</p>
       <ol class="calsteps">${CAL_STEPS_MID.map((t,i)=>`<li class="${i<n?'ok':i===n?'now':''}">${t}</li>`).join('')}</ol>
       <div class="row"><button class="btn" id="calUndo" ${n?'':'disabled'}>Undo point</button><button class="btn" id="calCancel">Cancel</button></div>`;
   }else if(calMode){
     const c=calMode, n=c.pts.length;
     h=`<div class="calin">
-        <label class="f">${isPv()?'Farthest cone':'First cone'}<span class="unit" data-u="${isPv()?'ft out':'m'}"><input id="calA" type="number" inputmode="decimal" step="any" value="${isPv()?r1(-c.a):c.a}"></span></label>
-        <label class="f">${isPv()?'Nearest cone':'Last cone'}<span class="unit" data-u="${isPv()?'ft out':'m'}"><input id="calB" type="number" inputmode="decimal" step="any" value="${isPv()?r1(-c.b):c.b}"></span></label>
-        <label class="f">Lane width<span class="unit" data-u="${isPv()?'ft':'m'}"><input id="calW" type="number" inputmode="decimal" step="0.01" value="${c.lw}"></span></label>
+        <label class="f">${isPv()?'Far mark':'First cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calA" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.a):c.a}"></span></label>
+        <label class="f">${isPv()?'Near mark':'Last cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calB" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.b):c.b}"></span></label>
+        <label class="f">Lane width<span class="unit" data-u="${isPv()?uTag():'m'}"><input id="calW" type="number" inputmode="decimal" step="0.01" value="${isPv()?uNum(c.lw):c.lw}"></span></label>
       </div>
-      ${isPv()?'<p class="help">Feet from the box, as marked on the runway. Any two cones you can see clearly work; the box itself never has to be in the picture.</p>':''}
+      ${isPv()?'<p class="help">Use the takeoff marks painted on the runway: tap where the 15 ft mark meets each lane line, then the 9 ft mark. Use other marks or cones if you like; just change the numbers. The box never has to be in the picture.</p>':''}
       <ol class="calsteps">${calSteps().map((t,i)=>`<li class="${i<n?'ok':i===n?'now':''}">${t}</li>`).join('')}</ol>
       <p class="help">Pause on a clear frame. Press and hold on the picture, slide until the crosshair in the magnifier sits on the spot, then lift.</p>
       <div class="row"><button class="btn" id="calUndo" ${n?'':'disabled'}>Undo point</button><button class="btn" id="calCancel">Cancel</button></div>`;
   }else if(calOn()){
     h=`<div class="okline">Perspective fixed</div>
-      <p class="help">${isPv()?`${r1(-S.cal.a)} ft to ${r1(-S.cal.b)} ft from the box`:`${S.cal.a}–${S.cal.b} m`} marked, lane ${S.cal.lw} ${isPv()?'ft':'m'} wide. Gates are placed from their distances. Press and hold a white corner dot to fine-tune it.${isPv()?' The small ticks mark every foot from 9 to 15 ft; when they sit on the runway marks, the gates are in the right place.':''}</p>
+      <p class="help">${isPv()?`${uLen(-S.cal.a)} to ${uLen(-S.cal.b)} from the box`:`${S.cal.a}–${S.cal.b} m`} marked, lane ${isPv()?uLen(S.cal.lw):S.cal.lw+' m'} wide. Gates are placed from their distances. Press and hold a white corner dot to fine-tune it.${isPv()?' The small ticks mark every foot from 9 to 15 ft; when they sit on the runway marks, the gates are in the right place.':''}</p>
       <div class="row"><button class="btn" id="calRedo">Redo</button><button class="btn btn-danger" id="calOff">${isArmed('calOff')?'Tap again to remove':'Remove'}</button></div>
-      ${midOk(S.cal)?`<p class="help"><b>Middle cone at ${isPv()?r1(-S.cal.mid.d)+' ft':S.cal.mid.d+' m'}</b> is bending the perspective to fit.</p><div class="row"><button class="btn" id="calMidOff">Remove middle cone</button></div>`
-        :`<p class="help">Gates between the cones look off? Mark a third cone in the middle and the perspective bends to fit it.</p><div class="row"><button class="btn" id="calMid">Add middle cone</button></div>`}`;
+      ${midOk(S.cal)?`<p class="help"><b>Third cone at ${isPv()?uLen(-S.cal.mid.d):S.cal.mid.d+' m'}</b> is bending the perspective to fit.</p><div class="row"><button class="btn" id="calMidOff">Remove third cone</button></div>`
+        :`<p class="help">${isPv()&&Math.min(...S.lines.map(l=>+l.d))<S.cal.a-3?`Your farthest gate (${uLen(-Math.min(...S.lines.map(l=>+l.d)))}) is well past the marks. Put a cone there and add it as a third cone so it lands exactly.`:'Gates look off? Mark a third cone and the perspective bends to fit it.'}</p><div class="row"><button class="btn" id="calMid">Add a third cone</button></div>`}`;
   }else{
-    h=`<p class="help">${isPv()?'Mark the two lane lines at your farthest and nearest cone so every gate lands at its true distance. The box does not need to be in the picture.':'Mark the two lane lines at your first and last cone so every gate lands at its true distance.'}</p>
+    h=`<p class="help">${isPv()?'Tap the two lane lines at the 15 ft and 9 ft takeoff marks on the runway. For accurate gates far up the runway (like 10 m out), add a third cone at your farthest gate afterwards.':'Mark the two lane lines at your first and last cone so every gate lands at its true distance.'}</p>
       <button class="btn btn-primary" id="calStart">Fix perspective</button>`;
   }
   box.innerHTML=h;
   if(calMode && calMode.mid){
-    $('calM').oninput=e=>{ const v=parseFloat(e.target.value); if(isFinite(v)) calMode.d=isPv()?-Math.abs(v):v; };
+    $('calM').oninput=e=>{ const v=parseFloat(e.target.value); if(isFinite(v)) calMode.d=isPv()?-Math.abs(uIn(v)):v; };
     $('calUndo').onclick=()=>{ calMode.pts.pop(); renderCal(); renderStageMsg(); syncFsUndo(); };
     $('calCancel').onclick=()=>{ calMode=null; renderCal(); renderStageMsg(); syncFsUndo(); };
   }else if(calMode){
-    $('calA').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.a=isPv()?-Math.abs(v):v; };
-    $('calB').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.b=isPv()?-Math.abs(v):v; };
-    $('calW').oninput=e=>{ calMode.lw=parseFloat(e.target.value)||(isPv()?4:1.22); };
+    $('calA').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.a=isPv()?-Math.abs(uIn(v)):v; };
+    $('calB').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.b=isPv()?-Math.abs(uIn(v)):v; };
+    $('calW').oninput=e=>{ const v=parseFloat(e.target.value); calMode.lw= v>0 ? (isPv()?uIn(v):v) : (isPv()?4:1.22); };
     $('calUndo').onclick=()=>{ calMode.pts.pop(); renderCal(); renderStageMsg(); syncFsUndo(); };
     $('calCancel').onclick=()=>{ calMode=null; renderCal(); renderStageMsg(); syncFsUndo(); };
   }else if(calOn()){
     $('calRedo').onclick=startCal;
     if($('calMid')) $('calMid').onclick=startMid;
-    if($('calMidOff')) $('calMidOff').onclick=()=>{ delete S.cal.mid; hCache.key=''; save(); resetBg(); renderAlign(); toast('Middle cone removed'); };
+    if($('calMidOff')) $('calMidOff').onclick=()=>{ delete S.cal.mid; hCache.key=''; save(); resetBg(); renderAlign(); toast('Third cone removed'); };
     $('calOff').onclick=()=>confirmTap('calOff',()=>{ S.cal=null; hCache.key=''; save(); resetBg(); renderAlign(); },renderCal);
   }else $('calStart').onclick=startCal;
 }
@@ -1648,11 +1804,12 @@ function startCal(){
   calMode={...calDefaults(), pts:[]}; if(S.cal?.lw && (S.cal.lw>3)===isPv()) calMode.lw=S.cal.lw; // first and last cone always come from the current gates
   renderCal(); renderStageMsg(); syncFsUndo();
 }
-const CAL_STEPS_MID=['Near lane line at your middle cone','Far lane line at your middle cone'];
+const CAL_STEPS_MID=['Near lane line at the third cone','Far lane line at the third cone'];
 function startMid(){
   if(source==='file') vid.pause();
-  const c=S.cal, mid=(c.a+c.b)/2, inner=S.lines.map(l=>+l.d).filter(d=>d>c.a+1e-6&&d<c.b-1e-6);
-  const d= inner.length ? inner.reduce((p,q)=>Math.abs(q-mid)<Math.abs(p-mid)?q:p) : r1(mid);
+  const c=S.cal, mid=(c.a+c.b)/2, ds=S.lines.map(l=>+l.d), far=Math.min(...ds), inner=ds.filter(d=>d>c.a+1e-6&&d<c.b-1e-6);
+  // the farthest gate when it is past the marks (that's where the perspective needs the most help), else a gate in between
+  const d= far<c.a-3 ? far : inner.length ? inner.reduce((p,q)=>Math.abs(q-mid)<Math.abs(p-mid)?q:p) : r1(mid);
   calMode={mid:true, d, pts:[]}; renderCal(); renderStageMsg(); syncFsUndo();
 }
 function calTap(fx,fy){
@@ -1660,10 +1817,10 @@ function calTap(fx,fy){
   if(calMode.mid){
     if(calMode.pts.length<2){ renderCal(); renderStageMsg(); syncFsUndo(); return; }
     const c=calMode;
-    if(!(c.d>S.cal.a && c.d<S.cal.b)){ toast('The middle cone has to be between the other two'); c.pts.pop(); renderCal(); renderStageMsg(); return; }
+    if(Math.abs(c.d-S.cal.a)<=0.3 || Math.abs(c.d-S.cal.b)<=0.3){ toast('The third cone has to be at a different distance from the two marks'); c.pts.pop(); renderCal(); renderStageMsg(); return; }
     const prev=S.cal.mid; S.cal.mid={d:c.d, pts:c.pts}; calMode=null; hCache.key='';
-    if(!getH()||!getH().pw){ if(prev) S.cal.mid=prev; else delete S.cal.mid; hCache.key=''; toast("That middle cone didn't fit. Try again."); renderCal(); renderStageMsg(); return; }
-    save(); resetBg(); toast('Middle cone added. The perspective now fits all three cones.',3600); beep(988,.08);
+    if(!getH()||!getH().pw){ if(prev) S.cal.mid=prev; else delete S.cal.mid; hCache.key=''; toast("That third cone didn't fit. Try again."); renderCal(); renderStageMsg(); return; }
+    save(); resetBg(); toast('Third cone added. The perspective now fits all three.',3600); beep(988,.08);
     renderAlign(); renderStageMsg(); syncFsUndo(); return;
   }
   if(calMode.pts.length===4){
@@ -1674,8 +1831,9 @@ function calTap(fx,fy){
     const ax=(c.pts[0].x+c.pts[1].x)/2, bx=(c.pts[2].x+c.pts[3].x)/2, fromLeft=S.dir!=='rtl';
     let swapped=false; if((ax>bx)===fromLeft && Math.abs(ax-bx)>0.01){ c.pts=[c.pts[2],c.pts[3],c.pts[0],c.pts[1]]; swapped=true; }
     const prev=S.cal; S.cal={a:c.a,b:c.b,lw:c.lw,pts:c.pts}; calMode=null; hCache.key='';
+    if(isPv()) S.pvCalFt=[r1(-c.a),r1(-c.b)];
     if(!getH()){ S.cal=prev; hCache.key=''; toast("Those points don't form a lane. Try again, in order."); renderCal(); renderStageMsg(); return; }
-    save(); resetBg(); toast(swapped?(isPv()?`Perspective fixed. The ${r1(-c.a)} ft cone is on the run-up side, so I used it that way.`:'Perspective fixed. The first cone is on the start side, so I used it that way.'):'Perspective fixed',4200); beep(988,.08);
+    save(); resetBg(); toast(swapped?(isPv()?`Perspective fixed. The ${uLen(-c.a)} mark is on the run-up side, so I used it that way.`:'Perspective fixed. The first cone is on the start side, so I used it that way.'):'Perspective fixed',4200); beep(988,.08);
     renderAlign(); renderStageMsg(); syncFsUndo(); return;
   }
   renderCal(); renderStageMsg(); syncFsUndo();
@@ -1685,16 +1843,17 @@ function calTap(fx,fy){
 function renderLines(){
   const sorted=[...S.lines].sort((a,b)=>a.d-b.d);
   $('lines').innerHTML=sorted.map((l,i)=>`<div class="lrow"><span class="tag">${i+1}</span>
-      <span class="unit" data-u="${isPv()?'ft out':'m'}"><input class="inp" type="number" inputmode="decimal" step="any" data-d="${l.id}" id="d-${l.id}" value="${isPv()?r1(-l.d):l.d}" aria-label="Gate ${i+1} distance"></span>
+      <span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input class="inp" type="number" inputmode="decimal" step="any" data-d="${l.id}" id="d-${l.id}" value="${isPv()?uNum(-l.d):l.d}" aria-label="Gate ${i+1} distance"></span>
       <button class="x ${isArmed('del'+l.id)?'arm':''}" data-del="${l.id}" aria-label="Remove gate ${i+1}">${isArmed('del'+l.id)?'Remove?':'×'}</button></div>`).join('');
   $('gateCount').textContent=plural(S.lines.length,'gate');
-  $('linesHint').textContent= isPv() ? (calOn()?'Distances are feet from the box. Gates sit where the perspective puts them.':'Distances are feet from the box. Drag each line onto its cone, on the takeoff marks.') : calOn() ? 'Gates sit where the perspective puts them. Change a distance to move one.' : 'Drag each line onto its cone in the picture. Drag its top or bottom dot to tilt it.';
+  $('linesHint').textContent= isPv() ? (calOn()?`Distances are ${pvM()?'meters':'feet'} from the box. Gates sit where the perspective puts them.`:`Distances are ${pvM()?'meters':'feet'} from the box. Drag each line onto its cone, on the takeoff marks.`) : calOn() ? 'Gates sit where the perspective puts them. Change a distance to move one.' : 'Drag each line onto its cone in the picture. Drag its top or bottom dot to tilt it.';
   $('btnSpread').hidden=calOn();
   pressed('#dirSeg2 [data-dir]', b=>b.dataset.dir===S.dir);
+  $('unitSeg2').hidden=!isPv(); pressed('#unitSeg2 [data-un]', b=>b.dataset.un===uTag());
 }
 $('lines').addEventListener('input',e=>{
   const id=e.target.dataset.d; if(!id) return;
-  const l=S.lines.find(x=>x.id===id); let v=parseFloat(e.target.value); if(!l||!isFinite(v)) return; if(isPv()) v=-Math.abs(v);
+  const l=S.lines.find(x=>x.id===id); let v=parseFloat(e.target.value); if(!l||!isFinite(v)) return; if(isPv()) v=-Math.abs(uIn(v));
   l.d=v; if(det[l.id]) det[l.id].bg=null; syncGenFromLines(); autoName(); save(); renderLiveHead();
 });
 $('lines').addEventListener('change',()=>renderLines());
@@ -1925,7 +2084,7 @@ function endSession(force){
   liveOpen=false; $('live').hidden=true; document.body.classList.remove('live-on'); keepAwake(false);
   const mine=S.runs.filter(r=>r.sid===S.sid);
   if(mine.length && !force){ S.res.day=ymd(new Date(mine[0].date)); S.res.ev='all'; S.res.pole='all'; save(); showTab('results'); $('resDone').hidden=false; toast(`Session ended · ${plural(mine.length,'run')} saved`); }
-  else showTab(S.tab==='timer'?'timer':S.tab);
+  else showTab(S.tab==='timer'?'home':S.tab);
 }
 $('lvEnd').onclick=()=>endSession(false);
 function setLiveMode(m){
@@ -1995,7 +2154,7 @@ function renderStageMsg(){
     center=true;
     if(S.src==='camera'){
       h= camErr
-        ? `<b>Camera not available</b><p>The browser blocked the camera. Check that this site is allowed to use the camera in your browser settings, then try again. You can also upload a video instead.</p><span class="rowi"><button class="dbtn primary" data-act="cam">Try again</button><button class="dbtn" data-act="upload">Upload video</button></span>`
+        ? `<b>Camera not available</b><p>The browser blocked the camera. In Claude, the camera is always blocked; open GateCamLive from your own web link to use it. You can upload a video instead.</p><span class="rowi"><button class="dbtn primary" data-act="cam">Try again</button><button class="dbtn" data-act="upload">Upload video</button></span>`
         : `<b>Camera is off</b><p>Point it across the lane so every cone is in the picture, then lock exposure.</p><span class="rowi"><button class="dbtn primary" data-act="cam">Turn on camera</button></span>`;
     }else{
       const who=liveMode==='time'&&S.athlete;
@@ -2139,7 +2298,7 @@ function renderRunCard(){
       <div class="rc-big num">${x?f2(x.v):'–'}<small>m/s</small></div>
       <div class="rc-sub num">End speed · ${x?segLabFt(x.a/FT,x.b/FT):''} · ${x?f1(x.v*MPS2MPH)+' mph':''} · ±${f2(x?errSpeed(e,x.v,x.b-x.a,x.dt):0)} m/s</div>
       ${p.last?`<div class="pvsub num">First split ${segLabFt(p.last.a/FT,p.last.b/FT)}: ${f2(p.last.v)} m/s · end speed <span class="${dv>=0?'up':'down'}"><b>${dv>=0?'+':'−'}${f2(Math.abs(dv))}</b></span>${dv<-0.05?' · slowed into the box':''}</div>`:''}
-      <div class="pvsub num">${L} lefts${ru?` · run-up ${fmtFt(ru)}`:''}${st&&x?` · <b>${Math.round(x.v/st*100)}%</b> of best sprint speed`:''}</div>
+      <div class="pvsub num">${L} lefts${ru?` · run-up ${fmtRun(ru)}`:''}${st&&x?` · <b>${Math.round(x.v/st*100)}%</b> of best sprint speed`:''}</div>
  ${miniSplitsFt(g)}
       ${stepsCardHTML()}
       <div class="row"><button class="btn btn-primary btn-lg" data-rc="save" ${who?'':'disabled'}>Save${who?' · '+esc(who.split(' ')[0]):''}</button><button class="btn btn-lg" data-rc="discard">${timingOn&&who&&source==='camera'?'Discard · re-run':timingOn&&who&&source==='file'?'Discard · try again':'Discard'}</button></div>
@@ -2188,7 +2347,7 @@ function renderAgrid(){
   $('agrid').innerHTML = S.roster.length ? S.roster.map(n=>{
     const o=c[n], on=n===S.athlete;
     if(isPv()){ const L=on?S.pvL:defaultLefts(n), ru=runupOf(n,L);
-      return `<button class="abtn ${on&&ph==='rec'?'rec':''}" data-ath="${esc(n)}" aria-pressed="${on}"><b>${esc(n)}</b><span class="num">${L}L${ru?' · '+fmtFt(ru):' · no run-up set'}${o?` · ${o.n} today${o.best!=null?' · '+f2(o.best)+' m/s':''}`:''}</span></button>`; }
+      return `<button class="abtn ${on&&ph==='rec'?'rec':''}" data-ath="${esc(n)}" aria-pressed="${on}"><b>${esc(n)}</b><span class="num">${L}L${ru?' · '+fmtRun(ru):' · no run-up set'}${o?` · ${o.n} today${o.best!=null?' · '+f2(o.best)+' m/s':''}`:''}</span></button>`; }
     return `<button class="abtn ${on&&ph==='rec'?'rec':''}" data-ath="${esc(n)}" aria-pressed="${on}"><b>${esc(n)}</b><span class="num">${o?`${o.n} today${o.best!=null?' · best '+f2(o.best):''}`:'No runs today'}</span></button>`;
   }).join('') : '<div class="empty" style="grid-column:1/-1">Add your athletes below. Their names become big buttons here.</div>';
 }
@@ -2466,7 +2625,7 @@ function runSteps(r){
   return {steps, toe:-last.d, toCt:last.ct, n:c.length, fps:r.steps.fps};
 }
 var STEP_NAMES=['Last step','Penultimate','3rd last','4th last'];
-function fmtFtIn(m){ return fmtFt(Math.round(m/FT*12)/12); }
+function fmtFtIn(m){ return pvM() ? `${f2(m)} m` : fmtFt(Math.round(m/FT*12)/12); }   // steps and takeoff, in the chosen unit
 // a small table of the last steps; ft = show lengths in feet (live), otherwise meters
 // steps are always shown in feet and inches: that is how vault marks are read on the runway
 function stepsTableHTML(M,ft,targetM,plants){
@@ -2496,8 +2655,8 @@ function drawSteps(W,H){
 var TO_TOL=0.1;   // within ±10 cm (about 4 in) of the target counts as on target
 function toTargetFt(name){ const v=S.toTarget&&S.toTarget[name]; return v>0?+v:null; }
 function setToTarget(name,ft){ if(!S.toTarget) S.toTarget={}; if(ft>0) S.toTarget[name]=Math.round(ft*12)/12; else delete S.toTarget[name]; save(); }
-document.addEventListener('input',e=>{ const n=e.target.dataset&&e.target.dataset.to; if(n==null) return; setToTarget(n,parseFeet(e.target.value)); });
-document.addEventListener('change',e=>{ const n=e.target.dataset&&e.target.dataset.to; if(n==null) return; e.target.value=fmtFt(toTargetFt(n)); });
+document.addEventListener('input',e=>{ const n=e.target.dataset&&e.target.dataset.to; if(n==null) return; setToTarget(n,parseLen(e.target.value)); });
+document.addEventListener('change',e=>{ const n=e.target.dataset&&e.target.dataset.to; if(n==null) return; e.target.value=fmtRun(toTargetFt(n)); });
 // under = took off too close to the box, out = too far from it
 function toJudge(toeM,targetM){
   if(toeM==null||targetM==null) return null;
@@ -2506,7 +2665,7 @@ function toJudge(toeM,targetM){
 const toTargetM = r => r && (r.toTarget!=null ? r.toTarget : (toTargetFt(r.athlete)!=null ? toTargetFt(r.athlete)*FT : null));
 function toBadge(J,ft,compact){
   if(!J) return '';
-  const amt= ft ? `${Math.round(Math.abs(J.d)/FT*12)}"` : `${Math.round(Math.abs(J.d)*100)} cm`;
+  const amt= !pvM() ? `${Math.round(Math.abs(J.d)/FT*12)}"` : `${Math.round(Math.abs(J.d)*100)} cm`;
   const txt= J.k==='on' ? (compact||Math.abs(J.d)<0.01?'on target':`on target (${amt} ${J.d<0?'under':'out'})`) : `${amt} ${J.k}`;
   return `<span class="tob ${J.k}">${txt}</span>`;
 }
@@ -2755,8 +2914,8 @@ function groupCard(g,W){
   const series=rows.map(x=>({name:x.name,color:x.color,gates:x.gates,hidden:resHidden.has(g.key+'|'+x.name)}));
   return `<section class="card">
     <div class="gh"><h2>${esc(g.title)} ${poleBadge(g.pole)}</h2><span class="muted">${plural(rows.length,'athlete')} · best run each</span></div>
-    <div class="chartbox">${multiChartSVG(series,W)}</div>
-    <div class="legend2">${rows.map(x=>`<button class="lg" data-hide="${esc(g.key+'|'+x.name)}" aria-pressed="${!resHidden.has(g.key+'|'+x.name)}"><i style="background:${x.color}"></i>${esc(x.name)}</button>`).join('')}</div>
+    <details class="chartdet" ${W>=560||S.res.charts?'open':''}><summary>Speed chart</summary><div class="chartbox">${multiChartSVG(series,W)}</div>
+    <div class="legend2">${rows.map(x=>`<button class="lg" data-hide="${esc(g.key+'|'+x.name)}" aria-pressed="${!resHidden.has(g.key+'|'+x.name)}"><i style="background:${x.color}"></i>${esc(x.name)}</button>`).join('')}</div></details>
     <div>${rows.map((x,i)=>{ const k=g.key+'|'+x.name, open=resOpen===k;
       return `<button class="lb num ${i===0?'first':''}" data-exp="${esc(k)}" aria-expanded="${open}"><span class="rk">${i+1}</span>
         <span class="nm"><b><i class="dot" style="background:${x.color}"></i>${esc(x.name)}</b><small>${plural(x.runs.length,'run')} · top ${f1(x.topV)} m/s (${f1(x.topV*MPS2MPH)} mph)</small></span>
@@ -2766,6 +2925,7 @@ function groupCard(g,W){
     }).join('')}</div>
   </section>`;
 }
+$('resBody').addEventListener('toggle',e=>{ if(e.target.classList&&e.target.classList.contains('chartdet')){ S.res.charts=e.target.open; save(); } },true);
 $('resBody').onclick=e=>{
   const hb=e.target.closest('[data-hide]'); if(hb){ const k=hb.dataset.hide; resHidden.has(k)?resHidden.delete(k):resHidden.add(k); renderResults(); return; }
   const dl=e.target.closest('[data-delrun]'); if(dl){ const id=dl.dataset.delrun; confirmTap('rd'+id,()=>{ S.runs=S.runs.filter(r=>r.id!==id); save(); renderResults(); toast('Run deleted from Results and Athletes'); },renderResults); return; }
@@ -2815,6 +2975,7 @@ function renderAthletes(){
   if(ex) h+=`<div class="eyebrow">Reference</div><button class="arow" data-sel="__ex" aria-current="${S.ath.sel==='__ex'}"><b>Pro Example</b><span class="t num">${f1(headline(ex).a.top?.v)}<small class="muted" style="font:600 12px var(--f-body)"> m/s</small></span><span class="c">${esc(runEv(ex))} · a sample run to compare against</span></button>`;
   $('alist').innerHTML=h;
   renderProfile();
+  athLayout();
 }
 function renderProfile(){
   const n=S.ath.sel, box=$('aprof');
@@ -2825,7 +2986,9 @@ function renderProfile(){
   const cnt={}; runs.forEach(r=>{ if(r.mode==='pv') return; const k=runKey(r); cnt[k]=(cnt[k]||0)+1; });
   const mainK=Object.keys(cnt).sort((a,b)=>(cnt[b]-cnt[a])||(+a.endsWith('|1'))-(+b.endsWith('|1')))[0], mb=mainK&&bestBy[mainK];
   const t0=topOf(runs.filter(r=>!r.pole)), t1=topOf(runs.filter(r=>r.pole)), tAll=topOf(runs);
-  let h=`<div class="card">
+  const hasPv= runs.some(r=>r.mode==='pv') || (onRoster && (S.mode==='pv' || Object.keys(S.runups[n]||{}).length>0));
+  let pt=S.ath.pt||'ov'; if(pt==='pv'&&!hasPv) pt='ov';
+  let h=`<button class="btn backbtn" id="aBack">‹ Roster</button><div class="card">
     <div class="gh"><div style="min-width:0"><div class="eyebrow">${onRoster?'Athlete':'Not on the roster'}</div><h2 class="h1" style="font-size:clamp(32px,4vw,46px)">${esc(n)}</h2></div>
       <div class="toolbar">${renaming?'':'<button class="btn" id="aRename">Rename</button>'}${onRoster?`<button class="btn btn-danger" id="aRemove">${isArmed('rm')?'Tap again to remove':'Remove from roster'}</button>`:'<button class="btn btn-primary" id="aAddBack">Add to roster</button>'}</div></div>
     ${renaming?`<form class="addath" id="aRenameForm"><input id="aRenameName" value="${esc(n)}" aria-label="New name" autocomplete="off"><button class="btn btn-primary">Save</button><button class="btn" type="button" id="aRenameCancel">Cancel</button></form>`:''}
@@ -2833,13 +2996,14 @@ function renderProfile(){
       <div class="stat"><div class="k">Runs</div><div class="v num">${runs.length}</div><div class="s">${runs.length?'since '+fmtDate(runs[runs.length-1].date,{month:'short',day:'numeric',year:'numeric'}):'none saved yet'}</div></div>
       <div class="stat"><div class="k">Best ${mb?esc(runEv(mb.r)):'time'}</div><div class="v num">${mb?f2(mb.t):'–'}<small>s</small></div><div class="s">${mb?`${mb.r.pole?'With pole · ':''}${fmtDate(mb.r.date)}`:''}</div></div>
       <div class="stat"><div class="k">Top speed</div><div class="v num">${tAll?f1(tAll.v):'–'}<small>m/s</small></div><div class="s">${tAll?`${f1(tAll.v*MPS2MPH)} mph · ${fmtDate(tAll.r.date)}`:''}</div></div>
-    </div></div>`;
+    </div></div>
+    <div class="seg fill apt" id="aPt"><button data-pt="ov" aria-pressed="${pt==='ov'}">Overview</button>${hasPv?`<button data-pt="pv" aria-pressed="${pt==='pv'}">Vault</button>`:''}<button data-pt="runs" aria-pressed="${pt==='runs'}">Runs</button></div>`;
   if(t0&&t1){
     const pct=t1.v/t0.v*100;
     const flyKeys=Object.keys(bestBy).filter(k=>k.startsWith('fly|')&&k.endsWith('|0')).filter(k=>bestBy[k.replace(/\|0$/,'|1')]);
     const fk=flyKeys[0], sk=Object.keys(bestBy).filter(k=>k.startsWith('sprint|')&&k.endsWith('|0')).find(k=>bestBy[k.replace(/\|0$/,'|1')]);
     const pair=fk||sk;
-    h+=`<div class="card"><div class="gh"><h2 class="card-t">With pole vs without</h2></div>
+    h+=`<div class="card" data-sec="ov"><div class="gh"><h2 class="card-t">With pole vs without</h2></div>
       <div class="cmp">
         <div><div class="k">Top speed, no pole</div><div class="v num">${f1(t0.v)}<small>m/s</small></div></div>
         <div><div class="k">Top speed, with pole</div><div class="v num">${f1(t1.v)}<small>m/s</small></div></div>
@@ -2852,26 +3016,28 @@ function renderProfile(){
   const pvr=runs.filter(r=>r.mode==='pv'), st=sprintTop(n);
   if(pvr.length){
     const byL={}; for(const r of pvr){ const H=headline(r); if(H.v==null) continue; const o=byL[r.lefts]||(byL[r.lefts]={L:r.lefts,best:0,last:null,n:0,r:null}); o.n++; if(H.v>o.best){ o.best=H.v; o.last=H.last?H.last.v:null; o.r=r; } }
-    h+=`<div class="card"><div class="gh"><h2 class="card-t">Pole vault approach</h2><span class="muted">end speed, last split${st?` · best sprint ${f1(st)} m/s`:''}</span></div>
+    h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Pole vault approach</h2><span class="muted">end speed, last split${st?` · best sprint ${f1(st)} m/s`:''}</span></div>
       <div class="tbl-x"><table class="rutab" style="min-width:520px"><thead><tr><th>Lefts</th><th>Best end speed</th><th>First split</th><th>% of sprint</th><th>Run-up</th><th>Jumps</th></tr></thead><tbody>
       ${Object.values(byL).sort((a,b)=>a.L-b.L).map(o=>`<tr><td>${o.L}L</td><td class="num"><b>${f2(o.best)} m/s</b></td><td class="num">${o.last!=null?f2(o.last)+' m/s':'–'}</td><td class="num">${st?Math.round(o.best/st*100)+'%':'–'}</td><td class="num">${o.r.runup?f2(o.r.runup)+' m':'–'}</td><td class="num">${o.n}</td></tr>`).join('')}
       </tbody></table></div>${st?'':'<p class="help">Time a fly or sprint without the pole to see how much of their sprint speed carries into the vault.</p>'}</div>`;
   }
-  if(onRoster) h+=`<div class="card"><div class="gh"><h2 class="card-t">Run-ups by lefts</h2><span class="muted">feet from the box</span></div>
-    <div class="tbl-x"><table class="rutab"><thead><tr>${LEFTS.map(L=>`<th>${L}L</th>`).join('')}<th class="tocol">Takeoff target</th></tr></thead><tbody><tr>${LEFTS.map(L=>`<td><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-ru="${esc(n)}|${L}" value="${fmtFt(runupOf(n,L))}" aria-label="${L} lefts run-up in feet"></td>`).join('')}<td class="tocol"><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-to="${esc(n)}" value="${fmtFt(toTargetFt(n))}" aria-label="Takeoff target in feet from the box"></td></tr></tbody></table></div>
-    <p class="help">Takeoff target: where the takeoff toe should land, in feet from the box. Jumps within 4 in of it count as on target.</p></div>`;
-  { const tp=takeoffPoints(runs); if(tp.length) h+=`<div class="card"><div class="gh"><h2 class="card-t">Takeoff and end speed</h2><span class="muted">${plural(tp.length,'jump')} · target ${toTargetFt(n)!=null?fmtFt(toTargetFt(n))+' from the box':'as set when jumped'}</span></div><div class="chartbox">${takeoffSVG(tp,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tp)}</p></div>`;
-    else if(runs.some(r=>r.mode==='pv'&&runSteps(r))) h+=`<div class="card"><h2 class="card-t">Takeoff and end speed</h2><p class="help">Set a takeoff target above to see each jump as under, on target or out, against its end speed.</p></div>`; }
+  if(onRoster) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Run-ups by lefts</h2><span class="muted">${pvM()?'meters':'feet'} from the box</span></div>
+    <div class="tbl-x"><table class="rutab"><thead><tr>${LEFTS.map(L=>`<th>${L}L</th>`).join('')}<th class="tocol">Takeoff target</th></tr></thead><tbody><tr>${LEFTS.map(L=>`<td><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-ru="${esc(n)}|${L}" value="${fmtRun(runupOf(n,L))}" aria-label="${L} lefts run-up"></td>`).join('')}<td class="tocol"><input type="text" inputmode="decimal" autocomplete="off" placeholder="–" data-to="${esc(n)}" value="${fmtRun(toTargetFt(n))}" aria-label="Takeoff target from the box"></td></tr></tbody></table></div>
+    <p class="help">Takeoff target: where the takeoff foot should land, from the box. Jumps within 4 in (10 cm) of it count as on target.</p></div>`;
+  { const tp=takeoffPoints(runs); if(tp.length) h+=`<div class="card" data-sec="pv"><div class="gh"><h2 class="card-t">Takeoff and end speed</h2><span class="muted">${plural(tp.length,'jump')} · target ${toTargetFt(n)!=null?fmtRun(toTargetFt(n))+' from the box':'as set when jumped'}</span></div><div class="chartbox">${takeoffSVG(tp,chartW({clientWidth:box.clientWidth-38}))}</div><p class="help">${takeoffNote(tp)}</p></div>`;
+    else if(runs.some(r=>r.mode==='pv'&&runSteps(r))) h+=`<div class="card" data-sec="pv"><h2 class="card-t">Takeoff and end speed</h2><p class="help">Set a takeoff target above to see each jump as under, on target or out, against its end speed.</p></div>`; }
   const prog=progressSVG(runs,chartW({clientWidth:box.clientWidth-38}));
-  if(prog) h+=`<div class="card"><div class="gh"><h2 class="card-t">Top speed by day</h2><span class="legend2"><span class="lg" style="cursor:default"><i style="background:var(--chart)"></i>No pole</span>${t1?'<span class="lg" style="cursor:default"><i style="background:#E8590C"></i>With pole</span>':''}</span></div><div class="chartbox">${prog}</div></div>`;
+  if(prog) h+=`<div class="card" data-sec="ov"><div class="gh"><h2 class="card-t">Top speed by day</h2><span class="legend2"><span class="lg" style="cursor:default"><i style="background:var(--chart)"></i>No pole</span>${t1?'<span class="lg" style="cursor:default"><i style="background:#E8590C"></i>With pole</span>':''}</span></div><div class="chartbox">${prog}</div></div>`;
   const ev=S.ath.ev, pl=S.ath.pole, list=runs.filter(r=>(ev==='all'||r.mode===ev)&&(pl==='all'||(r.pole?'1':'0')===pl));
-  h+=`<div class="card"><div class="gh"><h2 class="card-t">All runs</h2>
+  h+=`<div class="card" data-sec="runs"><div class="gh"><h2 class="card-t">All runs</h2>
       <div class="toolbar"><div class="seg" id="aEv">${[['all','All'],['fly','Fly'],['sprint','Sprint'],['pv','Vault']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${ev===v}">${l}</button>`).join('')}</div>
       <div class="seg" id="aPole">${[['all','Any'],['0','No pole'],['1','Pole']].map(([v,l])=>`<button data-v="${v}" aria-pressed="${pl===v}">${l}</button>`).join('')}</div></div></div>
     <div>${list.length?list.map(r=>{ const H=headline(r); return `<button class="hrow" data-open="${r.id}"><span class="n"><b>${esc(runEv(r))}</b> ${poleBadge(r.pole)}<span class="m">${fmtDate(r.date,{weekday:'short',month:'short',day:'numeric'})} · ${fmtTime(r.date)}${r.location?' · '+esc(r.location):''}</span></span><span class="v num">top ${f1(H.a.top?.v)} m/s</span><span class="t num">${resText(r,H)}</span></button>`; }).join(''):'<div class="empty">No runs match.</div>'}</div></div>`;
   box.innerHTML=h;
+  qa('#aprof [data-sec]').forEach(c=>c.hidden=c.dataset.sec!==pt);
+  if(pt==='ov' && !box.querySelector('[data-sec="ov"]')) box.insertAdjacentHTML('beforeend','<div class="emptycard" data-sec="ov"><p class="help">Save a few runs and their speed trends show up here.</p></div>');
 }
-$('alist').onclick=e=>{ const b=e.target.closest('[data-sel]'); if(!b) return; S.ath.sel=b.dataset.sel; renaming=false; save(); renderAthletes(); if(window.innerWidth<880) $('aprof').scrollIntoView({behavior:'smooth',block:'start'}); };
+$('alist').onclick=e=>{ const b=e.target.closest('[data-sel]'); if(!b) return; S.ath.sel=b.dataset.sel; renaming=false; save(); renderAthletes(); };
 $('aprof').addEventListener('click',e=>{
   const n=S.ath.sel, t=e.target;
   const op=t.closest('[data-open]'); if(op){ openRun(op.dataset.open); return; }
@@ -2969,11 +3135,14 @@ function renderSettings(){
   pressed('#autoSeg [data-auto]', b=>(b.dataset.auto==='1')===!!S.autoSave);
   pressed('#sndSeg [data-snd]', b=>(b.dataset.snd==='1')===!!S.sound);
 }
-$('btnSettings').onclick=()=>{ renderSettings(); openSheet('setSheet'); };
+$('btnSettings').onclick=()=>showTab('settings');
 $('thSeg').onclick=e=>{ const b=e.target.closest('[data-th]'); if(!b) return; S.theme=b.dataset.th; save(); applyTheme(); };
 $('autoSeg').onclick=e=>{ const b=e.target.closest('[data-auto]'); if(!b) return; S.autoSave=b.dataset.auto==='1'; save(); renderSettings(); };
 $('sndSeg').onclick=e=>{ const b=e.target.closest('[data-snd]'); if(!b) return; S.sound=b.dataset.snd==='1'; save(); renderSettings(); if(S.sound){ audioInit(); beep(988,.08); } };
+let downloads=null;
+(async()=>{ try{ downloads = window.claude?.use ? await window.claude.use('downloads') : null; }catch(e){ downloads=null; } })();
 async function saveFile(name,text,type){
+  if(downloads){ try{ await downloads.save({filename:name,data:new Blob([text],{type})}); return 'ok'; }catch(err){ return err&&err.code==='declined'?'declined':'fail'; } }
   try{ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); return 'ok'; }catch(e){ return 'fail'; }
 }
 function bkMsg(t,bad){ const m=$('bkMsg'); m.textContent=t; m.classList.toggle('err',!!bad); }
@@ -3190,7 +3359,7 @@ function reportHTML(day){
     ${(()=>{ const names=[...new Set(runs.filter(r=>r.mode==='pv').map(r=>r.athlete))], col=n=>SERIES[names.indexOf(n)%SERIES.length], tp=takeoffPoints(runs,col); if(!tp.length) return '';
       const who=[...new Set(tp.map(p=>p.name))];
       return `<div class="ev"><h3>Takeoff and end speed<small>every jump with a takeoff target</small></h3><div class="chart">${takeoffSVG(tp,760)}</div><div class="lgd">${who.map(n=>`<span><i style="background:${col(n)}"></i>${esc(n)}</span>`).join('')}</div><p class="rp-n">${takeoffNote(tp)}</p></div>`; })()}
-    <p class="rp-n">End speed is the average over the last split before the box; under the first split is how end speed compares with it. Steps and takeoff are in feet and inches: steps are toe to toe from the video (penultimate and last step into the takeoff), "at" is where that foot landed, and takeoff is where the takeoff toe landed, all measured from the box. "% of sprint" compares end speed with the athlete's best no-pole fly or sprint on record.</p></section>` : '';
+    <p class="rp-n">End speed is the average over the last split before the box; under the first split is how end speed compares with it. Steps and takeoff are in ${pvM()?'meters':'feet and inches'}: steps are toe to toe from the video (penultimate and last step into the takeoff), "at" is where that foot landed, and takeoff is where the takeoff toe landed, all measured from the box. "% of sprint" compares end speed with the athlete's best no-pole fly or sprint on record.</p></section>` : '';
 
   // ---- pole vs no pole, per athlete
   const peakAvg=(n,p)=>{ const xs=runs.filter(r=>r.athlete===n&&!!r.pole===!!p).map(r=>info.get(r.id).P).filter(Boolean); if(!xs.length) return '–'; if(xs.every(x=>x.still)) return `<span class="warn">after ${xs[0].end} m</span>`; return `≈ ${Math.round(mean(xs.filter(x=>!x.still).map(x=>x.x)))} m`; };
@@ -3248,12 +3417,13 @@ function reportHTML(day){
   </div>`;
 }
 let reportDay=null;
+const inClaude = () => !!window.claude;   // the Claude viewer can't open the print dialog
 function openReport(day){
   reportDay=day||S.res.day;
   const html=reportHTML(reportDay);
   if(!html){ toast('No runs on this day yet'); return; }
   $('reportBody').innerHTML=html;
-  $('rpPrint').hidden=false;
+  $('rpPrint').hidden=inClaude();
   openSheet('reportSheet'); $('reportSheet').querySelector('.sheet-panel').scrollTop=0;
 }
 $('rpPrint').onclick=()=>{ document.body.classList.add('printing'); setTimeout(()=>{ try{ window.print(); }catch(e){} },50); };
@@ -3269,23 +3439,83 @@ $('resDoneOpen').onclick=()=>{ $('resDone').hidden=true; openReport(S.res.day); 
 /* =========================================================
    Tabs and start-up
    ========================================================= */
+const TABS=['home','timer','results','athletes','settings'];
 function showTab(t){
-  if(!['timer','results','athletes'].includes(t)) t='timer';
+  if(!TABS.includes(t)) t='home';
   S.tab=t; save(); if(t!=='results') $('resDone').hidden=true;
-  qa('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===t)));
-  $('v-timer').hidden=t!=='timer'; $('v-results').hidden=t!=='results'; $('v-athletes').hidden=t!=='athletes';
-  if(t==='timer') renderSetup(); else if(t==='results') renderResults(); else renderAthletes();
-  window.scrollTo(0,0);
+  qa('.tabbar [data-tab]').forEach(b=>b.setAttribute('aria-current',String(b.dataset.tab===t || (t==='timer'&&false))));
+  $('tabNew').classList.toggle('on',t==='timer');
+  for(const v of TABS) $('v-'+v).hidden=v!==t;
+  document.body.dataset.tab=t;
+  if(t==='home') renderHome(); else if(t==='timer'){ renderSetup(); renderWiz(); } else if(t==='results') renderResults(); else if(t==='athletes') renderAthletes(); else renderSettings();
+  renderHdr(); window.scrollTo(0,0);
 }
-qa('[data-tab]').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+qa('.tabbar [data-tab]').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+$('tabNew').onclick=()=>{ S.wiz=1; showTab('timer'); };
 document.addEventListener('click',e=>{ const g=e.target.closest('[data-go]'); if(g) showTab(g.dataset.go); });
+
+/* ---------- header pill: what the next session will time ---------- */
+function renderHdr(){
+  const sm=evSummary(); $('hdrPillT').textContent=sm.main||'Set up';
+}
+$('hdrPill').onclick=()=>{ S.wiz=1; showTab('timer'); };
+
+/* ---------- setup, one step per screen ---------- */
+const WIZ=['Choose event','Gates','Camera','Details'];
+function renderWiz(){
+  const n=Math.min(4,Math.max(1,S.wiz||1));
+  qa('#v-timer .setup > [data-step]').forEach(c=>c.hidden=+c.dataset.step!==n);
+  $('wizN').textContent=`Step ${n} of 4`;
+  qa('#wizBar i').forEach((i,k)=>i.classList.toggle('on',k<n));
+  $('wizTitle').textContent=WIZ[n-1];
+  $('wizBack').textContent= n===1 ? 'Home' : 'Back';
+  $('wizNext').hidden=n===4; $('btnStart').hidden=n!==4;
+  if(n===2 && !isPv()) $('strip').innerHTML=gateStripSVG();
+}
+$('wizBack').onclick=()=>{ if((S.wiz||1)<=1){ showTab('home'); return; } S.wiz--; save(); renderWiz(); window.scrollTo(0,0); };
+$('wizNext').onclick=()=>{ S.wiz=Math.min(4,(S.wiz||1)+1); save(); renderWiz(); window.scrollTo(0,0); };
+// picking an event is the whole of step 1: go straight on
+$('evTiles').addEventListener('click',e=>{ if(e.target.closest('[data-ev]') && (S.wiz||1)===1 && window.innerWidth<700){ setTimeout(()=>{ S.wiz=2; save(); renderWiz(); window.scrollTo(0,0); },180); } });
+
+/* ---------- home ---------- */
+function renderHome(){
+  const sm=evSummary();
+  $('homeSetup').innerHTML=`<b>${esc(sm.main||'')}</b><span>${esc(sm.sub||'')}</span>`;
+  $('homeAgain').hidden=!(S.lines.length>=2 || gateList(S.gen));
+  const today=ymd(new Date()), runs=S.runs.filter(r=>!r.example && ymd(new Date(r.date))===today);
+  if(runs.length){
+    let top=null; for(const r of runs){ const a=headline(r).a; if(a.top&&(!top||a.top.v>top.v)) top={v:a.top.v,who:r.athlete}; }
+    let pv=null; for(const r of runs) if(r.mode==='pv'){ const H=headline(r); if(H.v!=null&&(!pv||H.v>pv.v)) pv={v:H.v,who:r.athlete}; }
+    $('homeToday').innerHTML=`<button class="card hrowcard" data-go="results"><div class="hc-k">Today</div>
+      <div class="hc-stats num"><div><b>${runs.length}</b><span>${runs.length===1?'run':'runs'}</span></div>${top?`<div><b>${f1(top.v)}<small>m/s</small></b><span>top · ${esc(top.who.split(' ')[0])}</span></div>`:''}${pv?`<div><b>${f2(pv.v)}<small>m/s</small></b><span>vault end · ${esc(pv.who.split(' ')[0])}</span></div>`:''}</div>
+      <span class="hc-go">See results ›</span></button>`;
+  } else $('homeToday').innerHTML='';
+  $('homeRoster').innerHTML= S.roster.length ? '' : `<div class="card"><div class="hc-k">Start here</div><p class="help">Add the athletes you'll be timing. Their names become big buttons on the timing screen.</p><div class="row"><button class="btn btn-lg" data-go="athletes">Add an athlete</button><button class="btn btn-lg" data-demo="load">See a sample session</button></div></div>`;
+}
+$('homeNew').onclick=()=>{ S.wiz=1; showTab('timer'); };
+$('homeAgain').onclick=()=>$('btnStart').click();
+
+/* ---------- athletes: roster or vault run-ups; on a phone the profile is its own page ---------- */
+let athDetail=false;
+function athLayout(){
+  const sw=S.athSw||'roster';
+  pressed('#athSw [data-as]', b=>b.dataset.as===sw);
+  $('athRu').hidden=sw!=='ru'; $('athRoster').hidden=sw==='ru';
+  if(sw==='ru') renderRunups();
+  $('v-athletes').classList.toggle('detail', athDetail && !!S.ath.sel);
+}
+$('athSw').onclick=e=>{ const b=e.target.closest('[data-as]'); if(!b) return; S.athSw=b.dataset.as; save(); athLayout(); };
+$('alist').addEventListener('click',e=>{ if(e.target.closest('[data-sel]')){ athDetail=true; athLayout(); window.scrollTo(0,0); } });
+document.addEventListener('click',e=>{ if(e.target.closest('#aBack')){ athDetail=false; athLayout(); window.scrollTo(0,0); } });
+document.addEventListener('click',e=>{ const b=e.target.closest('#aPt [data-pt]'); if(!b) return; S.ath.pt=b.dataset.pt; save(); renderProfile(); });
+
 qa('.info').forEach(b=>b.onclick=()=>{ const el=$(b.getAttribute('aria-controls')), open=b.getAttribute('aria-expanded')!=='true'; b.setAttribute('aria-expanded',String(open)); el.hidden=!open; });
 
 let rsT=null;
-window.addEventListener('resize',()=>{ clearTimeout(rsT); rsT=setTimeout(()=>{ if(!$('v-timer').hidden) $('strip').innerHTML=gateStripSVG(); if(!$('v-results').hidden) renderResults(); if(!$('v-athletes').hidden) renderProfile(); if(!$('runSheet').hidden) renderRunSheet(); },200); });
+window.addEventListener('resize',()=>{ clearTimeout(rsT); rsT=setTimeout(()=>{ if(!$('v-timer').hidden && !isPv()) $('strip').innerHTML=gateStripSVG(); if(!$('v-results').hidden) renderResults(); if(!$('v-athletes').hidden) renderProfile(); if(!$('runSheet').hidden) renderRunSheet(); },200); });
 applyTheme(); updTrig();
 const h0=location.hash.slice(1);
-showTab(['timer','results','athletes'].includes(h0)?h0:S.tab);
+showTab(TABS.includes(h0)?h0:(S.tab==='timer'?'home':S.tab||'home'));
 requestAnimationFrame(draw);
 })();
 </script>
