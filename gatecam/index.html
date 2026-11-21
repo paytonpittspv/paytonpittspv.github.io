@@ -571,6 +571,22 @@ details[open].more>summary::before,.chartdet[open]>summary::before{transform:rot
 @media (prefers-reduced-motion: reduce){.status.rec i,.runcard.rec .rc-k i{animation:none}}
 </style>
 
+<div id="splash" aria-hidden="true"><div class="sp-in"><svg viewBox="0 0 40 40"><defs><linearGradient id="splg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A5B"/><stop offset=".5" stop-color="#D58FB3"/><stop offset="1" stop-color="#B48BF2"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#splg)"/><path d="M12 9v22M20 9v22M28 9v22" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="20" cy="20" r="4.8" fill="#F2B200"/></svg><div class="sp-name">GateCam<span>Live</span></div></div></div>
+<style>
+#splash{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:var(--bg,#18121F);transition:opacity .45s ease,visibility .45s;touch-action:none}
+#splash.out{opacity:0;visibility:hidden}
+#splash .sp-in{display:grid;justify-items:center;gap:18px;animation:spIn .7s cubic-bezier(.2,.9,.25,1.2) both}
+#splash svg{width:104px;height:104px;border-radius:24px;box-shadow:0 18px 50px rgba(180,139,242,.35)}
+#splash .sp-name{font:800 34px/1 "Figtree",system-ui,-apple-system,sans-serif;letter-spacing:-.01em;color:var(--ink,#F3EEF9);animation:spIn .7s .12s cubic-bezier(.2,.9,.25,1.2) both}
+#splash .sp-name span{background:linear-gradient(90deg,#F59A5B,#D58FB3,#B48BF2);-webkit-background-clip:text;background-clip:text;color:transparent}
+@keyframes spIn{from{opacity:0;transform:translateY(10px) scale(.92)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#splash .sp-in,#splash .sp-name{animation:none}#splash{transition:none}}
+@media print{#splash{display:none!important}}
+</style>
+<script>/* brief loading screen: at least 0.9 s, gone by 2.5 s at most */
+(function(){var t0=Date.now(),done=false;function hide(){if(done)return;done=true;var e=document.getElementById('splash');if(!e)return;e.classList.add('out');setTimeout(function(){e.remove()},500)}
+function ready(){setTimeout(hide,Math.max(0,900-(Date.now()-t0)))}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ready);else ready();setTimeout(hide,2500);})();</script>
 <header class="app-head">
   <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A5B"/><stop offset=".5" stop-color="#D58FB3"/><stop offset="1" stop-color="#B48BF2"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><path d="M12 9v22M20 9v22M28 9v22" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/><circle cx="20" cy="20" r="4.8" fill="var(--gate)"/></svg><span>GateCam<em>Live</em></span></div>
   <button class="hpill" id="hdrPill" aria-label="Change the session setup"><i></i><span id="hdrPillT">Set up</span></button>
