@@ -718,6 +718,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   .live .abtn{min-height:46px;padding:5px 10px}
   .fpschip .fx{display:none}
 }
+.rail.tabbed .rsec:has(> .rsec-h > .info){position:relative;padding-right:52px}
+.rail.tabbed .rsec-h:has(> .info){position:absolute;top:12px;right:12px}
+.rail.tabbed .rsec-h:has(> .info) > :not(.info):not(h3){display:none}
+.tripod-note{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:rgba(245,154,91,.12);border:1px solid rgba(245,154,91,.45);color:var(--ink)}
+.tripod-note svg{flex:none;color:#F59A5B;margin-top:1px}
+.tripod-note p{margin:0;font-size:13.5px;line-height:1.35;color:var(--ink-2)}
+.tripod-note b{color:var(--ink)}
+@media (max-height:520px){.tripod-note{padding:7px 10px}.tripod-note p{font-size:12.5px}}
 .live.align .stage .status{display:none}
 .stage .fpschip{position:absolute;right:10px;top:26px;z-index:3;pointer-events:none;padding:7px 10px;background:rgba(24,18,31,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.16);color:#fff}
 .stage .fpschip.lowfps{background:rgba(60,32,14,.88);color:#FFC796;border-color:rgba(245,154,91,.6)}
@@ -1006,6 +1014,7 @@ b.addEventListener('click',go);b.addEventListener('keydown',function(e){if(e.key
           <div><div class="eyebrow">Before timing</div><h2>Align the camera</h2></div>
           <button class="btn btn-primary" id="goTime">Done · Time runs</button>
         </div>
+        <div class="tripod-note" role="note"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2.5" width="10" height="6" rx="1.5"/><path d="M12 8.5v4M12 12.5l-6 9M12 12.5l6 9M12 12.5v9"/></svg><p><b>Use a tripod.</b> Any movement shifts the gates off the cones, so don't hold or touch the phone.</p></div>
         <section class="rsec">
           <div class="rsec-h"><h3>1 · Perspective</h3><button type="button" class="info" aria-expanded="false" aria-controls="hint-persp" aria-label="About perspective">i</button></div>
           <div class="note" id="hint-persp" hidden><p>The camera sees the track at an angle, so gates farther away look closer together. Marking the lane lines at your first and last cone lets GateCamLive place every gate at its true distance and size its watch zone to torso height there.</p><p>Do it once per tripod position. Skip it if the camera is square to the lane.</p></div>
