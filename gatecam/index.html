@@ -704,10 +704,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   .lbar2{gap:6px}
   .lbar2 .dseg button{padding:0 11px}
   .lbar2 .dbtn{padding:0 12px;font-size:14px}
-  .runcard.off,.runcard.ready,.runcard.needsrc{display:none}
+  .runcard.off:not(.hassaved),.runcard.ready:not(.hassaved),.runcard.needsrc:not(.hassaved){display:none}
 }
 @media (max-height:520px){
-  .runcard.off,.runcard.ready,.runcard.needsrc{display:none}
+  .runcard.off:not(.hassaved),.runcard.ready:not(.hassaved),.runcard.needsrc:not(.hassaved){display:none}
   .lbar{padding:6px 12px 2px}.lbar2{padding:2px 12px 6px}
   .lv-ev{font-size:18px}.lv-ev small{display:none}
   #lvEndText{display:none}#lvEnd{width:40px;padding:0}
@@ -729,7 +729,17 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .live.align .stage .status{display:none}
 .stage .fpschip{position:absolute;right:10px;top:26px;z-index:3;pointer-events:none;padding:7px 10px;background:rgba(24,18,31,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.16);color:#fff}
 .stage .fpschip.lowfps{background:rgba(60,32,14,.88);color:#FFC796;border-color:rgba(245,154,91,.6)}
-.live .abtn{background:var(--surface-2)}
+.live .abtn{background:var(--surface-2);position:relative;padding-right:30px;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.abtn .ord{position:absolute;top:6px;right:7px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;background:var(--line);color:var(--ink-2);font:700 11px/19px var(--f-body);font-style:normal;text-align:center}
+.abtn[aria-pressed="true"] .ord{background:var(--brand-ink);color:var(--brand)}
+.abtn.dragsrc{opacity:.25}
+.abtn.aghost{transform:scale(1.04);box-shadow:0 14px 30px rgba(0,0,0,.45);border-color:var(--brand);opacity:.96}
+.agrid.dragging .abtn{transition:transform .12s}
+.ahint{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
+.rc-saved{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;margin-bottom:2px;border-radius:10px;background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.4);font-size:14px;color:var(--ink-2)}
+.rc-saved .btn{min-height:32px}
+.live.isdone .runcard [data-rc="save"]{display:none}
+#lvSave[disabled]{opacity:.55}
 .live .abtn[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
 .live .abtn[aria-pressed="true"] span{color:var(--brand-ink);opacity:.72}
 @media (orientation:portrait),(max-width:560px){
@@ -1048,6 +1058,7 @@ b.addEventListener('click',go);b.addEventListener('keydown',function(e){if(e.key
           <div class="rsec-h"><h3>Who's running</h3><div class="seg" id="poleNow"><button data-pole="0">No pole</button><button data-pole="1">Pole</button></div></div>
           <div id="leftsRow" class="stack" style="gap:6px" hidden><div class="field-h">Lefts for this jump</div><div class="seg fill" id="leftsNow"></div></div>
           <div class="agrid" id="agrid"></div>
+          <p class="ahint">Running order: hold a name and drag to move it. After each save the next athlete loads.</p>
           <form class="addath" id="railAddForm"><input id="railAddName" placeholder="Add an athlete" autocomplete="off" aria-label="Athlete name"><button class="btn">Add</button></form>
         </section>
         <section class="rsec">
@@ -1064,7 +1075,7 @@ b.addEventListener('click',go);b.addEventListener('keydown',function(e){if(e.key
 var st=$('status'),stage=$('stage');if(st&&stage)stage.appendChild(st);var fc=$('fpsChip');if(fc&&stage)stage.appendChild(fc);
 function pin(btn,rail){if(!btn||!rail)return;var w=document.createElement('div');w.className='lv-cta';w.appendChild(btn);rail.appendChild(w)}
 var g=$('goTime');if(g){g.className='btn-grad';pin(g,$('railAlign'))}
-pin($('btnTiming'),$('railTime'));
+pin($('btnTiming'),$('railTime'));var sv=document.createElement('button');sv.className='btn-grad';sv.id='lvSave';sv.hidden=true;var bt=$('btnTiming');if(bt&&bt.parentNode)bt.parentNode.appendChild(sv);
 function tabs(rail,key){if(!rail)return;var secs=[].filter.call(rail.children,function(e){return e.classList.contains('rsec')});if(secs.length<2)return;
   var bar=document.createElement('div');bar.className='seg fill rtabs';
   secs.forEach(function(sec,k){var t=sec.querySelector('.rsec-h h3');var b=document.createElement('button');b.type='button';b.textContent=(t?t.textContent:'').replace(/^\s*\d+\s*·\s*/,'');b.addEventListener('click',function(){show(k)});bar.appendChild(b)});
@@ -2403,7 +2414,7 @@ function renderLive(){
 function phase(){
   if(armed) return 'rec';
   if(Object.keys(crossings).length>=2) return 'done';
-  if(justSaved) return 'saved';
+  if(justSaved && !(timingOn && S.athlete)) return 'saved';
   if(!timingOn) return 'off';
   if(fileCue && S.athlete && source==='file') return 'cue';
   if(S.athlete && source==='none') return 'needsrc';
@@ -2415,13 +2426,14 @@ function setStatus(){
   const el=$('status');
   let cls=ph, t;
   if(liveMode==='align' && !armed){ cls='align'; t=calMode?'Aligning · mark the lane':'Aligning camera'; }
-  else t={off:'Timing off', ready:'Ready · Tap the next athlete', needsrc:S.src==='file'?'Ready · Upload the video':'Ready · Turn on the camera', cue:'Video ready · Tap Time this video',
+  else t={off:'Timing off', ready:S.athlete?`Up next · ${S.athlete.split(' ')[0]}`:'Ready · Tap the next athlete', needsrc:S.src==='file'?`Up next · ${(S.athlete||'').split(' ')[0]} · Upload the video`:'Ready · Turn on the camera', cue:'Video ready · Tap Time this video',
     rec:n===0?'Recording · Waiting for runners':`Recording · ${n} of ${N} gates`, done:isPv()?'Jump complete · Save or discard':'Run complete · Save or discard', saved:'Saved · Tap the next athlete'}[ph];
   el.className='status '+cls;
   const k=t.indexOf(' · '); $('statusText').innerHTML= k<0 ? esc(t) : `${esc(t.slice(0,k))}<span class="st-x"> · ${esc(t.slice(k+3))}</span>`;
   $('live').classList.toggle('rec',ph==='rec');
   const on=timingOn||armed;
   $('btnTiming').classList.toggle('on',on); $('btnTimingText').textContent= on ? 'Stop timing' : 'Start timing';
+  { const sv=$('lvSave'), dn=ph==='done'; if(sv){ sv.hidden=!dn; sv.disabled=!S.athlete; sv.textContent=S.athlete?`Save · ${S.athlete.split(' ')[0]}`:'Tap who ran first'; } $('btnTiming').hidden=dn; $('live').classList.toggle('isdone',dn); }
   const ft=$('fsTiming'); ft.textContent= on ? 'Stop timing' : 'Start timing'; ft.classList.toggle('danger',on); ft.classList.toggle('primary',!on);
   ft.hidden = liveMode!=='time';
 }
@@ -2458,6 +2470,7 @@ function toggleTiming(){
   if(timingOn||armed){ stopTiming(); return; }
   if(liveMode!=='time') setLiveMode('time');
   timingOn=true; justSaved=null;
+  if(!S.athlete && S.roster.length){ S.athlete=S.roster.includes(S.lineNext)?S.lineNext:S.roster[0]; if(isPv()) S.pvL=defaultLefts(S.athlete); save(); }
   if(S.athlete) tryStartRun(); else { renderTime(); setStatus(); renderFsAth(); }
 }
 function stopTiming(){
@@ -2514,13 +2527,21 @@ function saveRun(){
   resetDetection(); armed=false;
   clearTimeout(savedT); savedT=setTimeout(()=>{ if(justSaved&&justSaved.id===run.id){ justSaved=null; renderTime(); setStatus(); } },7000);
   beep(1568,.07);
+  const nx=S.roster.length ? S.roster[(S.roster.indexOf(run.athlete)+1)%S.roster.length] : '';
+  S.lineNext=nx;
+  if(timingOn && nx){ const js=justSaved; S.athlete=nx; if(pv) S.pvL=defaultLefts(nx); save(); tryStartRun(); justSaved=js; }
   renderLive();
 }
 function undoSave(){
   if(!justSaved) return;
-  S.runs=S.runs.filter(r=>r.id!==justSaved.id); justSaved=null; save(); toast('Save undone'); renderTime(); setStatus();
+  const nm=justSaved.name; S.runs=S.runs.filter(r=>r.id!==justSaved.id); justSaved=null;
+  if(armed){ armed=false; resetDetection(); }
+  if(S.roster.includes(nm)){ S.athlete=nm; S.lineNext=nm; }
+  save(); toast(`Save undone · ${nm.split(' ')[0]} can run again`);
+  if(timingOn && S.athlete) tryStartRun(); else { renderTime(); setStatus(); }
 }
 $('btnTiming').onclick=toggleTiming;
+$('lvSave').onclick=()=>{ if(S.athlete) saveRun(); };
 $('runCard').addEventListener('click',e=>{ const b=e.target.closest('[data-rmstep]'); if(!b||!stepRes) return; stepRes.c.splice(+b.dataset.rmstep,1); renderRunCard(); const d=$('runCard').querySelector('.fixsteps'); if(d) d.open=true; });
 $('fsTiming').onclick=toggleTiming;
 
@@ -2564,7 +2585,7 @@ function fixGatesHTML(){
 }
 function renderRunCard(){
   const ph=phase(), c=$('runCard'), who=S.athlete;
-  c.className='runcard '+ph;
+  c.className='runcard '+ph+(justSaved&&ph!=='saved'?' hassaved':'');
   const g=currentGates(), a=analyze(g,S.mode==='fly'?S.fly:null);
   let h='';
   if(ph==='off') h=`<div class="rc-k"><i></i>Timing off</div><div class="rc-msg">Tap <b>Start timing</b>. Each run records only after you pick who's running, so nothing is timed by accident.</div>`;
@@ -2597,6 +2618,7 @@ function renderRunCard(){
       ${source==='file'?fixGatesHTML():''}`;
   }
   else if(ph==='saved') h=`<div class="rc-k"><i></i>Saved</div><div class="rc-name">${esc(justSaved.name)} · <span class="num">${justSaved.txt}</span></div><div class="rc-sub">${timingOn?'Tap the next athlete to record their run.':'Tap Start timing to record more runs.'}</div><button class="btn" data-rc="undo">Undo save</button>`;
+  if(justSaved && ph!=='saved') h=`<div class="rc-saved"><span>Saved · <b>${esc(justSaved.name.split(' ')[0])}</b> · <span class="num">${justSaved.txt}</span></span><button class="btn btn-sm" data-rc="undo">Undo</button></div>`+h;
   c.innerHTML=h;
 }
 $('runCard').addEventListener('toggle',e=>{ if(e.target.matches('details.fix')) fixOpen=e.target.open; },true);
@@ -2626,11 +2648,11 @@ function todayStats(){
 }
 function renderAgrid(){
   const c=todayStats(), ph=phase();
-  $('agrid').innerHTML = S.roster.length ? S.roster.map(n=>{
-    const o=c[n], on=n===S.athlete;
+  $('agrid').innerHTML = S.roster.length ? S.roster.map((n,k)=>{
+    const o=c[n], on=n===S.athlete, ord=`<i class="ord">${k+1}</i>`;
     if(isPv()){ const L=on?S.pvL:defaultLefts(n), ru=runupOf(n,L);
-      return `<button class="abtn ${on&&ph==='rec'?'rec':''}" data-ath="${esc(n)}" aria-pressed="${on}"><b>${esc(n)}</b><span class="num">${L}L${ru?' · '+fmtRun(ru):' · no run-up set'}${o?` · ${o.n} today${o.best!=null?' · '+f2(o.best)+' m/s':''}`:''}</span></button>`; }
-    return `<button class="abtn ${on&&ph==='rec'?'rec':''}" data-ath="${esc(n)}" aria-pressed="${on}"><b>${esc(n)}</b><span class="num">${o?`${o.n} today${o.best!=null?' · best '+f2(o.best):''}`:'No runs today'}</span></button>`;
+      return `<button class="abtn ${on&&ph==='rec'?'rec':''}" data-ath="${esc(n)}" aria-pressed="${on}">${ord}<b>${esc(n)}</b><span class="num">${L}L${ru?' · '+fmtRun(ru):' · no run-up set'}${o?` · ${o.n} today${o.best!=null?' · '+f2(o.best)+' m/s':''}`:''}</span></button>`; }
+    return `<button class="abtn ${on&&ph==='rec'?'rec':''}" data-ath="${esc(n)}" aria-pressed="${on}">${ord}<b>${esc(n)}</b><span class="num">${o?`${o.n} today${o.best!=null?' · best '+f2(o.best):''}`:'No runs today'}</span></button>`;
   }).join('') : '<div class="empty" style="grid-column:1/-1">Add your athletes below. Their names become big buttons here.</div>';
 }
 function pickAthlete(name){
@@ -2643,6 +2665,42 @@ function pickAthlete(name){
   if(timingOn && liveMode==='time') tryStartRun(); else { renderTime(); setStatus(); renderStageMsg(); renderFsAth(); }
 }
 $('agrid').onclick=e=>{ const b=e.target.closest('[data-ath]'); if(b) pickAthlete(b.dataset.ath); };
+// lineup: hold an athlete and drag to change the running order
+(function(){
+  const G=$('agrid'); let drag=null, lp=null, t0=null, suppress=false;
+  const btns=()=>[...G.querySelectorAll('[data-ath]')];
+  const num=()=>btns().forEach((b,k)=>{ const o=b.querySelector('.ord'); if(o) o.textContent=k+1; });
+  function begin(btn,x,y){
+    const r=btn.getBoundingClientRect(), gh=btn.cloneNode(true);
+    gh.classList.add('aghost'); Object.assign(gh.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',zIndex:80,pointerEvents:'none',margin:0});
+    document.body.appendChild(gh); btn.classList.add('dragsrc'); G.classList.add('dragging');
+    drag={el:btn, gh, dx:x-r.left, dy:y-r.top}; try{ navigator.vibrate&&navigator.vibrate(12); }catch(e){}
+  }
+  function move(x,y){
+    if(!drag) return; drag.gh.style.left=(x-drag.dx)+'px'; drag.gh.style.top=(y-drag.dy)+'px';
+    const el=document.elementFromPoint(x,y), t=el&&el.closest('#agrid [data-ath]'); if(!t||t===drag.el) return;
+    const all=btns(), from=all.indexOf(drag.el), to=all.indexOf(t);
+    G.insertBefore(drag.el, from<to ? t.nextSibling : t); num();
+  }
+  function end(){
+    if(lp){ clearTimeout(lp); lp=null; } if(!drag) return;
+    drag.gh.remove(); drag.el.classList.remove('dragsrc'); G.classList.remove('dragging'); drag=null;
+    suppress=true; setTimeout(()=>{ suppress=false; },400);
+    S.roster=btns().map(b=>b.dataset.ath); save(); renderAgrid(); renderFsAth();
+  }
+  G.addEventListener('touchstart',e=>{ const b=e.target.closest('[data-ath]'); if(!b||e.touches.length>1) return; const p=e.touches[0]; t0={x:p.clientX,y:p.clientY}; lp=setTimeout(()=>{ lp=null; begin(b,t0.x,t0.y); },300); },{passive:true});
+  G.addEventListener('touchmove',e=>{ const p=e.touches[0]; if(drag){ e.preventDefault(); move(p.clientX,p.clientY); return; } if(lp&&t0&&Math.hypot(p.clientX-t0.x,p.clientY-t0.y)>8){ clearTimeout(lp); lp=null; } },{passive:false});
+  G.addEventListener('touchend',e=>{ if(drag) e.preventDefault(); end(); });
+  G.addEventListener('touchcancel',end);
+  G.addEventListener('mousedown',e=>{
+    const b=e.target.closest('[data-ath]'); if(!b||e.button!==0) return; const sx=e.clientX, sy=e.clientY;
+    const mm=ev=>{ if(!drag && Math.hypot(ev.clientX-sx,ev.clientY-sy)>6) begin(b,sx,sy); if(drag) move(ev.clientX,ev.clientY); };
+    const mu=()=>{ removeEventListener('mousemove',mm); removeEventListener('mouseup',mu); end(); };
+    addEventListener('mousemove',mm); addEventListener('mouseup',mu);
+  });
+  G.addEventListener('click',e=>{ if(suppress){ e.stopPropagation(); e.preventDefault(); } },true);
+  G.addEventListener('contextmenu',e=>{ if(e.target.closest('[data-ath]')) e.preventDefault(); });
+})();
 $('fsAth').onclick=e=>{ const b=e.target.closest('[data-ath]'); if(b) pickAthlete(b.dataset.ath); };
 function renderFsAth(){
   $('fsAth').innerHTML=S.roster.map(n=>`<button data-ath="${esc(n)}" aria-pressed="${n===S.athlete}">${esc(n)}</button>`).join('');
