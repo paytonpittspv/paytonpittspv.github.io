@@ -1497,11 +1497,13 @@ function flyPairExists(){ const ds=S.lines.map(l=>+l.d); for(const a of ds) for(
 function renderSetup(){
   renderHdr();
   pressed('#evTiles [data-ev]', b=>b.dataset.ev===(S.mode==='pv'?jKey():S.mode));
+  // fly always means the fly zone: run-up + the flying distance (no 'whole run' question)
+  if(S.mode==='fly' && S.flyView!=='zone'){ S.flyView='zone'; S.gen=zoneGen(); applyGen(); return; }
   $('evHow').innerHTML=evHowHTML(S.mode==='pv'?jKey():S.mode);
   pressed('#poleSeg [data-pole]', b=>(b.dataset.pole==='1')===!!S.pole);
   const zone=isZone();
   const pv=isPv();
-  $('flyViewWrap').hidden=S.mode!=='fly';
+  $('flyViewWrap').hidden=true;
   $('pvGates').hidden=!pv; $('presets').hidden=pv;
   ['poleSegH','poleSeg','poleHelp'].forEach(id=>$(id).hidden=pv); $('pvHelp').hidden=!pv;
   if(pv){ $('pvHelp').textContent= isBoard() ? `${JUMPS[jKey()].name} approaches are timed into the board, and the takeoff is judged on the board: on it, a foul, or how far behind. Each athlete's approach is compared with their best sprint speed, so time a few flys too.` : 'Vault approaches are always with the pole. Each athlete\'s approach speed is compared with their best sprint speed, so time a few flys too.';
@@ -1525,7 +1527,7 @@ function renderSetup(){
   if(!pv){ $('runUnitWrap').hidden=false; pressed('#runUnitSeg [data-ru]', b=>b.dataset.ru===rU());
     ['zRun','zFly','gFrom','gTo','gEvery','fly'].forEach(id=>{ const u=$(id).closest('.unit'); if(u) u.dataset.u=rU(); });
     { const std=rFt()?[4.572,9.144]:[5,10], fe=+S.flyEvery||0, opts=std.slice(); if(fe>0 && !std.some(v=>Math.abs(v-fe)<2e-3)) opts.push(fe); opts.sort((a,b)=>a-b);
-      $('zEvery').innerHTML=opts.map(v=>`<option value="${v}">Every ${rLab(v)}</option>`).join('')+'<option value="0">Start and finish only</option>'; }
+      $('zEvery').innerHTML=opts.map(v=>`<option value="${v}">${rLab(v)}</option>`).join('')+'<option value="0">None</option>'; }
   } else $('runUnitWrap').hidden=true;
   setVal('zRun',rd(S.runup)); setVal('zFly',rd(S.fly)); setVal('zEvery',String(+S.flyEvery>0?S.flyEvery:0));
   if(zone){ const ds=S.lines.map(l=>+l.d).sort((a,b)=>a-b); $('zoneHelp').textContent=`Point the camera at the fly zone only. Distances count from the start of the run-up, so the gates go at ${ds.map(rd).join(', ')} ${rU()}.`; }
