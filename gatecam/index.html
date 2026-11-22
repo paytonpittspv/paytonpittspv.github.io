@@ -1146,7 +1146,7 @@ function gateList(g){
 }
 function genLines(g,dir){
   const ds=gateList(g)||[0,10,20,30,40,50], n=ds.length;
-  return ds.map((d,i)=>{ const f=n>1?i/(n-1):.5; return {id:uid(), d, x:0.06+0.88*(dir==='rtl'?1-f:f)}; });
+  return ds.map((d,i)=>{ const f=n>1?i/(n-1):.5; return {id:uid(), d, x:0.15+0.70*(dir==='rtl'?1-f:f)}; });
 }
 function defaults(){
   const gen={from:30,to:50,every:10};
@@ -1549,7 +1549,7 @@ $('evTiles').onclick=e=>{
 };
 function applyPv(){
   const outs=[...S.pvFt].sort((a,b)=>b-a), n=outs.length;
-  S.lines=outs.map((o,i)=>{ const f=n>1?i/(n-1):.5; return {id:uid(), d:-o, x:0.06+0.88*(S.dir==='rtl'?1-f:f)}; });
+  S.lines=outs.map((o,i)=>{ const f=n>1?i/(n-1):.5; return {id:uid(), d:-o, x:0.15+0.70*(S.dir==='rtl'?1-f:f)}; });
   S.gen={from:-outs[0],to:-outs[n-1],every:n>1?r1((outs[0]-outs[n-1])/(n-1)):5};
   if(!(S.cal && S.cal.lw>3)) S.cal=null; hCache.key=''; // the vault perspective sits on the takeoff marks, so it survives gate changes
   resetDetection(); autoName(); save(); renderSetup();
@@ -1925,17 +1925,17 @@ function draw(){
         ctx.restore();
       }else{ ctx.globalAlpha=.6; ctx.setLineDash([5,5]); ctx.beginPath(); ctx.moveTo(sg.g0[0]*W,sg.g0[1]*H); ctx.lineTo(sg.g1[0]*W,sg.g1[1]*H); ctx.stroke(); ctx.setLineDash([]); }
       ctx.globalAlpha=.35; ctx.beginPath(); ctx.moveTo(sg.gx*W,sg.gy*H); ctx.lineTo(sg.xa*W,sg.ya*H); ctx.stroke();
-    }else{ ctx.globalAlpha=.3; ctx.beginPath(); ctx.moveTo(sg.xt*W,0); ctx.lineTo(sg.x*W,H); ctx.stroke(); }
+    }else{ const fw=Math.max(12,W*.022); ctx.globalAlpha=.85; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(sg.xb*W-fw,sg.yb*H); ctx.lineTo(sg.xb*W+fw,sg.yb*H); ctx.stroke(); ctx.lineWidth=(dragId===l.id)?4:2.5; }
     ctx.globalAlpha=1; ctx.lineWidth+=2; ctx.beginPath(); ctx.moveTo(sg.xa*W,sg.ya*H); ctx.lineTo(sg.xb*W,sg.yb*H); ctx.stroke();
     const label=gLab(l.d)+(hit?` · ${f2(cum[l.d])}`:'');
-    const tw=ctx.measureText(label).width+18, lx=sg.cal?sg.xa*W:sg.xt*W, ly=sg.cal?Math.max(4,sg.ya*H-ph-6):8;
+    const tw=ctx.measureText(label).width+18, lx=sg.xa*W, ly=Math.max(4,sg.ya*H-ph-(sg.cal?6:10));
     const px=Math.min(W-tw/2-2,Math.max(tw/2+2,lx));
     ctx.fillStyle= hit ? '#FFC933' : 'rgba(4,7,12,.72)'; roundRect(px-tw/2,ly,tw,ph,ph/2); ctx.fill();
     ctx.fillStyle= hit ? '#1E1600' : '#fff'; ctx.fillText(label,px,ly+ph/2+fs*.36);
     if(!sg.cal && editing){
       ctx.fillStyle=col;
-      ctx.beginPath(); ctx.arc(sg.xt*W+(sg.x-sg.xt)*W*((ph+26)/H),ph+26,9,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(sg.x*W-(sg.x-sg.xt)*W*(20/H),H-20,10,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(sg.xa*W,sg.ya*H,9,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(sg.xb*W,sg.yb*H,10,0,Math.PI*2); ctx.fill();
     }
     if(armed && st){ const lv=Math.min(1,st.level/0.5), bx=sg.xb*W+8, by=sg.yb*H; ctx.fillStyle='rgba(255,255,255,.25)'; ctx.fillRect(bx,by-50,6,50); ctx.fillStyle=lv>TRIG/0.5?'#FF453A':'#fff'; ctx.fillRect(bx,by-50*lv,6,50*lv); }
   }
@@ -1968,10 +1968,10 @@ function drawLoupe(W){
   for(const l of S.lines){
     const g=gateSeg(l), col=dragId===l.id?'#FFC933':'#C4A6FF';
     ctx.strokeStyle='rgba(0,0,0,.45)'; ctx.lineWidth=Math.max(3,k*3); ctx.beginPath();
-    if(g.cal){ seg(g.f0,g.f1); seg([g.xa,g.ya],[g.xb,g.yb]); } else seg([g.xt,0],[g.x,1]);
+    if(g.cal){ seg(g.f0,g.f1); seg([g.xa,g.ya],[g.xb,g.yb]); } else seg([g.xa,g.ya],[g.xb,g.yb]);
     ctx.stroke();
     ctx.strokeStyle=col; ctx.lineWidth=Math.max(1.5,k*1.5); ctx.beginPath();
-    if(g.cal){ seg(g.f0,g.f1); seg([g.xa,g.ya],[g.xb,g.yb]); } else seg([g.xt,0],[g.x,1]);
+    if(g.cal){ seg(g.f0,g.f1); seg([g.xa,g.ya],[g.xb,g.yb]); } else seg([g.xa,g.ya],[g.xb,g.yb]);
     ctx.stroke();
   }
   ctx.setLineDash([]); ctx.beginPath(); ctx.moveTo(lx-R,ly); ctx.lineTo(lx+R,ly); ctx.moveTo(lx,ly-R); ctx.lineTo(lx,ly+R);
@@ -1999,7 +1999,7 @@ cv.addEventListener('pointerdown',e=>{
   const H=r.height, k=r.height/cv.height, ph=(Math.max(14,Math.round(cv.width/58))+12)*k;
   let best=null,bd=Infinity,mode='both';
   for(const l of S.lines){
-    const xt=l.xt??l.x, xAt=y=>xt+(l.x-xt)*y, topY=(ph+26*k)/H, botY=1-20*k/H;
+    const xt=l.xt??l.x, xAt=y=>xt+(l.x-xt)*y, topY=S.band.top/100, botY=S.band.bot/100;
     const cands=[[Math.hypot((xAt(topY)-fx)*r.width,(topY-fy)*H),'top'],[Math.hypot((xAt(botY)-fx)*r.width,(botY-fy)*H),'bot'],[Math.abs(xAt(fy)-fx)*r.width,'both']];
     for(const [d,md] of cands) if(d<bd-(md==='both'?6:0)){ bd=d; best=l; mode=md; }
   }
@@ -2013,7 +2013,7 @@ cv.addEventListener('pointermove',e=>{
   loupe={x:clamp01(fx),y:clamp01(fy)};
   const l=S.lines.find(x=>x.id===dragId); if(!l) return; const xt=l.xt??l.x;
   if(dragMode==='top') l.xt=clamp01(fy<1?(fx-l.x*fy)/(1-fy):xt);
-  else if(dragMode==='bot') l.x=clamp01(fy>0?(fx-xt*(1-fy))/fy:l.x);
+  else if(dragMode==='bot'){ l.xt=xt; l.x=clamp01(fy>0?(fx-xt*(1-fy))/fy:l.x); }
   else { const cur=xt*(1-fy)+l.x*fy, dx=fx-cur; l.x=clamp01(l.x+dx); l.xt=clamp01(xt+dx); }
   if(det[l.id]) det[l.id].bg=null;
 });
@@ -2125,7 +2125,7 @@ function renderLines(){
   const sorted=[...S.lines].sort((a,b)=>a.d-b.d);
   $('lines').innerHTML=sorted.map((l,i)=>`<div class="lrow"><span class="tag">${i+1}</span>
       <span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input class="inp" type="number" inputmode="decimal" step="any" data-d="${l.id}" id="d-${l.id}" value="${isPv()?uNum(-l.d):l.d}" aria-label="Gate ${i+1} distance"></span>
-      <button class="x ${isArmed('del'+l.id)?'arm':''}" data-del="${l.id}" aria-label="Remove gate ${i+1}">${isArmed('del'+l.id)?'Remove?':'×'}</button></div>`).join('');
+      <button class="x ${isArmed('del'+l.id)?'arm':''}" data-del="${l.id}" aria-label="Remove gate ${i+1}">×</button></div>`).join('');
   $('gateCount').textContent=plural(S.lines.length,'gate');
   $('linesHint').textContent= isPv() ? (calOn()?`Distances are ${pvM()?'meters':'feet'} from the ${refW()}. Gates sit where the perspective puts them.`:`Distances are ${pvM()?'meters':'feet'} from the ${refW()}. Drag each line onto its cone, on the takeoff marks.`) : calOn() ? 'Gates sit where the perspective puts them. Change a distance to move one.' : 'Drag each line onto its cone in the picture. Drag its top or bottom dot to tilt it.';
   $('btnSpread').hidden=calOn();
@@ -2152,7 +2152,7 @@ function currentSpan(){
 $('lines').addEventListener('click',e=>{
   const id=e.target.closest('[data-del]')?.dataset.del; if(!id) return;
   if(S.lines.length<=2){ toast('Keep at least two gates'); return; }
-  confirmTap('del'+id,()=>{ const span=currentSpan(); S.lines=S.lines.filter(l=>l.id!==id); redistribute(span); },renderLines);
+  { const span=currentSpan(); S.lines=S.lines.filter(l=>l.id!==id); delete det[id]; redistribute(span); renderLines(); }
 });
 $('btnAdd').onclick=()=>{
   if(S.lines.length>=13){ toast('13 gates is the most'); return; }
@@ -2161,7 +2161,7 @@ $('btnAdd').onclick=()=>{
 };
 $('btnSpread').onclick=()=>{
   const s=[...S.lines].sort((a,b)=>a.d-b.d), n=s.length;
-  s.forEach((l,i)=>{ const f=i/(n-1); l.x=0.06+0.88*(S.dir==='rtl'?1-f:f); l.xt=null; if(det[l.id]) det[l.id].bg=null; });
+  s.forEach((l,i)=>{ const f=i/(n-1); l.x=0.15+0.70*(S.dir==='rtl'?1-f:f); l.xt=null; if(det[l.id]) det[l.id].bg=null; });
   save();
 };
 $('dirSeg2').onclick=e=>{ const b=e.target.closest('[data-dir]'); if(!b||b.dataset.dir===S.dir) return; flipDir(); renderAlign(); setStatus(); toast(`Runners go ${S.dir==='rtl'?'right to left':'left to right'}`); };
