@@ -207,7 +207,7 @@ input[type=range]{accent-color:var(--brand);width:100%;min-height:30px;margin:0}
 .strip svg{display:block;width:100%;height:auto}
 
 /* live session */
-.live{--brand:#7451C2;--brand-hover:#835FD3;--brand-ink:#fff;--brand-soft:#2E2340;--brand-text:#C4A6FF;position:fixed;inset:0;z-index:50;background:var(--stage);color:var(--bar-ink);display:grid;grid-template-rows:auto auto minmax(0,1fr);
+.live{position:fixed;inset:0;z-index:50;background:var(--stage);color:var(--bar-ink);display:grid;grid-template-rows:auto auto minmax(0,1fr);
   padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 .lbar{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bar);border-bottom:1px solid var(--bar-line);min-width:0;flex-wrap:wrap}
 .lbar2{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--bar-2);border-bottom:1px solid var(--bar-line);flex-wrap:wrap;min-width:0}
@@ -642,6 +642,97 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 }
 #evTiles.jopen ~ #poleSegH,#evTiles.jopen ~ #poleSeg,#evTiles.jopen ~ #poleHelp,#evTiles.jopen ~ #evHow{display:none!important}
 </style>
+<style id="liveskin">
+/* ===== live session: same look as the rest of the app ===== */
+.live{--bar:var(--bg);--bar-2:var(--bg);--bar-line:var(--line);--bar-ink:var(--ink);--bar-muted:var(--muted);background:var(--bg);color:var(--ink)}
+.lbar{background:var(--bg);border-bottom:0;gap:10px;padding:10px 14px 6px;flex-wrap:nowrap}
+.lbar2{background:var(--bg);border-bottom:1px solid var(--line);padding:4px 14px 10px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.lbar2::-webkit-scrollbar{display:none}
+.lbar2 .rowi{flex-wrap:nowrap}
+.dbtn{border-radius:var(--r-sm);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font:600 15px/1 var(--f-body);min-height:40px}
+.dbtn:hover{border-color:var(--muted)}
+.dbtn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.dbtn.danger{background:var(--rec);border-color:var(--rec);color:#fff}
+.dseg{gap:3px;padding:3px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)}
+.dseg button{font:600 14px/1 var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted);min-height:34px;padding:0 14px;border-radius:9px}
+.dseg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+.lv-ev{font:800 22px/1 var(--f-disp);letter-spacing:.01em;color:var(--ink);flex:1 1 auto;min-width:0;max-width:none;order:0;flex-basis:auto}
+.lv-ev small{display:block;font:500 12.5px/1.3 var(--f-body);letter-spacing:0;color:var(--muted);margin-top:4px;overflow:hidden;text-overflow:ellipsis}
+.lbar .grow{display:none}
+.stage .status{position:absolute;left:10px;bottom:10px;z-index:3;min-height:32px;max-width:calc(100% - 20px);padding:0 12px;gap:8px;border-radius:999px;background:rgba(24,18,31,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.16);font:700 12px/1 var(--f-body);letter-spacing:.07em;color:#fff;order:0;flex-basis:auto}
+.stage .status i{width:9px;height:9px}
+.stage .status.rec{background:rgba(160,20,26,.88);border-color:var(--rec)}
+.stage .status span{overflow:hidden;text-overflow:ellipsis}
+.fpschip{font:600 12.5px/1 var(--f-body);color:var(--muted);background:var(--surface);border:1px solid var(--line-2);border-radius:999px;padding:9px 11px}
+.fpschip.lowfps{color:#F59A5B;border-color:rgba(245,154,91,.5);background:rgba(245,154,91,.1)}
+.stage-msg{background:rgba(24,18,31,.94);border:1px solid var(--line-2);border-radius:16px}
+.stage-msg b{font:800 20px/1.05 var(--f-disp);letter-spacing:.02em}
+.fs-ath button{border-color:var(--line-2);background:rgba(24,18,31,.88)}
+.fs-ath button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.rail{background:var(--bg);border-color:var(--line);padding:12px 14px 0;display:flex;flex-direction:column}
+.rail>div{display:flex;flex-direction:column;gap:12px;min-height:100%}
+.rail>div[hidden]{display:none}
+.rhead{align-items:center}
+.rhead h2{font:800 30px/.95 var(--f-disp);letter-spacing:.005em}
+.rsec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;gap:12px}
+.rsec-h h3{font:700 19px/1 var(--f-disp);letter-spacing:.03em;color:var(--ink)}
+.rail.tabbed .rsec-h h3{display:none}
+.rail.tabbed .rsec-h:not(:has(> :not(h3))){display:none}
+.rtabs{flex:none}
+.rtabs button{font-size:14px;padding:0 8px}
+.rs-off{display:none!important}
+.runcard{background:var(--surface);border-radius:var(--r);box-shadow:inset 5px 0 0 var(--line-2)}
+.lv-cta{position:sticky;bottom:0;z-index:4;margin-top:auto;padding:14px 0 calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(rgba(0,0,0,0),var(--bg) 26%)}
+.lv-cta .btn-grad{padding:18px;font-size:20px}
+.btn-timing{background:var(--grad);border-radius:18px;font:800 21px/1 var(--f-disp);letter-spacing:.08em;min-height:60px;text-shadow:0 1px 2px rgba(0,0,0,.25);box-shadow:0 8px 22px rgba(180,139,242,.25)}
+.btn-timing.on{background:var(--rec);box-shadow:0 8px 22px rgba(224,38,43,.3)}
+.addath input{background:var(--surface-2)}
+@media (orientation:portrait),(max-width:560px){
+  .rhead{display:none}
+  .lv-ev{font-size:19px}
+  .lv-ev small{display:block}
+  #lvEndText{display:none}
+  #lvEnd{width:40px;padding:0}
+  .lbar{padding:8px 12px 4px}
+  .lbar2{padding:4px 12px 8px}
+  .rail{padding:10px 12px 0}
+  .rsec{padding:14px}
+  .lv-cta{padding-top:10px}
+  .lv-cta .btn-grad,.btn-timing{padding:15px;min-height:54px;font-size:19px}
+  .stage{height:max(200px,min(56.25vw,46vh))}
+  .fpschip .fx{display:none}
+  .lbar2{gap:6px}
+  .lbar2 .dseg button{padding:0 11px}
+  .lbar2 .dbtn{padding:0 12px;font-size:14px}
+  .runcard.off,.runcard.ready,.runcard.needsrc{display:none}
+}
+@media (max-height:520px){
+  .runcard.off,.runcard.ready,.runcard.needsrc{display:none}
+  .lbar{padding:6px 12px 2px}.lbar2{padding:2px 12px 6px}
+  .lv-ev{font-size:18px}.lv-ev small{display:none}
+  #lvEndText{display:none}#lvEnd{width:40px;padding:0}
+  .rail{padding:8px 10px 0}.rail>div{gap:8px}.rsec{padding:12px}
+  .rhead{display:none}
+  .lv-cta{padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px))}
+  .lv-cta .btn-grad,.btn-timing{padding:12px;min-height:48px;font-size:18px}
+  .live .abtn{min-height:46px;padding:5px 10px}
+  .fpschip .fx{display:none}
+}
+.live.align .stage .status{display:none}
+.stage .fpschip{position:absolute;right:10px;top:26px;z-index:3;pointer-events:none;padding:7px 10px;background:rgba(24,18,31,.84);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-color:rgba(255,255,255,.16);color:#fff}
+.stage .fpschip.lowfps{background:rgba(60,32,14,.88);color:#FFC796;border-color:rgba(245,154,91,.6)}
+.live .abtn{background:var(--surface-2)}
+.live .abtn[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+.live .abtn[aria-pressed="true"] span{color:var(--brand-ink);opacity:.72}
+@media (orientation:portrait),(max-width:560px){
+  .live .agrid{gap:6px}
+  .live .abtn{min-height:50px;padding:6px 11px}
+  .live .abtn b{font-size:16px}
+  .rtabs+.rsec,.rail .rsec{gap:10px}
+}
+.stage .status{pointer-events:none}
+@media print{#live{display:none!important}}
+</style>
 <header class="app-head">
   <div class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F59A5B"/><stop offset=".5" stop-color="#D58FB3"/><stop offset="1" stop-color="#B48BF2"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lg)"/><clipPath id="lgc2"><rect width="40" height="40" rx="10"/></clipPath><g clip-path="url(#lgc2)"><g class="lg-bars" stroke-width="3.2" stroke-linecap="round"><line class="lg-b1" x1="12" y1="9" x2="12" y2="31"/><line class="lg-b2" x1="20" y1="9" x2="20" y2="31"/><line class="lg-b3" x1="28" y1="9" x2="28" y2="31"/></g><circle class="lg-dot" cx="20" cy="20" r="4.8" fill="#F2B200"/></g></svg><span>GateCam<em>Live</em></span></div>
   <button class="hpill" id="hdrPill" aria-label="Change the session setup"><i></i><span id="hdrPillT">Set up</span></button>
@@ -959,6 +1050,20 @@ b.addEventListener('click',go);b.addEventListener('keydown',function(e){if(e.key
   </div>
 </div>
 
+<script>/* live session layout: status on the video, main buttons pinned at the bottom, one section at a time */
+(function(){var $=function(i){return document.getElementById(i)};
+var st=$('status'),stage=$('stage');if(st&&stage)stage.appendChild(st);var fc=$('fpsChip');if(fc&&stage)stage.appendChild(fc);
+function pin(btn,rail){if(!btn||!rail)return;var w=document.createElement('div');w.className='lv-cta';w.appendChild(btn);rail.appendChild(w)}
+var g=$('goTime');if(g){g.className='btn-grad';pin(g,$('railAlign'))}
+pin($('btnTiming'),$('railTime'));
+function tabs(rail,key){if(!rail)return;var secs=[].filter.call(rail.children,function(e){return e.classList.contains('rsec')});if(secs.length<2)return;
+  var bar=document.createElement('div');bar.className='seg fill rtabs';
+  secs.forEach(function(sec,k){var t=sec.querySelector('.rsec-h h3');var b=document.createElement('button');b.type='button';b.textContent=(t?t.textContent:'').replace(/^\s*\d+\s*·\s*/,'');b.addEventListener('click',function(){show(k)});bar.appendChild(b)});
+  rail.insertBefore(bar,secs[0]);
+  function show(k){secs.forEach(function(s,i){s.classList.toggle('rs-off',i!==k)});[].forEach.call(bar.children,function(b,i){b.setAttribute('aria-pressed',String(i===k))});try{localStorage.setItem('gcl.rtab.'+key,String(k))}catch(e){}var r=$('rail');if(r)r.scrollTop=0}
+  var k0=0;try{k0=+localStorage.getItem('gcl.rtab.'+key)||0}catch(e){}show(Math.min(k0,secs.length-1))}
+var rl=$('rail');if(rl)rl.classList.add('tabbed');
+tabs($('railAlign'),'align');tabs($('railTime'),'time');})();</script>
 <!-- RUN REPORT -->
 <div class="sheet" id="runSheet" hidden>
   <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="runSheetT">
@@ -2116,7 +2221,7 @@ function camFps(){ if(camDts.length<20) return camInfo?.set?Math.round(camInfo.s
 setInterval(()=>{
   const c=$('fpsChip'); if(!c) return;
   if(source!=='camera'||!liveOpen){ c.hidden=true; return; }
-  const f=camFps(); c.hidden=!f; if(f) c.textContent=`${f} fps · ±${(1000/f).toFixed(f>=100?1:0)} ms per frame`;
+  const f=camFps(); c.hidden=!f; if(f) c.innerHTML=`${f} fps<span class="fx"> · ±${(1000/f).toFixed(f>=100?1:0)} ms per frame</span>`;
   c.classList.toggle('lowfps', !!f && f<50);
 },1000);
 async function startCamera(){
