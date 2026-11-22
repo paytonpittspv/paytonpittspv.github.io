@@ -4082,7 +4082,7 @@ function renderWiz(){
 $('wizBack').onclick=()=>{ if((S.wiz||1)<=1){ showTab('home'); return; } S.wiz--; save(); renderWiz(); window.scrollTo(0,0); };
 $('wizNext').onclick=()=>{ S.wiz=Math.min(4,(S.wiz||1)+1); save(); renderWiz(); window.scrollTo(0,0); };
 // picking an event is the whole of step 1: go straight on
-$('evTiles').addEventListener('click',e=>{ if(e.target.closest('[data-ev]') && (S.wiz||1)===1 && window.innerWidth<700){ setTimeout(()=>{ S.wiz=2; save(); renderWiz(); window.scrollTo(0,0); },180); } });
+/* choosing an event no longer jumps ahead: Next moves to Gates */
 
 /* ---------- home ---------- */
 function renderHome(){
