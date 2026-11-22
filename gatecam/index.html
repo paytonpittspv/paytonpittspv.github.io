@@ -758,6 +758,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .stage-msg.calmsg .rowi{display:none}
 .live.fs .stage-msg.calmsg .rowi{display:flex;pointer-events:auto}
 .live.fs .stage-msg.calmsg{pointer-events:none}
+.stage-msg.calprompt{max-width:min(420px,calc(100% - 28px));border-color:rgba(245,154,91,.55)}
+.stage-msg.calprompt b{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stage-msg.calprompt .dbtn.primary{background:var(--grad);border:0;color:#fff;font-weight:800;min-height:46px;padding:0 22px}
 .live.calon .tripod-note,.live.calon #railAlign .rtabs,.live.calon #railAlign .lv-cta,.live.calon #calBox .callist{display:none!important}
 .callist{margin:2px 0 0;padding-left:18px;display:grid;gap:4px;font-size:14px;line-height:1.35;color:var(--ink-2)}
 .callist li::marker{color:var(--muted)}
@@ -2462,11 +2465,12 @@ $('lvEnd').onclick=()=>endSession(false);
 function setLiveMode(m){
   if(m===liveMode) return;
   if(m==='align'){ if(armed){ armed=false; resetDetection(); } timingOn=false; if(source==='file') vid.pause(); }
+  if(m==='time' && !calOn()){ toast('Fix the perspective first'); if(!calMode) startCal(); renderLive(); return; }
   if(m==='time' && calMode){ calMode=null; calPlace=null; }
   liveMode=m; renderLive();
 }
 $('lvMode').onclick=e=>{ const b=e.target.closest('[data-lm]'); if(b) setLiveMode(b.dataset.lm); };
-$('goTime').onclick=()=>setLiveMode('time');
+$('goTime').onclick=()=>{ if(!calOn()){ $('railAlign').querySelector('.rtabs button')?.click(); if(!calMode) startCal(); return; } setLiveMode('time'); };
 
 function renderLiveHead(){
   const es=evSummary(); $('lvEv').innerHTML=`${esc(es.main)}<small>${esc(es.sub)}</small>`;
@@ -2534,12 +2538,18 @@ function renderStageMsg(){
       h=`<b>${who?`Upload ${esc(S.athlete)}'s run`:'No video loaded'}</b><p>${liveMode==='time'?(who?'Timing starts as soon as it loads.':'Pick who ran, then upload their video.'):'Load a clip filmed from the tripod to line up the gates.'}</p><span class="rowi"><button class="dbtn primary" data-act="upload">Upload video</button></span>`;
     }
   }
-  m.hidden=!h; m.classList.toggle('center',center); m.classList.toggle('calmsg',!!calMode); m.innerHTML=h; $('live').classList.toggle('calon',!!calMode);
+  if(!h && !calMode && source!=='none' && liveMode==='align' && !calOn()){
+    center=true;
+    h=`<b>Fix the perspective</b><p>Mark the lane at two ${isPv()&&!isBoard()?'runway marks':'cones'} so every gate sits at its true distance. Timing stays off until it's done.</p><span class="rowi"><button class="dbtn primary" data-act="calGo">Fix perspective</button></span>`;
+  }
+  { const g=$('goTime'); if(g){ g.textContent= calOn() ? 'Done · Time runs' : 'Fix perspective first'; g.classList.toggle('needcal',!calOn()); } }
+  m.hidden=!h; m.classList.toggle('center',center); m.classList.toggle('calmsg',!!calMode); m.classList.toggle('calprompt',!calMode&&center&&!calOn()&&source!=='none'); m.innerHTML=h; $('live').classList.toggle('calon',!!calMode);
 }
 $('stageMsg').onclick=e=>{
   const a=e.target.closest('[data-act]')?.dataset.act; if(!a) return;
   if(a==='upload') $('file').click();
   else if(a==='cam') startCamera();
+  else if(a==='calGo'){ $('railAlign').querySelector('.rtabs button')?.click(); startCal(); }
   else if(a==='calUndo'){ calMode.pts.pop(); renderCal(); renderStageMsg(); syncFsUndo(); }
   else if(a==='calCancel'){ calMode=null; renderCal(); renderStageMsg(); syncFsUndo(); }
 };
