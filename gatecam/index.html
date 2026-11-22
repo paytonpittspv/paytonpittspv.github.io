@@ -1205,7 +1205,7 @@ const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;'
 const plural = (n,w) => `${n} ${w}${n===1?'':'s'}`;
 const pressed = (sel, test) => qa(sel).forEach(b => b.setAttribute('aria-pressed', String(!!test(b))));
 
-const EXAMPLE = {id:'ex1', example:true, athlete:'Pro Example', test:'Flying 20 m', location:'Durham', mode:'fly', fly:20, pole:false,
+const EXAMPLE = {id:'ex1', example:true, athlete:'Pro Example', test:'Flying 20 m', location:'Tampa', mode:'fly', fly:20, pole:false,
   date:'2026-10-20T15:00:00', gates:[{d:0,t:0},{d:10,t:1.80},{d:20,t:2.88},{d:30,t:3.88},{d:40,t:4.86},{d:50,t:5.83}]};
 
 const PRESETS_FT = (()=>{ const m=v=>r3(v*0.3048);
@@ -1259,7 +1259,7 @@ function migrate(o){
   if(!m.runups||typeof m.runups!=='object') m.runups={};
   if(!m.pvLast||typeof m.pvLast!=='object') m.pvLast={};
   if(!(m.pvL>=3&&m.pvL<=9)) m.pvL=6;
-  m.runs.forEach(r=>{ r.pole=!!r.pole; if(r.example) r.athlete='Pro Example'; if(!r.mode) r.mode='fly'; });
+  m.runs.forEach(r=>{ r.pole=!!r.pole; if(r.example) r.athlete='Pro Example'; if(!r.mode) r.mode='fly'; if((r.example&&r.location==='Durham')||(r.demo&&r.location==='Sample session')) r.location='Tampa'; });
   if(!Array.isArray(m.roster)) m.roster=[...new Set(m.runs.filter(r=>!r.example).map(r=>r.athlete).filter(Boolean))].sort();
   if(!m.hz) m.hz={top:1.65,bot:0.55};
   if(!m.band) m.band={top:30,bot:90};
@@ -1349,12 +1349,12 @@ function demoRuns(){
         const pole=k===1, vv=vd*(pole?0.935:1)+wob(i,k+di);
         const v1=vv*0.985, v2=vv*1.004;
         const t1=10/v1, t2=t1+10/v2;
-        out.push({id:uid(), demo:true, athlete:name, test:'Flying 20 m', location:'Sample session', mode:'fly', fly:20, pole,
+        out.push({id:uid(), demo:true, athlete:name, test:'Flying 20 m', location:'Tampa', mode:'fly', fly:20, pole,
           date:at(ago,15,10+i*3+k), gates:[{d:30,t:0},{d:40,t:+t1.toFixed(3)},{d:50,t:+t2.toFixed(3)}], dt:0.033, dd:0.05});
       }
       if(ago===0){
         const s1=10/(v*0.60+wob(i,1)), s2=s1+10/(v*0.86), s3=s2+10/(v*0.95);
-        out.push({id:uid(), demo:true, athlete:name, test:'30 m', location:'Sample session', mode:'sprint', fly:null, pole:false,
+        out.push({id:uid(), demo:true, athlete:name, test:'30 m', location:'Tampa', mode:'sprint', fly:null, pole:false,
           date:at(0,15,40+i*2), gates:[{d:0,t:0},{d:10,t:+s1.toFixed(3)},{d:20,t:+s2.toFixed(3)},{d:30,t:+s3.toFixed(3)}], dt:0.033, dd:0.05});
       }
     });
