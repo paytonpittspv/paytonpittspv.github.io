@@ -766,6 +766,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 #lvEnd svg{width:16px;height:16px;stroke-width:2.8}
 #lvEnd:hover{background:rgba(255,69,58,.24);border-color:#FF453A}
 #lvEnd .endshort{display:none}
+#lvEnd.arm{background:#FF453A;border-color:#FF453A;color:#fff}
 :root[data-theme="light"] #lvEnd{color:#C4231B;background:rgba(224,38,43,.08);border-color:rgba(224,38,43,.6)}
 .live.isdone .runcard [data-rc="save"]{display:none}
 #lvSave[disabled]{opacity:.55}
@@ -874,6 +875,10 @@ b.addEventListener('click',go);b.addEventListener('keydown',function(e){if(e.key
           <details class="more"><summary>How gates, steps and the perspective work</summary>
           <p class="help">Steps: finds each foot plant on the runway: the last 4 step lengths, contact times, step rate and where the takeoff foot lands. Needs the perspective fix, and the camera has to see the last 4–5 steps and the takeoff, side on.</p>
           <p class="help" id="pvHow">Gates are spaced evenly from the first gate to the last. You get the athlete's speed between every pair of gates; the headline is the <b>end speed</b>, over the last split before the box. For the classic last 10 m → 5 m speed, pick the first preset. The perspective is set from the 15 ft and 9 ft takeoff marks painted on the runway, plus one cone at the farthest gate, so the box doesn't need to be in the picture. Saved results are in meters.</p></details>
+        </div>
+        <div id="runUnitWrap" class="stack" style="gap:8px">
+          <div class="field-h">Units</div>
+          <div class="seg fill" id="runUnitSeg"><button data-ru="m">Meters</button><button data-ru="ft">Feet</button></div>
         </div>
         <div id="flyViewWrap" class="stack" style="gap:8px">
           <div class="field-h">What the camera sees</div>
@@ -1180,6 +1185,14 @@ const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const f2 = x => x==null||!isFinite(x) ? '–' : x.toFixed(2);
 const f1 = x => x==null||!isFinite(x) ? '–' : x.toFixed(1);
 const r1 = v => Math.round(v*10)/10;
+const r3 = v => Math.round(v*1000)/1000;
+/* fly and sprint: distances stay in meters inside; S.runUnit only changes what you see and type */
+const rFt = () => S.runUnit==='ft';
+const rU = () => rFt() ? 'ft' : 'm';
+const rd = m => rFt() ? r1(m/0.3048) : r1(m);
+const rin = v => rFt() ? r3(v*0.3048) : v;
+const rLab = m => `${rd(m)} ${rU()}`;
+const rSeg = (a,b) => `${rd(a)}–${rd(b)} ${rU()}`;
 const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const plural = (n,w) => `${n} ${w}${n===1?'':'s'}`;
 const pressed = (sel, test) => qa(sel).forEach(b => b.setAttribute('aria-pressed', String(!!test(b))));
@@ -1187,6 +1200,9 @@ const pressed = (sel, test) => qa(sel).forEach(b => b.setAttribute('aria-pressed
 const EXAMPLE = {id:'ex1', example:true, athlete:'Pro Example', test:'Flying 20 m', location:'Durham', mode:'fly', fly:20, pole:false,
   date:'2026-10-20T15:00:00', gates:[{d:0,t:0},{d:10,t:1.80},{d:20,t:2.88},{d:30,t:3.88},{d:40,t:4.86},{d:50,t:5.83}]};
 
+const PRESETS_FT = (()=>{ const m=v=>r3(v*0.3048);
+  return { fly:[{k:'Flying 30 ft',fly:m(30),from:0,to:m(90),every:m(30)},{k:'Flying 60 ft',fly:m(60),from:0,to:m(150),every:m(30)},{k:'Flying 90 ft',fly:m(90),from:0,to:m(180),every:m(30)}],
+    sprint:[{k:'60 ft',from:0,to:m(60),every:m(15)},{k:'90 ft',from:0,to:m(90),every:m(30)},{k:'120 ft (40 yd)',from:0,to:m(120),every:m(30)},{k:'180 ft',from:0,to:m(180),every:m(30)}] }; })();
 const PRESETS = {
   fly:[{k:'Flying 10 m',fly:10,from:0,to:30,every:10},{k:'Flying 20 m',fly:20,from:0,to:50,every:10},{k:'Flying 30 m',fly:30,from:0,to:60,every:10}],
   sprint:[{k:'20 m',from:0,to:20,every:5},{k:'30 m',from:0,to:30,every:10},{k:'40 m',from:0,to:40,every:10},{k:'60 m',from:0,to:60,every:10}]
@@ -1196,8 +1212,8 @@ function gateList(g){
   const from=+g.from, to=+g.to, ev=+g.every;
   if(!isFinite(from)||!isFinite(to)||!isFinite(ev)||ev<=0||to<=from) return null;
   const ds=[];
-  for(let i=0;;i++){ const d=r1(from+i*ev); if(d>to+1e-9) break; ds.push(d); if(ds.length>13) return null; }
-  if(ds[ds.length-1]<to-1e-6) ds.push(r1(to));
+  for(let i=0;;i++){ const d=r3(from+i*ev); if(d>to+1e-6) break; ds.push(d); if(ds.length>13) return null; }
+  if(ds[ds.length-1]<to-1e-3) ds.push(r3(to));
   return ds.length>=2 && ds.length<=13 ? ds : null;
 }
 function genLines(g,dir){
@@ -1357,8 +1373,8 @@ document.addEventListener('click',e=>{
 });
 const demoBanner = () => hasDemo() ? `<div class="emptycard" style="padding:12px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;text-align:left"><span class="help" style="margin:0">You're looking at a sample session with made-up athletes.</span><button class="btn" data-demo="remove">Remove sample data</button></div>` : '';
 const runLen = r => r.gates.length>1 ? r1(r.gates[r.gates.length-1].d-r.gates[0].d) : 0;
-const evName = (mode,fly,len) => mode==='sprint' ? `${len} m sprint` : mode==='pv' ? 'Pole vault' : `Flying ${fly||'–'} m`;
-const runEv = r => r.mode==='pv' ? `${JUMPS[jOf(r)].name} · ${r.lefts||'?'}L` : evName(r.mode, r.fly, runLen(r));
+const evName = (mode,fly,len,unit) => { const ft=unit==='ft', L=v=>ft?`${r1(v/0.3048)} ft`:`${v} m`; return mode==='sprint' ? `${L(len)} sprint` : mode==='pv' ? 'Pole vault' : `Flying ${fly?L(fly):'–'}`; };
+const runEv = r => r.mode==='pv' ? `${JUMPS[jOf(r)].name} · ${r.lefts||'?'}L` : evName(r.mode, r.fly, runLen(r), r.unit);
 const runKey = r => r.mode==='pv' ? `${jOf(r)==='pv'?'pv':'pv:'+jOf(r)}|${r.lefts||0}|1` : `${r.mode}|${r.mode==='sprint'?runLen(r):r.fly}|${r.pole?1:0}`;
 function headline(r){
   if(r.mode==='pv'){ const p=pvStats(r), x=p.appr; return {t:x?x.dt:null, v:x?x.v:null, a:p.a, last:p.last, seg:x?segLab(x.a,x.b,true):'–', pv:true}; }
@@ -1406,8 +1422,8 @@ const uIn  = v  => pvM() ? v/FT : v;                                            
 const uTag = () => pvM() ? 'm' : 'ft';
 function fmtRun(ft){ return ft==null ? '' : pvM() ? `${(ft*FT).toFixed(2)} m` : fmtFt(ft); }   // run-ups and targets
 function parseLen(s){ if(!pvM()) return parseFeet(s); const v=parseFloat(String(s??'').replace(',','.')); return isFinite(v)?v/FT:null; }
-const gLab = (d,pv=isPv()) => pv ? uLen(-d) : `${d} m`;          // live screens
-const segLab = (a,b,pv) => pv ? `${r1(-a)}–${r1(-b)} m out` : `${a}–${b} m`;   // saved runs
+const gLab = (d,pv=isPv()) => pv ? uLen(-d) : rLab(d);          // live screens
+const segLab = (a,b,pv) => pv ? `${r1(-a)}–${r1(-b)} m out` : rSeg(a,b);   // saved runs
 const segLabFt = (a,b) => pvM() ? `${(-a*FT).toFixed(1)}–${(-b*FT).toFixed(1)} m out` : `${r1(-a)}–${r1(-b)} ft out`;
 const m2 = x => Math.round(x*100)/100;
 function parseFeet(s){
@@ -1448,24 +1464,24 @@ const errNote = e => `${e.assumed?'assuming ':''}${e.fps} fps${e.dd<=0.06?' · p
    Setup page
    ========================================================= */
 function setupLen(){ const ds=S.lines.map(l=>+l.d); return r1(Math.max(...ds)-Math.min(...ds)); }
-const autoTest = () => S.mode==='sprint' ? `${setupLen()} m sprint` : S.mode==='pv' ? `${JUMPS[jKey()].name} approach` : `Flying ${S.fly} m`;
+const autoTest = () => S.mode==='sprint' ? `${rLab(setupLen())} sprint` : S.mode==='pv' ? `${JUMPS[jKey()].name} approach` : `Flying ${rLab(S.fly)}`;
 function autoName(){
-  if(!S.test || /^(Flying \d+(\.\d+)? m|\d+(\.\d+)? m sprint|(Pole vault|Long jump|Triple jump) approach)$/.test(S.test)){ S.test=autoTest(); setVal('test',S.test); }
+  if(!S.test || /^(Flying \d+(\.\d+)? (m|ft)|\d+(\.\d+)? (m|ft) sprint|(Pole vault|Long jump|Triple jump) approach)$/.test(S.test)){ S.test=autoTest(); setVal('test',S.test); }
 }
 const isZone = () => S.mode==='fly' && S.flyView==='zone';
-const zoneGen = () => ({from:+S.runup||0, to:r1((+S.runup||0)+(+S.fly||20)), every:+S.flyEvery>0?+S.flyEvery:(+S.fly||20)});
+const zoneGen = () => ({from:+S.runup||0, to:r3((+S.runup||0)+(+S.fly||20)), every:+S.flyEvery>0?+S.flyEvery:(+S.fly||20)});
 function evSummary(){
   const ds=S.lines.map(l=>+l.d).sort((a,b)=>a-b);
   if(isPv()){ const ls=ds.map(d=>uLen(-d)); return {main:S.test||autoTest(), sub:`Gates at ${ls.length>1?ls.slice(0,-1).join(', ')+' and '+ls[ls.length-1]:ls[0]}${S.slow>1?` · slow-mo ${S.slow}×`:''}`}; }
-  return {main:`${S.test||autoTest()}${S.pole?' · Pole':''}`, sub:`${S.lines.length} gates · ${ds[0]}–${ds[ds.length-1]} m${isZone()?` · ${S.runup} m run-up`:''}${S.slow>1?` · slow-mo ${S.slow}×`:''}`};
+  return {main:`${S.test||autoTest()}${S.pole?' · Pole':''}`, sub:`${S.lines.length} gates · ${rSeg(ds[0],ds[ds.length-1])}${isZone()?` · ${rLab(S.runup)} run-up`:''}${S.slow>1?` · slow-mo ${S.slow}×`:''}`};
 }
 function syncGenFromLines(){
   const ds=S.lines.map(l=>+l.d).sort((a,b)=>a-b), n=ds.length;
-  S.gen={from:ds[0], to:ds[n-1], every:n>1?r1((ds[n-1]-ds[0])/(n-1)):10};
+  S.gen={from:ds[0], to:ds[n-1], every:n>1?r3((ds[n-1]-ds[0])/(n-1)):10};
   if(isZone()){ S.runup=ds[0]; S.flyEvery= n>2 ? S.gen.every : 0; }
   if(isPv()) S.pvFt=ds.map(d=>r1(-d)).sort((a,b)=>b-a);
 }
-function flyPairExists(){ const ds=S.lines.map(l=>+l.d); for(const a of ds) for(const b of ds) if(Math.abs(b-a-S.fly)<1e-6) return true; return false; }
+function flyPairExists(){ const ds=S.lines.map(l=>+l.d); for(const a of ds) for(const b of ds) if(Math.abs(b-a-S.fly)<2e-3) return true; return false; }
 
 function renderSetup(){
   renderHdr();
@@ -1495,18 +1511,24 @@ function renderSetup(){
   }
   pressed('#flyView [data-fv]', b=>b.dataset.fv===S.flyView);
   $('genZone').hidden=!zone; $('zoneHelp').hidden=!zone; $('genWhole').hidden=zone;
-  setVal('zRun',S.runup); setVal('zFly',S.fly); setVal('zEvery',String(+S.flyEvery>0?S.flyEvery:0));
-  if(zone){ const ds=S.lines.map(l=>+l.d).sort((a,b)=>a-b); $('zoneHelp').textContent=`Point the camera at the fly zone only. Distances count from the start of the run-up, so the gates go at ${ds.join(', ')} m.`; }
-  $('presets').innerHTML=(PRESETS[S.mode]||[]).map((p,i)=>{
-    const on= zone ? +S.fly===p.fly : (+S.gen.from===p.from && +S.gen.to===p.to && +S.gen.every===p.every && (S.mode!=='fly'||+S.fly===p.fly));
+  if(!pv){ $('runUnitWrap').hidden=false; pressed('#runUnitSeg [data-ru]', b=>b.dataset.ru===rU());
+    ['zRun','zFly','gFrom','gTo','gEvery','fly'].forEach(id=>{ const u=$(id).closest('.unit'); if(u) u.dataset.u=rU(); });
+    { const std=rFt()?[4.572,9.144]:[5,10], fe=+S.flyEvery||0, opts=std.slice(); if(fe>0 && !std.some(v=>Math.abs(v-fe)<2e-3)) opts.push(fe); opts.sort((a,b)=>a-b);
+      $('zEvery').innerHTML=opts.map(v=>`<option value="${v}">Every ${rLab(v)}</option>`).join('')+'<option value="0">Start and finish only</option>'; }
+  } else $('runUnitWrap').hidden=true;
+  setVal('zRun',rd(S.runup)); setVal('zFly',rd(S.fly)); setVal('zEvery',String(+S.flyEvery>0?S.flyEvery:0));
+  if(zone){ const ds=S.lines.map(l=>+l.d).sort((a,b)=>a-b); $('zoneHelp').textContent=`Point the camera at the fly zone only. Distances count from the start of the run-up, so the gates go at ${ds.map(rd).join(', ')} ${rU()}.`; }
+  const PRE=(rFt()?PRESETS_FT:PRESETS)[S.mode]||[], near=(x,y)=>Math.abs(+x-+y)<2e-3;
+  $('presets').innerHTML=PRE.map((p,i)=>{
+    const on= zone ? near(S.fly,p.fly) : (near(S.gen.from,p.from) && near(S.gen.to,p.to) && near(S.gen.every,p.every) && (S.mode!=='fly'||near(S.fly,p.fly)));
     return `<button class="chip" data-preset="${i}" aria-pressed="${on}">${p.k}</button>`;
   }).join('');
-  setVal('gFrom',S.gen.from); setVal('gTo',S.gen.to); setVal('gEvery',S.gen.every); setVal('fly',S.fly);
+  setVal('gFrom',rd(S.gen.from)); setVal('gTo',rd(S.gen.to)); setVal('gEvery',rd(S.gen.every)); setVal('fly',rd(S.fly));
   $('flyWrap').hidden=S.mode!=='fly'||zone;
   $('genWhole').hidden=zone||pv;
   let err='';
   if(!gateList(S.gen)) err='The last gate needs to be past the first, with no more than 13 gates.';
-  else if(S.mode==='fly' && !flyPairExists()) err=`No two gates are exactly ${S.fly} m apart, so there's nothing to time as a flying ${S.fly} m. Change the gates or the fly distance.`;
+  else if(S.mode==='fly' && !flyPairExists()) err=`No two gates are exactly ${rLab(S.fly)} apart, so there's nothing to time as a flying ${rLab(S.fly)}. Change the gates or the fly distance.`;
   $('genErr').hidden=!err; $('genErr').textContent=err;
   if(pv) err='';
   $('genErr').hidden=!err;
@@ -1534,20 +1556,20 @@ function gateStripSVG(){
   if(zone){
     const a=Math.min(mir(L-34),mir(L+rw)), w=rw+34;
     s+=`<rect x="${a}" y="${y0-12}" width="${w}" height="${y1-y0+24}" fill="#000" opacity=".32"/>`;
-    s+=`<text x="${mir(L+rw/2)}" y="${(y0+y1)/2+1}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Run-up ${S.runup} m</text><text x="${mir(L+rw/2)}" y="${(y0+y1)/2+16}" text-anchor="middle" font-size="10.5" fill="#fff" opacity=".8">out of view</text>`;
+    s+=`<text x="${mir(L+rw/2)}" y="${(y0+y1)/2+1}" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Run-up ${rLab(S.runup)}</text><text x="${mir(L+rw/2)}" y="${(y0+y1)/2+16}" text-anchor="middle" font-size="10.5" fill="#fff" opacity=".8">out of view</text>`;
     const c0=Math.min(X(lo),X(hi))-10, c1=Math.max(X(lo),X(hi))+10;
-    s+=`<path d="M${c0} ${y0-16}v6h${c1-c0}v-6" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="${(c0+c1)/2}" y="${y0-20}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Camera view · flying ${S.fly} m</text>`;
+    s+=`<path d="M${c0} ${y0-16}v6h${c1-c0}v-6" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="${(c0+c1)/2}" y="${y0-20}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">Camera view · flying ${rLab(S.fly)}</text>`;
   }
   else if(S.mode==='fly' && S.fly>0 && S.fly<=span+1e-9){
     const a=X(hi-S.fly), b=X(hi), x=Math.min(a,b), w=Math.abs(b-a);
     s+=`<rect x="${x}" y="${y0}" width="${w}" height="${y1-y0}" fill="#fff" opacity=".18"/>`;
-    s+=`<path d="M${x} ${y0-16}v6h${w}v-6" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="${x+w/2>W-120?x+w:x+w/2<120?x:x+w/2}" y="${y0-20}" text-anchor="${x+w/2>W-120?'end':x+w/2<120?'start':'middle'}" font-size="12" font-weight="700" fill="var(--ink)">Fastest ${S.fly} m between any gates</text>`;
+    s+=`<path d="M${x} ${y0-16}v6h${w}v-6" fill="none" stroke="var(--ink)" stroke-width="1.6"/><text x="${x+w/2>W-120?x+w:x+w/2<120?x:x+w/2}" y="${y0-20}" text-anchor="${x+w/2>W-120?'end':x+w/2<120?'start':'middle'}" font-size="12" font-weight="700" fill="var(--ink)">Fastest ${rLab(S.fly)} between any gates</text>`;
   }
   ds.forEach((d,i)=>{
     const x=X(d);
     s+=`<line x1="${x}" x2="${x}" y1="${y0}" y2="${y1}" stroke="var(--gate)" stroke-width="3.5"/>`;
     s+=`<path d="M${x-6} ${y1+10}L${x} ${y1-1}L${x+6} ${y1+10}Z" fill="#FF8A1F" stroke="#fff" stroke-width="1"/>`;
-    s+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${d} m</text>`;
+    s+=`<text x="${x}" y="${H-6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">${rLab(d)}</text>`;
     if(S.mode==='sprint' && (i===0||i===ds.length-1)) s+=`<text x="${x}" y="${y0-18}" text-anchor="middle" font-size="11" font-weight="800" letter-spacing="1" fill="var(--ink)">${i===0?'START':'FINISH'}</text>`;
   });
   const ay=(y0+y1)/2, ax=rtl?W-L+6:L-6;
@@ -1632,25 +1654,26 @@ document.addEventListener('input',e=>{ const k=e.target.dataset?.ru; if(!k) retu
 document.addEventListener('change',e=>{ const k=e.target.dataset?.ru; if(!k) return; const i=k.lastIndexOf('|'); e.target.value=fmtRun(runupOf(k.slice(0,i),+k.slice(i+1))); });
 $('flyView').onclick=e=>{
   const b=e.target.closest('[data-fv]'); if(!b||b.dataset.fv===S.flyView) return; S.flyView=b.dataset.fv;
-  S.gen = S.flyView==='zone' ? zoneGen() : {from:0,to:r1((+S.runup||0)+(+S.fly||20)),every:10};
+  S.gen = S.flyView==='zone' ? zoneGen() : {from:0,to:r3((+S.runup||0)+(+S.fly||20)),every:rFt()?9.144:10};
   applyGen();
 };
-$('zRun').addEventListener('input',e=>{ const v=parseFloat(e.target.value); if(!isFinite(v)||v<0) return; S.runup=v; S.gen=zoneGen(); applyGen(); });
-$('zFly').addEventListener('input',e=>{ const v=parseFloat(e.target.value); if(!isFinite(v)||v<5) return; S.fly=v; S.gen=zoneGen(); applyGen(); });
+$('zRun').addEventListener('input',e=>{ const v=parseFloat(e.target.value); if(!isFinite(v)||v<0) return; S.runup=rin(v); S.gen=zoneGen(); applyGen(); });
+$('zFly').addEventListener('input',e=>{ const v=rin(parseFloat(e.target.value)); if(!isFinite(v)||v<3) return; S.fly=v; S.gen=zoneGen(); applyGen(); });
+$('runUnitSeg').onclick=e=>{ const b=e.target.closest('[data-ru]'); if(!b||b.dataset.ru===rU()) return; S.runUnit=b.dataset.ru; autoName(); save(); renderSetup(); if(liveOpen){ renderLines(); renderLiveHead(); } };
 $('zEvery').onchange=e=>{ S.flyEvery=+e.target.value; S.gen=zoneGen(); applyGen(); };
 $('poleSeg').onclick=e=>{ const b=e.target.closest('[data-pole]'); if(!b) return; S.pole=b.dataset.pole==='1'; save(); renderSetup(); };
 $('presets').onclick=e=>{
   const b=e.target.closest('[data-preset]'); if(!b) return;
-  const p=PRESETS[S.mode][+b.dataset.preset];
-  if(isZone()){ S.fly=p.fly; S.gen=zoneGen(); applyGen(); return; }
+  const p=(rFt()?PRESETS_FT:PRESETS)[S.mode][+b.dataset.preset];
+  if(isZone()){ S.fly=p.fly; const fe=+S.flyEvery, mp=rFt()?{5:4.572,10:9.144}:{4.572:5,9.144:10}; if(mp[fe]!=null) S.flyEvery=mp[fe]; S.gen=zoneGen(); applyGen(); return; }
   S.gen={from:p.from,to:p.to,every:p.every}; if(p.fly) S.fly=p.fly;
   if(S.mode==='sprint' || S.test!==p.k) { /* keep custom names */ }
   applyGen();
 };
 [['gFrom','from'],['gTo','to'],['gEvery','every']].forEach(([id,k])=>$(id).addEventListener('input',e=>{
-  const v=parseFloat(e.target.value); if(!isFinite(v)) return; S.gen[k]=v; applyGen();
+  const v=parseFloat(e.target.value); if(!isFinite(v)) return; S.gen[k]=rin(v); applyGen();
 }));
-$('fly').addEventListener('input',e=>{ const v=parseFloat(e.target.value); if(!isFinite(v)||v<=0) return; S.fly=v; autoName(); save(); renderSetup(); });
+$('fly').addEventListener('input',e=>{ const v=rin(parseFloat(e.target.value)); if(!isFinite(v)||v<=0) return; S.fly=v; autoName(); save(); renderSetup(); });
 $('dirSeg').onclick=e=>{ const b=e.target.closest('[data-dir]'); if(!b||b.dataset.dir===S.dir) return; flipDir(); renderSetup(); };
 $('srcTiles').onclick=e=>{ const b=e.target.closest('[data-src]'); if(!b) return; S.src=b.dataset.src; save(); renderSetup(); };
 $('slow').onchange=e=>{ S.slow=+e.target.value; save(); renderSetup(); };
@@ -2099,9 +2122,9 @@ function renderCal(){
   }else if(calMode){
     const c=calMode, n=c.pts.length;
     h=`<div class="calin">
-        <label class="f">${isPv()?(isBoard()?'Far cone':'Far mark'):'First cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calA" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.a):c.a}"></span></label>
-        <label class="f">${isPv()?(isBoard()?'Foul line (0) or near cone':'Near mark'):'Last cone'}<span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input id="calB" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.b):c.b}"></span></label>
-        <label class="f">Lane width<span class="unit" data-u="${isPv()?uTag():'m'}"><input id="calW" type="number" inputmode="decimal" step="0.01" value="${isPv()?uNum(c.lw):c.lw}"></span></label>
+        <label class="f">${isPv()?(isBoard()?'Far cone':'Far mark'):'First cone'}<span class="unit" data-u="${isPv()?uTag()+' out':rU()}"><input id="calA" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.a):rd(c.a)}"></span></label>
+        <label class="f">${isPv()?(isBoard()?'Foul line (0) or near cone':'Near mark'):'Last cone'}<span class="unit" data-u="${isPv()?uTag()+' out':rU()}"><input id="calB" type="number" inputmode="decimal" step="any" value="${isPv()?uNum(-c.b):rd(c.b)}"></span></label>
+        <label class="f">Lane width<span class="unit" data-u="${isPv()?uTag():rU()}"><input id="calW" type="number" inputmode="decimal" step="0.01" value="${isPv()?uNum(c.lw):rFt()?r1(c.lw/0.3048):c.lw}"></span></label>
       </div>
       ${isPv()&&isBoard()?'<p class="help">Tap where the far cone lines up with each edge of the runway, then where the foul line (the pit edge of the board) meets each edge. Measure the far cone from the foul line with a tape. A near cone works too: type its distance instead of 0.</p>':''}${isPv()&&!isBoard()?'<p class="help">Use the takeoff marks painted on the runway: tap where the 15 ft mark meets each lane line, then the 9 ft mark. Use other marks or cones if you like; just change the numbers. The box never has to be in the picture.</p>':''}
       <ol class="calsteps">${calSteps().map((t,i)=>`<li class="${i<n?'ok':i===n?'now':''}">${t}</li>`).join('')}</ol>
@@ -2110,7 +2133,7 @@ function renderCal(){
   }else if(calOn()){
     h=`<div class="okline">Perspective fixed</div>
       <ul class="callist">
-        <li>${isPv()?`${uLen(-S.cal.a)} → ${uLen(-S.cal.b)}`:`${S.cal.a}–${S.cal.b} m`} · lane ${isPv()?uLen(S.cal.lw):S.cal.lw+' m'}</li>
+        <li>${isPv()?`${uLen(-S.cal.a)} → ${uLen(-S.cal.b)}`:rSeg(S.cal.a,S.cal.b)} · lane ${isPv()?uLen(S.cal.lw):rLab(S.cal.lw)}</li>
         <li>${isPv()&&isBoard()?'Check: white band on the board':isPv()?'Check: foot ticks on the runway marks':'Check: each gate on its cone'}</li>
         <li>Hold a white corner dot to fine-tune</li>
       </ul>
@@ -2127,9 +2150,9 @@ function renderCal(){
     $('calUndo').onclick=()=>{ calMode.pts.pop(); renderCal(); renderStageMsg(); syncFsUndo(); };
     $('calCancel').onclick=()=>{ calMode=null; renderCal(); renderStageMsg(); syncFsUndo(); };
   }else if(calMode){
-    $('calA').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.a=isPv()?-Math.abs(uIn(v)):v; };
-    $('calB').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.b=isPv()?-Math.abs(uIn(v)):v; };
-    $('calW').oninput=e=>{ const v=parseFloat(e.target.value); calMode.lw= v>0 ? (isPv()?uIn(v):v) : (isPv()?4:1.22); };
+    $('calA').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.a=isPv()?-Math.abs(uIn(v)):rin(v); };
+    $('calB').oninput=e=>{ const v=parseFloat(e.target.value)||0; calMode.b=isPv()?-Math.abs(uIn(v)):rin(v); };
+    $('calW').oninput=e=>{ const v=parseFloat(e.target.value); calMode.lw= v>0 ? (isPv()?uIn(v):rFt()?r3(v*0.3048):v) : (isPv()?4:1.22); };
     $('calUndo').onclick=()=>{ calMode.pts.pop(); renderCal(); renderStageMsg(); syncFsUndo(); };
     $('calCancel').onclick=()=>{ calMode=null; renderCal(); renderStageMsg(); syncFsUndo(); };
   }else if(calOn()){
@@ -2184,7 +2207,7 @@ function calTap(fx,fy){
 function renderLines(){
   const sorted=[...S.lines].sort((a,b)=>a.d-b.d);
   $('lines').innerHTML=sorted.map((l,i)=>`<div class="lrow"><span class="tag">${i+1}</span>
-      <span class="unit" data-u="${isPv()?uTag()+' out':'m'}"><input class="inp" type="number" inputmode="decimal" step="any" data-d="${l.id}" id="d-${l.id}" value="${isPv()?uNum(-l.d):l.d}" aria-label="Gate ${i+1} distance"></span>
+      <span class="unit" data-u="${isPv()?uTag()+' out':rU()}"><input class="inp" type="number" inputmode="decimal" step="any" data-d="${l.id}" id="d-${l.id}" value="${isPv()?uNum(-l.d):rd(l.d)}" aria-label="Gate ${i+1} distance"></span>
       <button class="x ${isArmed('del'+l.id)?'arm':''}" data-del="${l.id}" aria-label="Remove gate ${i+1}">×</button></div>`).join('');
   $('gateCount').textContent=plural(S.lines.length,'gate');
   $('linesHint').textContent= isPv() ? (calOn()?`Distances are ${pvM()?'meters':'feet'} from the ${refW()}. Gates sit where the perspective puts them.`:`Distances are ${pvM()?'meters':'feet'} from the ${refW()}. Drag each line onto its cone, on the takeoff marks.`) : calOn() ? 'Gates sit where the perspective puts them. Change a distance to move one.' : 'Drag each line onto its cone in the picture. Drag its top or bottom dot to tilt it.';
@@ -2194,7 +2217,7 @@ function renderLines(){
 }
 $('lines').addEventListener('input',e=>{
   const id=e.target.dataset.d; if(!id) return;
-  const l=S.lines.find(x=>x.id===id); let v=parseFloat(e.target.value); if(!l||!isFinite(v)) return; if(isPv()) v=-Math.abs(uIn(v));
+  const l=S.lines.find(x=>x.id===id); let v=parseFloat(e.target.value); if(!l||!isFinite(v)) return; if(isPv()) v=-Math.abs(uIn(v)); else v=rin(v);
   l.d=v; if(det[l.id]) det[l.id].bg=null; syncGenFromLines(); autoName(); save(); renderLiveHead();
 });
 $('lines').addEventListener('change',()=>renderLines());
@@ -2418,8 +2441,8 @@ function openLive(){
 }
 function endSession(force){
   const busy=timingOn||armed||phase()==='done';
-  if(busy && !force && !isArmed('end')){ confirmTap('end',()=>{},()=>{ $('lvEndText').textContent=isArmed('end')?'Tap again to end':'End session'; }); return; }
-  armedBtns.delete('end'); $('lvEndText').textContent='End session';
+  if(busy && !force && !isArmed('end')){ confirmTap('end',()=>{},()=>{ const a=isArmed('end'); $('lvEndText').textContent=a?'Tap again to end':'End session'; const sh=document.querySelector('#lvEnd .endshort'); if(sh) sh.textContent=a?'Tap again':'End'; $('lvEnd').classList.toggle('arm',a); }); return; }
+  armedBtns.delete('end'); $('lvEndText').textContent='End session'; { const sh=document.querySelector('#lvEnd .endshort'); if(sh) sh.textContent='End'; } $('lvEnd').classList.remove('arm');
   armed=false; timingOn=false; calMode=null; calPlace=null; loupe=null; justSaved=null;
   stopCamera(); unloadVideo(); source='none'; resetDetection(); setFs(false);
   liveOpen=false; $('live').hidden=true; document.body.classList.remove('live-on'); keepAwake(false);
@@ -2566,7 +2589,7 @@ function saveRun(){
   if(!S.roster.includes(S.athlete)) S.roster.push(S.athlete);
   const pv=isPv();
   const run={id:uid(), sid:S.sid, athlete:S.athlete, test:pv?`${JUMPS[jKey()].name} · ${S.pvL}L`:(S.test||autoTest()), location:S.location||'', mode:S.mode, fly:S.mode==='fly'?S.fly:null, pole:pv?jKey()==='pv':!!S.pole, jump:pv?jKey():undefined,
-    date:sessionDateISO(), gates:gates.map(g=>({d:g.d,t:+g.t.toFixed(3)})), dt:frameIntervalNow(), dd:calOn()?0.05:0.15};
+    date:sessionDateISO(), unit:pv?undefined:rU(), gates:gates.map(g=>({d:g.d,t:+g.t.toFixed(3)})), dt:frameIntervalNow(), dd:calOn()?0.05:0.15};
   if(pv){ const sv=stepsForSave(); if(sv) run.steps=sv; const tf=toTargetFt(S.athlete); if(tf!=null&&!isBoard()) run.toTarget=m2(tf*FT); }
   if(pv){ const ft=runupOf(S.athlete,S.pvL); run.gates=ftGatesToM(run.gates); run.lefts=S.pvL; run.runupFt=ft; run.runup=ft?m2(ft*FT):null; run.marksFt=S.pvFt.slice(); S.pvLast[S.athlete]=S.pvL; }
   S.runs.unshift(run);
@@ -2597,8 +2620,8 @@ $('fsTiming').onclick=toggleTiming;
 /* ---------- Time rail ---------- */
 function liveHeadline(g,a){
   const e=errInfo(frameIntervalNow(), calOn()?0.05:0.15);
-  if(S.mode==='fly' && a.flyBest) return {t:a.flyBest.dt, label:`Flying ${S.fly} m · ${a.flyBest.a}–${a.flyBest.b} m`, e};
-  return {t:a.total, label:S.mode==='sprint'?`${r1(g[g.length-1].d-g[0].d)} m sprint`:`All gates · ${g[0].d}–${g[g.length-1].d} m`, e};
+  if(S.mode==='fly' && a.flyBest) return {t:a.flyBest.dt, label:`Flying ${rLab(S.fly)} · ${rSeg(a.flyBest.a,a.flyBest.b)}`, e};
+  return {t:a.total, label:S.mode==='sprint'?`${rLab(g[g.length-1].d-g[0].d)} sprint`:`All gates · ${rSeg(g[0].d,g[g.length-1].d)}`, e};
 }
 function gateProgress(){
   const g=currentGates(), cum=Object.fromEntries(g.map(x=>[x.d,x.t]));
@@ -2661,7 +2684,7 @@ function renderRunCard(){
     h=`<div class="rc-k"><i></i>Run complete</div><div class="rc-name">${who?esc(who):'Who ran?'}</div>${who?'':'<div class="rc-sub">Tap an athlete below to label this run.</div>'}
       <div class="rc-big num">${f2(H.t)}<small>s</small></div>
       <div class="rc-sub num">${esc(H.label)} · ±${fms(H.e.dt)} s${S.pole?' · Pole':''}</div>
-      ${a.top?`<div class="rc-sub num">Top speed <b>${f1(a.top.v)} m/s</b> (${f1(a.top.v*MPS2MPH)} mph) · ${a.top.a}–${a.top.b} m</div>`:''}
+      ${a.top?`<div class="rc-sub num">Top speed <b>${f1(a.top.v)} m/s</b> (${f1(a.top.v*MPS2MPH)} mph) · ${rSeg(a.top.a,a.top.b)}</div>`:''}
       ${miniSplits(a)}
       <div class="row"><button class="btn btn-primary btn-lg" data-rc="save" ${who?'':'disabled'}>Save${who?' · '+esc(who.split(' ')[0]):''}</button><button class="btn btn-lg" data-rc="discard">${timingOn&&who&&source==='camera'?'Discard · re-run':timingOn&&who&&source==='file'?'Discard · try again':'Discard'}</button></div>
       ${source==='file'?fixGatesHTML():''}`;
@@ -3122,7 +3145,7 @@ let CHART_PV=false; // set while drawing a vault chart, whose distances count ba
 function ptLabel(x,y,p,color,dir,xmin,xmax,halo='var(--surface)'){
   const cx=Math.min(xmax-22,Math.max(xmin+22,x)), y1=dir<0?y-20:y+16, y2=dir<0?y-9:y+27;
   return `<text x="${cx}" y="${y1}" text-anchor="middle" font-size="11" font-weight="700" fill="${color}" paint-order="stroke" stroke="${halo}" stroke-width="3">${f1(p.y)} m/s</text>`+
-         `<text x="${cx}" y="${y2}" text-anchor="middle" font-size="10" fill="var(--muted)" paint-order="stroke" stroke="${halo}" stroke-width="3">${CHART_PV?r1(-p.x)+' m out':+p.x.toFixed(1)+' m'}</text>`;
+         `<text x="${cx}" y="${y2}" text-anchor="middle" font-size="10" fill="var(--muted)" paint-order="stroke" stroke="${halo}" stroke-width="3">${CHART_PV?r1(-p.x)+' m out':rLab(p.x)}</text>`;
 }
 function curvePoints(gates){
   const pts=[];
@@ -3145,6 +3168,9 @@ function axes(W,H,L,R,T,B,d0,d1,ymax,X,Y,y0=0,xstep=null){
   const ys=(ymax-y0)>12?4:2;
   for(let v=y0;v<=ymax;v+=ys) g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--muted)">${v}</text>`;
   const fs=xstep&&(W-L-R)/((d1-d0)/step)<26?10:11;
+  if(!CHART_PV && rFt()){ const F=0.3048, span=(d1-d0)/F, sf=span>250?50:span>120?30:(W<480&&span>60?30:15), f0=Math.ceil(d0/F/sf)*sf;
+    for(let f=f0; f*F<=d1+1e-6; f+=sf){ const dd=f*F; g+=`<line x1="${X(dd)}" x2="${X(dd)}" y1="${T}" y2="${H-B}" stroke="var(--line)"/><text x="${X(dd)}" y="${H-10}" text-anchor="middle" font-size="${fs}" fill="var(--muted)">${f}${f===f0?' ft':''}</text>`; }
+    return g; }
   for(let d=Math.ceil(d0/step)*step; d<=d1+1e-9; d+=step){ const dd=r1(d); g+=`<line x1="${X(dd)}" x2="${X(dd)}" y1="${T}" y2="${H-B}" stroke="var(--line)"/><text x="${X(dd)}" y="${H-10}" text-anchor="middle" font-size="${fs}" fill="var(--muted)">${CHART_PV?(Math.abs(dd)<1e-9?'box':r1(-dd)):dd}${d===Math.ceil(d0/step)*step?(CHART_PV?' m out':' m'):''}</text>`; }
   return g;
 }
@@ -3163,7 +3189,7 @@ function chartSVG(gates,a,halo,W=600){
   const X=d=>L+(d-d0)/span*(W-L-R), Y=v=>T+(1-(v-y0)/(ymax-y0))*(H-T-B);
   let zone='';
   if(a.flyBest){ const x1=X(a.flyBest.a), x2=X(a.flyBest.b);
-    zone=`<rect x="${x1}" y="${T}" width="${x2-x1}" height="${H-T-B}" fill="var(--chart-zone)"/><line x1="${x1}" x2="${x1}" y1="${T}" y2="${H-B}" stroke="var(--chart)" stroke-dasharray="4 4"/><line x1="${x2}" x2="${x2}" y1="${T}" y2="${H-B}" stroke="var(--chart)" stroke-dasharray="4 4"/><text x="${(x1+x2)/2}" y="${H-B-10}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--chart)">Flying ${r1(a.flyBest.b-a.flyBest.a)} m</text>`; }
+    zone=`<rect x="${x1}" y="${T}" width="${x2-x1}" height="${H-T-B}" fill="var(--chart-zone)"/><line x1="${x1}" x2="${x1}" y1="${T}" y2="${H-B}" stroke="var(--chart)" stroke-dasharray="4 4"/><line x1="${x2}" x2="${x2}" y1="${T}" y2="${H-B}" stroke="var(--chart)" stroke-dasharray="4 4"/><text x="${(x1+x2)/2}" y="${H-B-10}" text-anchor="middle" font-size="13" font-weight="700" fill="var(--chart)">Flying ${rLab(a.flyBest.b-a.flyBest.a)}</text>`; }
   const P=pts.map(p=>[X(p.x),Y(p.y)]), [e0,e1]=curveEnds(pts,d0,d1,vmax,y0);
   const Pc=[[X(d0),Y(e0)],...P,[X(d1),Y(e1)]], line=monotonePath(Pc), area=line+` L${Pc[Pc.length-1][0]},${H-B} L${Pc[0][0]},${H-B} Z`;
   const tp=pts.reduce((m,p)=>p.y>m.y?p:m,pts[0]), tx=X(tp.x), ty=Y(tp.y);
@@ -3245,7 +3271,7 @@ function resGroups(runs){
     if(r.mode==='pv') continue;
     const H=headline(r); if(H.t==null) continue;
     const len=r.mode==='sprint'?runLen(r):r.fly, key=`${r.mode}|${len}|${r.pole?1:0}`;
-    const g=groups[key]||(groups[key]={key,mode:r.mode,len,pole:!!r.pole,title:evName(r.mode,r.fly,len),rows:{}});
+    const g=groups[key]||(groups[key]={key,mode:r.mode,len,pole:!!r.pole,title:evName(r.mode,r.fly,len,r.unit),rows:{}});
     const row=g.rows[r.athlete]||(g.rows[r.athlete]={name:r.athlete,best:Infinity,bestRun:null,gates:null,topV:0,runs:[]});
     row.runs.push({id:r.id,t:H.t,date:r.date,top:H.a.top?H.a.top.v:0});
     if(H.t<row.best){ row.best=H.t; row.bestRun=r.id; row.gates=r.gates; }
