@@ -3,6 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<style id="appshell">
+/* the page itself never scrolls (iOS moves fixed bars when it does); the content scrolls inside body, so the dock stays put */
+html{height:100%;overflow:hidden;overscroll-behavior:none}
+body{height:100%;box-sizing:border-box;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:none}
+body.printing{height:auto!important;overflow:visible!important}
+html:has(body.printing){height:auto!important;overflow:visible!important}
+@media print{html,body{height:auto!important;overflow:visible!important}}
+</style>
+<script>/* scrolling to the top now means scrolling the content, not the window */
+(function(){var o=window.scrollTo.bind(window);window.scrollTo=function(a,b){try{o.apply(null,arguments)}catch(e){}var p=(a&&typeof a==='object')?a:{left:a,top:b};var d=document.body;if(!d)return;if(p.top!=null)d.scrollTop=p.top;if(p.left!=null)d.scrollLeft=p.left;};})();</script>
 <style id="nozoom">html{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @supports (-webkit-touch-callout:none){input,select,textarea{font-size:16px!important}}</style>
 <script>/* no zooming anywhere: pinch, double-tap or text boxes */
@@ -744,6 +754,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 @media (min-width:820px){
   #v-home,#v-settings{margin-inline:auto}
   #v-home .hero,#v-home .herosub{text-align:center}
+  #wizHead{padding-inline:max(0px,calc((100% - 760px) / 2))}
+  #v-timer .wiz-sum{max-width:760px;margin-inline:auto}
+  #v-timer .setup > .card{margin-inline:auto}
+  .wiz-nav{margin-inline:auto}
 }
 #lvEnd{flex:none;width:auto!important;gap:6px;padding:0 14px 0 11px!important;border:1.5px solid rgba(255,69,58,.75);background:rgba(255,69,58,.14);color:#FF8A80;font-weight:700}
 #lvEnd svg{width:16px;height:16px;stroke-width:2.8}
