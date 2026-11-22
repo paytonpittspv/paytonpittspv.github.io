@@ -751,6 +751,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .ahint{margin:2px 0 0;font-size:12.5px;color:var(--muted)}
 .rc-saved{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;margin-bottom:2px;border-radius:10px;background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.4);font-size:14px;color:var(--ink-2)}
 .rc-saved .btn{min-height:32px}
+.callist{margin:2px 0 0;padding-left:18px;display:grid;gap:4px;font-size:14px;line-height:1.35;color:var(--ink-2)}
+.callist li::marker{color:var(--muted)}
+.calnote{margin-top:4px}
 @media (min-width:820px){
   #v-home,#v-settings{margin-inline:auto}
   #v-home .hero,#v-home .herosub{text-align:center}
@@ -2086,16 +2089,20 @@ function renderCal(){
       </div>
       ${isPv()&&isBoard()?'<p class="help">Tap where the far cone lines up with each edge of the runway, then where the foul line (the pit edge of the board) meets each edge. Measure the far cone from the foul line with a tape. A near cone works too: type its distance instead of 0.</p>':''}${isPv()&&!isBoard()?'<p class="help">Use the takeoff marks painted on the runway: tap where the 15 ft mark meets each lane line, then the 9 ft mark. Use other marks or cones if you like; just change the numbers. The box never has to be in the picture.</p>':''}
       <ol class="calsteps">${calSteps().map((t,i)=>`<li class="${i<n?'ok':i===n?'now':''}">${t}</li>`).join('')}</ol>
-      <p class="help">Pause on a clear frame. Press and hold on the picture, slide until the crosshair in the magnifier sits on the spot, then lift.</p>
+      <ul class="callist"><li>Pause on a clear frame</li><li>Hold, slide the crosshair onto the spot, lift</li></ul>
       <div class="row"><button class="btn" id="calUndo" ${n?'':'disabled'}>Undo point</button><button class="btn" id="calCancel">Cancel</button></div>`;
   }else if(calOn()){
     h=`<div class="okline">Perspective fixed</div>
-      <p class="help">${isPv()?`${uLen(-S.cal.a)} to ${uLen(-S.cal.b)} from the ${isBoard()?'foul line':'box'}`:`${S.cal.a}–${S.cal.b} m`} marked, lane ${isPv()?uLen(S.cal.lw):S.cal.lw+' m'} wide. Gates are placed from their distances. Press and hold a white corner dot to fine-tune it.${isPv()&&isBoard()?' The white band is the takeoff board; when it sits on the real board, the gates are in the right place.':''}${isPv()&&!isBoard()?' The small ticks mark every foot from 9 to 15 ft; when they sit on the runway marks, the gates are in the right place.':''}</p>
+      <ul class="callist">
+        <li>${isPv()?`${uLen(-S.cal.a)} → ${uLen(-S.cal.b)}`:`${S.cal.a}–${S.cal.b} m`} · lane ${isPv()?uLen(S.cal.lw):S.cal.lw+' m'}</li>
+        <li>${isPv()&&isBoard()?'Check: white band on the board':isPv()?'Check: foot ticks on the runway marks':'Check: each gate on its cone'}</li>
+        <li>Hold a white corner dot to fine-tune</li>
+      </ul>
       <div class="row"><button class="btn" id="calRedo">Redo</button><button class="btn btn-danger" id="calOff">${isArmed('calOff')?'Tap again to remove':'Remove'}</button></div>
-      ${midOk(S.cal)?`<p class="help"><b>Third cone at ${isPv()?uLen(-S.cal.mid.d):S.cal.mid.d+' m'}</b> is bending the perspective to fit.</p><div class="row"><button class="btn" id="calMidOff">Remove third cone</button></div>`
-        :`<p class="help">${isPv()&&Math.min(...S.lines.map(l=>+l.d))<S.cal.a-3?`Your farthest gate (${uLen(-Math.min(...S.lines.map(l=>+l.d)))}) is well past the marks. Put a cone there and add it as a third cone so it lands exactly.`:'Gates look off? Mark a third cone and the perspective bends to fit it.'}</p><div class="row"><button class="btn" id="calMid">Add a third cone</button></div>`}`;
+      ${midOk(S.cal)?`<p class="help calnote">✓ Third cone at <b>${isPv()?uLen(-S.cal.mid.d):S.cal.mid.d+' m'}</b></p><div class="row"><button class="btn" id="calMidOff">Remove third cone</button></div>`
+        :`<p class="help calnote">${isPv()&&Math.min(...S.lines.map(l=>+l.d))<S.cal.a-3?`Farthest gate (<b>${uLen(-Math.min(...S.lines.map(l=>+l.d)))}</b>) is past the marks. Add a cone there:`:'Gates off? Add a third cone:'}</p><div class="row"><button class="btn" id="calMid">Add a third cone</button></div>`}`;
   }else{
-    h=`<p class="help">${isPv()&&isBoard()?'Tap the two runway edges at your far cone, then at the foul line. Add a third cone (like the 6 m one) afterwards for the best accuracy.':isPv()?'Tap the two lane lines at the 15 ft and 9 ft takeoff marks on the runway. For accurate gates far up the runway (like 10 m out), add a third cone at your farthest gate afterwards.':'Mark the two lane lines at your first and last cone so every gate lands at its true distance.'}</p>
+    h=`<ul class="callist">${isPv()&&isBoard()?'<li>Tap both runway edges at your far cone</li><li>Then both edges at the foul line</li><li>Best: add the 6 m cone after</li>':isPv()?'<li>Tap both lane lines at the 15 ft mark</li><li>Then at the 9 ft mark</li><li>Best: add a cone at your farthest gate</li>':'<li>Tap both lane lines at your first cone</li><li>Then at your last cone</li><li>Every gate lands at its true distance</li>'}</ul>
       <button class="btn btn-primary" id="calStart">Fix perspective</button>`;
   }
   box.innerHTML=h;
